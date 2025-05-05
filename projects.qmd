@@ -1,0 +1,62 @@
+---
+title: "Projects"
+page-layout: full
+title-block-banner: true
+---
+
+## My Projects
+
+Here's a showcase of some of my recent projects. Each project demonstrates different skills and techniques in data science and programming.
+
+::: {.grid}
+
+::: {.g-col-6}
+### Machine Learning Model for Customer Segmentation
+
+![](https://placehold.co/600x400/e4f1fe/1a253f?text=Customer+Segmentation)
+
+A clustering model that identifies customer segments based on purchasing behavior, helping businesses target their marketing efforts more effectively.
+
+[View Project →](https://github.com/)
+:::
+
+::: {.g-col-6}
+### Interactive Data Dashboard
+
+![](https://placehold.co/600x400/f9f1e6/1a253f?text=Data+Dashboard)
+
+An interactive dashboard built with R Shiny that visualizes sales data and provides insights into regional performance and trends.
+
+[View Project →](https://github.com/)
+:::
+
+::: {.g-col-6}
+### Natural Language Processing Tool
+
+![](https://placehold.co/600x400/e6f9f1/1a253f?text=NLP+Tool)
+
+A text analysis tool that extracts key topics and sentiment from customer reviews, helping businesses understand customer feedback at scale.
+
+[View Project →](https://github.com/)
+:::
+
+::: {.g-col-6}
+### Time Series Forecasting
+
+![](https://placehold.co/600x400/f1e6f9/1a253f?text=Time+Series+Analysis)
+
+A forecasting model that predicts future sales based on historical data, accounting for seasonality and external factors.
+
+[View Project →](https://github.com/)
+:::
+
+:::
+
+## Skills Used in Projects
+
+- Data Analysis with Python and R
+- Machine Learning (Supervised & Unsupervised)
+- Data Visualization
+- Web Application Development
+- Natural Language Processing
+- Time Series Analysis

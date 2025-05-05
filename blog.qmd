@@ -1,0 +1,16 @@
+---
+title: "Blog"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: grid
+  categories: true
+  sort-ui: true
+  filter-ui: true
+  page-size: 6
+  feed: true
+page-layout: full
+title-block-banner: true
+---
+
+Welcome to my blog! Here you'll find my thoughts, tutorials, and insights on data science, programming, and related topics.

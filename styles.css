@@ -1,0 +1,91 @@
+/* css styles */
+
+/* Custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+/* Body styling */
+body {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  line-height: 1.7;
+}
+
+/* Improve header spacing */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+/* Enhance the navbar styling */
+.navbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Style links */
+a {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Custom styling for the profile image */
+.rounded-circle {
+  border: 3px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style callout boxes */
+div.callout-note {
+  border-left-color: #4582ec;
+}
+
+div.callout-tip {
+  border-left-color: #02b875;
+}
+
+/* Footer styling */
+.footer {
+  margin-top: 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid #eee;
+}
+
+/* Projects cards */
+.g-col-6 {
+  padding: 1rem;
+}
+
+.g-col-6 h3 {
+  margin-top: 1rem;
+}
+
+.g-col-6 img {
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+}
+
+.g-col-6 img:hover {
+  transform: scale(1.02);
+}
+
+/* Blog post cards */
+.quarto-grid-item {
+  transition: transform 0.3s ease;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.quarto-grid-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Code blocks */
+pre, code {
+  font-family: 'Fira Code', monospace;
+}

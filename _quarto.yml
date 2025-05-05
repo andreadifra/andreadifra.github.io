@@ -1,0 +1,44 @@
+project:
+  type: website
+
+website:
+  title: "Andrea's Website"
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Blog
+        href: blog.qmd
+      - text: Projects
+        href: projects.qmd
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/
+      - icon: twitter
+        href: https://twitter.com
+      - icon: linkedin
+        href: https://linkedin.com
+  page-footer:
+    left: "© 2025 Andrea. All rights reserved."
+    right:
+      - icon: github
+        href: https://github.com/
+      - icon: twitter
+        href: https://twitter.com
+      - icon: linkedin
+        href: https://linkedin.com
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    page-layout: full
+    mainfont: "Atkinson Hyperlegible, sans-serif"
+    monofont: "Fira Code, monospace"
+
+
+

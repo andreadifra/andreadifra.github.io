@@ -1,0 +1,48 @@
+---
+title: "Andrea's Website"
+page-layout: full
+title-block-banner: false
+---
+
+::: {.column-page}
+::: {.grid}
+
+::: {.g-col-4}
+![](profile.jpg){.rounded-circle width=80%}
+:::
+
+::: {.g-col-8}
+# Welcome to My Website
+
+Hello! I'm Andrea, a data scientist and programmer passionate about solving complex problems with data.
+
+## What I Do
+
+I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.
+
+::: {.callout-note}
+## Latest Projects
+Check out my [Projects](projects.qmd) page to see what I've been working on lately!
+:::
+
+::: {.callout-tip}
+## Blog Updates
+Read my [latest thoughts and tutorials](blog.qmd) on data science and programming.
+:::
+
+:::
+
+:::
+:::
+
+## Recent Posts
+
+:::{#recent-posts}
+:::
+
+```{r}
+#| echo: false
+#| output: false
+# This code will be processed but not shown to create recent posts section
+
+

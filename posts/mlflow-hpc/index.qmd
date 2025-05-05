@@ -1,0 +1,255 @@
+---
+title: "Setting up MLflow on an HPC"
+description: "A guide to setting up MLflow on an HPC"
+author: "Andrea Di Francia"
+date: "2024-07-23"
+draft: true
+editor: 
+   render-on-save: true
+---
+
+# Introduction to MLflow
+
+MLflow is an open-source platform designed to manage the entire machine learning lifecycle, including experimentation, reproducibility, and deployment. When working with High-Performance Computing (HPC) clusters, MLflow can be a game-changer for data scientists and researchers. This blog post will guide you through setting up and effectively using MLflow on an HPC cluster, enabling you to track experiments, manage models, and enhance collaboration across your team.
+
+#TODO: Add more content to the introduction
+
+In general, Mlflow provides four main services:
+
+1. **Tracking**: The main purpose is to log & track the various hyperparameters, metrics, artifacts of runs/"experiments". Like say for example you are training an XGBoost model, you can log the hyperparameters like learning rate, max_depth, etc., and the metrics like accuracy, precision, recall, etc. for each training/testing run.
+2. **Projects**: This is a way to package your code, environment, and data into a reproducible format. This is very useful when you want to share your code with others or run it on a different machine. The way that it works is by defining a `MLproject` file which specifies the entry point of your code, the conda environment, and any other dependencies.
+3. **Models**: This is a way to save and load models in a consistent way. You can save your model in a format that is independent of the library that you used to train it. For example, you can train a model using scikit-learn and save it in a format that can be loaded using TensorFlow. It also provides a way to version your models and deploy them to different environments.
+4. **Registry**: This is a way to manage the lifecycle of models. You can register a model, which creates a version of the model that can be used for deployment. You can also transition models between different stages like staging, production, etc.
+
+## Prerequisites
+
+Before we dive in, you'll need the following prerequisites to follow along with this guide:
+
+- Access to an HPC cluster (e.g., SLURM, PBS, or SGE)
+- Basic knowledge of HPC systems and job scheduling
+- Familiarity with Python and machine learning concepts
+- Access to a shared filesystem for storing MLflow artifacts
+- A database for storing MLflow metadata
+
+## Installing MLflow
+
+First, let's install MLflow. It's recommended to use a virtual environment:
+
+```bash
+# Load Python module (adjust based on your HPC environment)
+module load python/3.11
+
+# Create and activate a virtual environment
+python -m venv mlflow_env
+source mlflow_env/bin/activate
+
+# Install MLflow
+pip install mlflow
+```
+# General MLflow usage
+
+#TODO: Complete this section
+
+# Setting Up MLflow on an HPC Cluster
+
+## 1. Configuring MLflow for HPC Environment
+
+As we've seen in the section before, Mlflow provides four main services. Here we'll mainly focus on setting up the **Tracking Environment**. There are 4 main components to the tracking environment:
+
+1. **Tracking API**: Functions calls that log the parameters, metrics, and artifacts of the runs/experiments.
+2. **Artifacts Store**: This is the component that stores the artifacts of the runs/experiments. This can be a local file system, a cloud storage service, or a database.
+3. **Backed Store**: This is the component that stores the metadata of the runs/experiments. This can be a local file system, a database, or a cloud storage service.
+4. **Client**: This is the component that interacts with the tracking server to log the runs/experiments.
+   
+The easiest way to get started would be to use the local filesystem for both the artifacts store and the backend store. This is useful when you are running MLflow on a single machine. However, when you are running MLflow on a cluster, it is better to use a shared filesystem for the artifacts store and the backend store. This is because the artifacts store and the backend store need to be accessible from all the nodes in the cluster. The picture below, taken from the official MLflow documentation, shows the type architecture that we'd want to implement.
+![MLflow Architecture](MLflow_tracking_structure.png){fig-alt="MLflow Architecture" fig-align="center"}
+
+To configure MLflow for an HPC environment, we first need to set up the backend store and the artifacts store. I'll be using a lustre filesystem for the artifact store, and an Microsoft SQL Server for the backend store.
+
+If you have the right database permissions set up in place, as well as the necessary drivers installed, you can spin up the MLflow server with the following command:
+```bash
+mlflow server \
+   --backend-store-uri "mssql+pyodbc://<SQL_SERVER_HOST>/<DATABASE_NAME>?driver=ODBC+Driver+17+for+SQL+Server&Trusted_Connection=yes&ColumnEncryption=Enabled" \
+   --default-artifact-root /path/to/artifacts/ \
+   --host 0.0.0.0 \
+   --port 5000
+```
+The `mlflow server` command starts the MLflow server with the specified backend store URI and artifact root. The `--host` and `--port` flags specify the host and port on which the server will listen for incoming requests. You will then access the MLflow UI by navigating to `http://<host>:<port>` in your web browser.
+
+## 2. Adding Mlflow to your HPC workflow
+
+### Example workflow
+#TODO: Describe the Text Classifier example and class
+
+### Setting up the MLflow experiment
+Once you have the MLflow server running, you can start logging your experiments. In our particular example, we can add two calls within our `__init__` method as follows:
+```python
+def __init__(
+   self, 
+   experiment_name: str,
+   tracking_uri: str,
+   ... # Other parameters
+):
+   # ... existing code ...
+
+   # Set up Mlflow tracking:
+   mlflow.set_tracking_uri(tracking_uri) # This will the combination of host & port
+   mlflow.set_experiment(experiment_name) # Here you pass a variable for name of experiment
+```
+#TODO: Insert description
+
+### Monitoring training progress
+Now that we have set up the MLflow experiment, we can start logging the parameters, metrics, and artifacts of the runs. In our example we are using the Trainer class to train a text classifier, utilising the `TrainingArguments` API to define various parameters for training.
+
+Once we instantiate the `Trainer` class, we can encapsulate the training process and metrics of the `trainer.train()` call within a `with` block that starts an MLflow run. The `mlflow.start_run()` function creates a new run context in the experiment that stores all the training operations and logging calls.
+
+There will be a lot of parameters & metrics that will be logged automatically, however you can also log additional and customisable parameters and metrics if you wish to do so by using the `mlflow.log_param()` and `mlflow.log_metric()` functions within the `with` block.
+
+Lets see how this all looks within our code by adding the following calls within the `train` method:
+```python
+def train(self,
+   ... # Various other parameters
+):
+   # ... existing code ...
+
+   training_args = TrainingArguments(
+      output_dir=training_output_dir,
+      evaluation_strategy="epoch",
+      per_device_train_batch_size=8,
+      per_device_eval_batch_size=8,
+      logging_steps=8,
+      num_train_epochs=3,
+)
+
+   # Instantiate a `Trainer` instance that will be used to initiate a training run.
+   trainer = Trainer(
+      model=model,
+      args=training_args,
+      train_dataset=train_tokenized,
+      eval_dataset=test_tokenized,
+      compute_metrics=compute_metrics,
+)
+
+   # Carry out the training
+   with mlflow.start_run() as self.run: # Start the MLflow run, store the run object in self.run
+      trainer.train()
+      # If we wish to do so, we can also log additional parameters and metrics
+      mlflow.log_param("data_augmentation", True) # Example custom parameter
+      mlfow.log_metric("memory_usage", 2048) # Example custom metric
+```
+1. Set up a shared directory for MLflow:
+
+```bash
+mkdir -p /shared/mlflow
+```
+
+2. Configure environment variables in your `.bashrc` or job submission script:
+
+```bash
+export MLFLOW_TRACKING_URI="file:///shared/mlflow"
+export MLFLOW_ARTIFACT_ROOT="/shared/mlflow/artifacts"
+```
+
+### 3. Integration with Job Scheduler
+
+To run MLflow experiments as jobs, you'll need to create a submission script. Here's an example for SLURM:
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=mlflow_experiment
+#SBATCH --output=mlflow_%j.out
+#SBATCH --error=mlflow_%j.err
+#SBATCH --time=01:00:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=8G
+
+# Load necessary modules
+module load python/3.8
+
+# Activate virtual environment
+source /path/to/mlflow_env/bin/activate
+
+# Run MLflow experiment
+python your_mlflow_script.py
+```
+
+## Using MLflow on the HPC Cluster
+
+### 1. Tracking Experiments
+
+MLflow makes it easy to log parameters, metrics, and artifacts. Here's a simple example:
+
+```python
+import mlflow
+
+def main():
+    with mlflow.start_run():
+        # Log parameters
+        mlflow.log_param("learning_rate", 0.01)
+        mlflow.log_param("batch_size", 32)
+
+        # Your training code here
+        accuracy = 0.85  # Example metric
+
+        # Log metrics
+        mlflow.log_metric("accuracy", accuracy)
+
+        # Log artifacts
+        mlflow.log_artifact("model.pkl")
+
+if __name__ == "__main__":
+    main()
+```
+
+### 2. Managing Models
+
+MLflow provides functions to save and load models:
+
+```python
+import mlflow.sklearn
+
+# Save model
+mlflow.sklearn.log_model(model, "model")
+
+# Load model
+loaded_model = mlflow.sklearn.load_model("runs:/<run_id>/model")
+```
+
+### 3. Comparing Runs
+
+You can use the MLflow UI to compare runs. Start the UI with:
+
+```bash
+mlflow ui --host 0.0.0.0 --port 5000
+```
+
+Note: You may need to set up port forwarding to access the UI from your local machine.
+
+## Best Practices
+
+1. Use consistent naming conventions for experiments and runs.
+2. Log all relevant parameters and metrics for reproducibility.
+3. Utilize MLflow projects for encapsulating code and environment.
+4. Implement version control for your MLflow experiments.
+
+## Challenges and Solutions
+
+1. **Challenge**: Limited internet access on compute nodes.
+   **Solution**: Set up a local PyPI mirror or use conda environments.
+
+2. **Challenge**: Storage limitations for artifacts.
+   **Solution**: Implement a cleanup strategy or use object storage solutions.
+
+3. **Challenge**: Scaling MLflow for multiple users.
+   **Solution**: Consider using a centralized tracking server with database backend.
+
+## Conclusion
+
+Integrating MLflow with your HPC workflow can significantly enhance your machine learning experiments' manageability and reproducibility. By following this guide, you've learned how to set up MLflow on an HPC cluster, track experiments, manage models, and compare runs. As you continue to use MLflow, you'll discover more ways to optimize your machine learning workflow in the HPC environment.
+
+## References
+
+1. MLflow Documentation: [https://www.mlflow.org/docs/latest/index.html](https://www.mlflow.org/docs/latest/index.html)
+2. Running MLflow on HPC: [https://github.com/mlflow/mlflow/tree/master/examples/pipelines](https://github.com/mlflow/mlflow/tree/master/examples/pipelines)
+3. SLURM Documentation: [https://slurm.schedmd.com/documentation.html](https://slurm.schedmd.com/documentation.html)

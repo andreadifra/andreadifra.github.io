@@ -1,0 +1,30 @@
+# Quarto website specific files to ignore
+/.quarto/
+/_site/
+/.jupyter_cache/
+/.luarc.json
+/.quarto-preflight/
+/.venv/
+
+# R specific
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor specific
+.vscode/
+.idea/
+*.swp
+*~
