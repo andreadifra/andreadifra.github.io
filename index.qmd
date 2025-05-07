@@ -1,20 +1,23 @@
 ---
-title: "Andrea's Website"
+title: "Andrea Di Francia"
+subtitle: "Data Scientist & Economist"
 page-layout: full
 title-block-banner: false
+about:
+    template: jolla
 ---
 
 ::: {.column-page}
 ::: {.grid}
 
 ::: {.g-col-4}
-![](profile.jpg){.rounded-circle width=80%}
+![](andrea.jpg){.rounded-circle width=80%}
 :::
 
 ::: {.g-col-8}
 # Welcome to My Website
 
-Hello! I'm Andrea, a data scientist and programmer passionate about solving complex problems with data.
+Hello! I'm Andrea, a data scientist and economist passionate about solving complex problems with data.
 
 ## What I Do
 
@@ -44,5 +47,5 @@ Read my [latest thoughts and tutorials](blog.qmd) on data science and programmin
 #| echo: false
 #| output: false
 # This code will be processed but not shown to create recent posts section
-
+```
 

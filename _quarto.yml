@@ -2,7 +2,8 @@ project:
   type: website
 
 website:
-  title: "Andrea's Website"
+  title: "Andrea Di Francia"
+  site-url: https://andreadifra.github.io/Mywebsite/
   navbar:
     background: primary
     search: true
@@ -17,19 +18,18 @@ website:
       - about.qmd
       - icon: github
         href: https://github.com/
-      - icon: twitter
-        href: https://twitter.com
       - icon: linkedin
         href: https://linkedin.com
   page-footer:
-    left: "© 2025 Andrea. All rights reserved."
+    left: |
+      Website made with [Quarto](https://quarto.org), by Andrea DI Francia. License: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/).
     right:
       - icon: github
-        href: https://github.com/
-      - icon: twitter
-        href: https://twitter.com
+        href: https://github.com/andreadifra
+      - icon: envelope
+        href: mailto:andrea.l.difrancia@gmail.com
       - icon: linkedin
-        href: https://linkedin.com
+        href: https://linkedin.com/in/andreadifrancia
 
 format:
   html:
