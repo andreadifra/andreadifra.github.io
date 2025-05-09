@@ -3,7 +3,7 @@ project:
 
 website:
   title: "Andrea Di Francia"
-  site-url: https://andreadifra.github.io/Mywebsite/
+  site-url: https://andreadifra.github.io/
   navbar:
     background: primary
     search: true
