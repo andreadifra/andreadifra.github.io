@@ -1,0 +1,124 @@
+/*-- scss:defaults --*/
+
+// Variables
+
+// Fonts
+$font-family-base: 'Atkinson Hyperlegible', sans-serif;
+$font-family-code: 'Fira Code', monospace;
+$import-url-fonts: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300;400;500;600;700&display=swap';
+
+// Colors
+$body-color: #333; // Example body text color
+$link-color: #007bff; // Example link color
+$link-hover-color: darken($link-color, 15%);
+$border-color: #eee;
+$shadow-color: rgba(0, 0, 0, 0.1);
+$callout-note-border: #4582ec;
+$callout-tip-border: #02b875;
+$profile-image-border: #fff;
+
+// Spacing
+$spacing-unit: 1rem;
+$header-margin-top: $spacing-unit * 1.5;
+$header-margin-bottom: $spacing-unit;
+$footer-margin-top: $spacing-unit * 2;
+$footer-padding: $spacing-unit * 1.5 0;
+$navbar-padding-y: $spacing-unit * 0.5;
+$card-padding: $spacing-unit;
+
+/*-- scss:rules --*/
+
+/* Custom fonts */
+@import url($import-url-fonts);
+
+/* Body styling */
+body {
+  font-family: $font-family-base;
+  line-height: 1.7;
+  color: $body-color;
+}
+
+/* Improve header spacing */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: $header-margin-top;
+  margin-bottom: $header-margin-bottom;
+  font-weight: 700;
+}
+
+/* Enhance the navbar styling */
+.navbar {
+  padding-top: $navbar-padding-y;
+  padding-bottom: $navbar-padding-y;
+  box-shadow: 0 2px 5px $shadow-color;
+}
+
+/* Style links */
+a {
+  color: $link-color;
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $link-hover-color;
+    text-decoration: underline;
+  }
+}
+
+/* Custom styling for the profile image */
+.rounded-circle {
+  border: 3px solid $profile-image-border;
+  box-shadow: 0 0 10px $shadow-color;
+}
+
+/* Style callout boxes */
+div.callout {
+  &-note {
+    border-left-color: $callout-note-border;
+  }
+
+  &-tip {
+    border-left-color: $callout-tip-border;
+  }
+}
+
+/* Footer styling */
+.footer {
+  margin-top: $footer-margin-top;
+  padding: $footer-padding;
+  border-top: 1px solid $border-color;
+}
+
+/* Projects cards */
+.g-col-6 {
+  padding: $card-padding;
+
+  h3 {
+    margin-top: $spacing-unit;
+  }
+
+  img {
+    border-radius: 5px;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+/* Blog post cards */
+.quarto-grid-item {
+  transition: transform 0.3s ease;
+  border-radius: 5px;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px $shadow-color;
+  }
+}
+
+/* Code blocks */
+pre, code {
+  font-family: $font-family-code;
+}

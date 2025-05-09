@@ -34,7 +34,7 @@ website:
 format:
   html:
     theme: cosmo
-    css: styles.css
+    scss: styles.scss
     toc: true
     page-layout: full
     mainfont: "Atkinson Hyperlegible, sans-serif"
