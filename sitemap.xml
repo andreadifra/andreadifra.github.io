@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://andreadifra.github.io/Mywebsite/projects.html</loc>
+    <loc>https://andreadifra.github.io/projects.html</loc>
     <lastmod>2025-05-07T09:42:34.217Z</lastmod>
   </url>
   <url>
-    <loc>https://andreadifra.github.io/Mywebsite/posts/post-with-code/index.html</loc>
+    <loc>https://andreadifra.github.io/posts/post-with-code/index.html</loc>
     <lastmod>2025-05-07T09:42:34.215Z</lastmod>
   </url>
   <url>
-    <loc>https://andreadifra.github.io/Mywebsite/index.html</loc>
-    <lastmod>2025-05-07T09:42:34.057Z</lastmod>
+    <loc>https://andreadifra.github.io/index.html</loc>
+    <lastmod>2025-05-09T14:59:31.951Z</lastmod>
   </url>
   <url>
-    <loc>https://andreadifra.github.io/Mywebsite/about.html</loc>
+    <loc>https://andreadifra.github.io/about.html</loc>
+    <lastmod>2025-05-07T18:27:04.936Z</lastmod>
+  </url>
+  <url>
+    <loc>https://andreadifra.github.io/blog.html</loc>
     <lastmod>2025-05-07T09:42:34.056Z</lastmod>
   </url>
   <url>
-    <loc>https://andreadifra.github.io/Mywebsite/blog.html</loc>
-    <lastmod>2025-05-07T09:42:34.056Z</lastmod>
-  </url>
-  <url>
-    <loc>https://andreadifra.github.io/Mywebsite/posts/welcome/index.html</loc>
+    <loc>https://andreadifra.github.io/posts/welcome/index.html</loc>
     <lastmod>2025-05-07T09:42:34.216Z</lastmod>
   </url>
 </urlset>

@@ -1,1 +1,1 @@
-Sitemap: https://andreadifra.github.io/Mywebsite/sitemap.xml
+Sitemap: https://andreadifra.github.io/sitemap.xml

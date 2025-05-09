@@ -30,23 +30,23 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Andrea’s Website",
+    "title": "Andrea Di Francia",
     "section": "",
-    "text": "Hello! I’m Andrea, a data scientist and programmer passionate about solving complex problems with data.\n\n\nI work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.\n\n\n\n\n\n\nLatest Projects\n\n\n\nCheck out my Projects page to see what I’ve been working on lately!\n\n\n\n\n\n\n\n\nBlog Updates\n\n\n\nRead my latest thoughts and tutorials on data science and programming."
+    "text": "Hello! I’m Andrea, a data scientist and economist passionate about solving complex problems with data.\n\n\nI work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.\n\n\n\n\n\n\nLatest Projects\n\n\n\nCheck out my Projects page to see what I’ve been working on lately!\n\n\n\n\n\n\n\n\nBlog Updates\n\n\n\nRead my latest thoughts and tutorials on data science and programming."
   },
   {
     "objectID": "index.html#what-i-do",
     "href": "index.html#what-i-do",
-    "title": "Andrea’s Website",
+    "title": "Andrea Di Francia",
     "section": "",
     "text": "I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.\n\n\n\n\n\n\nLatest Projects\n\n\n\nCheck out my Projects page to see what I’ve been working on lately!\n\n\n\n\n\n\n\n\nBlog Updates\n\n\n\nRead my latest thoughts and tutorials on data science and programming."
   },
   {
     "objectID": "index.html#recent-posts",
     "href": "index.html#recent-posts",
-    "title": "Andrea’s Website",
+    "title": "Andrea Di Francia",
     "section": "Recent Posts",
-    "text": "Recent Posts\n\n\n\n#| echo: false #| output: false # This code will be processed but not shown to create recent posts section"
+    "text": "Recent Posts"
   },
   {
     "objectID": "about.html",
