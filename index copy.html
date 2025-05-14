@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Andrea Di Francia – Blog</title>
+<title>Andrea Di Francia</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -35,7 +35,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
@@ -71,20 +70,20 @@ ul.task-list li input[type="checkbox"] {
 <script>
 
   window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    const listingTargetEl = window.document.querySelector('#listing-recent-posts .list');
     if (!listingTargetEl) {
       // No listing discovered, do not attach.
       return; 
     }
 
     const options = {
-      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+    window['quarto-listings']['listing-recent-posts'] = new List('listing-recent-posts', options);
 
     if (window['quarto-listing-loaded']) {
       window['quarto-listing-loaded']();
@@ -128,12 +127,12 @@ window.Quarto = {
 };
 </script>
 
-<link rel="alternate" type="application/rss+xml" title="Andrea Di Francia" href="blog.xml" data-external="1"></head>
+<link rel="alternate" type="application/rss+xml" title="Andrea Di Francia" href="index copy.xml" data-external="1"></head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
@@ -153,7 +152,7 @@ window.Quarto = {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./blog.html" aria-current="page"> <i class="bi bi-journal-text" role="img">
+    <a class="nav-link" href="./blog.html"> <i class="bi bi-journal-text" role="img">
 </i> 
 <span class="menu-text">Blog</span></a>
   </li>  
@@ -187,136 +186,150 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Blog</h1>
-                      </div>
-  </div>
-    
-  
-  <div class="quarto-title-meta column-page-left">
-
-      
-    
-      
-    </div>
-    
-  
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div><div class="category" data-category="analysis">analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="code">code <span class="quarto-category-count">(1)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(2)</span></div></div></div>
-<!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
-
-
-
-
-
-<p>Welcome to my blog! Here you’ll find my thoughts, tutorials, and insights on data science, programming, and related topics.</p>
-
-
-
-
-<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
-<div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-     <select id="listing-listing-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-listing'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-       <option value="" disabled="" selected="" hidden="">Order By</option>
-       <option value="index" data-direction="asc">Default</option>
-         <option value="listing-title" data-direction="asc">
-          Title
-        </option>
-         <option value="listing-date-sort" data-direction="asc">
-          Date - Oldest
-        </option>
-         <option value="listing-date-sort" data-direction="desc">
-          Date - Newest
-        </option>
-         <option value="listing-author" data-direction="asc">
-          Author
-        </option>
-     </select>
-  </div>
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+  <ul>
+  <li><a href="#recent-posts" id="toc-recent-posts" class="nav-link active" data-scroll-target="#recent-posts">Recent Posts</a></li>
+  </ul>
+</nav>
     </div>
+<!-- main -->
+<div class="quarto-about-jolla page-columns page-full column-body">
+ <header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Andrea Di Francia</h1>
+<p class="subtitle lead">Data Scientist &amp; Economist</p>
 </div>
-<div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="news,code,analysis" data-listing-date-sort="1721689200000" data-listing-file-modified-sort="1746610954215" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="7">
-<a href="./posts/post-with-code/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img loading="lazy" src="./posts/post-with-code/image.jpg" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-Post With Code
-</h5>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
-news
+<div class="quarto-title-meta column-body">
+  </div>
+</header><main class="content page-columns page-full column-body" id="quarto-document-content">
+
+<div class="column-page">
+<div class="grid">
+<div class="g-col-4">
+<p><img src="andrea.jpg" class="rounded-circle img-fluid" style="width:80.0%"></p>
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('code'); return false;">
-code
+<section id="welcome-to-my-website" class="level1 g-col-8">
+<h1>Welcome to My Website</h1>
+<p>Hello! I’m Andrea, a data scientist and economist passionate about solving complex problems with data.</p>
+<section id="what-i-do" class="level2">
+<h2 data-anchor-id="what-i-do">What I Do</h2>
+<p>I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('analysis'); return false;">
-analysis
+<div class="callout-title-container flex-fill">
+Latest Projects
 </div>
 </div>
-<div class="card-text listing-description">
-This is a post with executable code.
+<div class="callout-body-container callout-body">
+<p>Check out my <a href="./projects.html">Projects</a> page to see what I’ve been working on lately!</p>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Harlow Malloc
 </div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Blog Updates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Read my <a href="./blog.html">latest thoughts and tutorials</a> on data science and programming.</p>
+</div>
+</div>
+</section>
+</section>
+</div>
+</div>
+<section id="recent-posts" class="level2">
+<h2 data-anchor-id="recent-posts">Recent Posts</h2>
+<div id="listing-recent-posts" class="quarto-listing quarto-listing-container-default">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="news,code,analysis" data-listing-date-sort="1721689200000" data-listing-file-modified-sort="1746610954215" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="7">
+<div class="thumbnail">
+<p><a href="./posts/post-with-code/index.html" class="no-external"></a></p><a href="./posts/post-with-code/index.html" class="no-external">
+<p><img loading="lazy" src="./posts/post-with-code/image.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/post-with-code/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/post-with-code/index.html" class="no-external">Post With Code</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/post-with-code/index.html" class="no-external"></a>
+</div>
+<div class="listing-description">
+<a href="./posts/post-with-code/index.html" class="no-external">This is a post with executable code.</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/post-with-code/index.html" class="no-external">
 <div class="listing-date">
 Jul 23, 2024
 </div>
-</div>
-</div>
+<div class="listing-author">
+Harlow Malloc
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="news" data-listing-date-sort="1721430000000" data-listing-file-modified-sort="1746610954216" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="32">
-<a href="./posts/welcome/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top"><img src="posts\welcome\thumbnail.jpg" style="height: 150px;"  class="thumbnail-image card-img"/></p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-Welcome To My Blog
-</h5>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
-news
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="news" data-listing-date-sort="1721430000000" data-listing-file-modified-sort="1746610954216" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="32">
+<div class="thumbnail">
+<p><a href="./posts/welcome/index.html" class="no-external"></a></p><a href="./posts/welcome/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\welcome\thumbnail.jpg"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/welcome/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/welcome/index.html" class="no-external">Welcome To My Blog</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/welcome/index.html" class="no-external"></a>
+</div>
+<div class="listing-description">
+<a href="./posts/welcome/index.html" class="no-external">This is the first post in a Quarto blog. Welcome!</a>
 </div>
 </div>
-<div class="card-text listing-description">
-This is the first post in a Quarto blog. Welcome!
-</div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Tristan O’Malley
-</div>
+<div class="metadata">
+<a href="./posts/welcome/index.html" class="no-external">
 <div class="listing-date">
 Jul 20, 2024
 </div>
-</div>
-</div>
+<div class="listing-author">
+Tristan O’Malley
 </div>
 </a>
+</div>
 </div>
 </div>
 <div class="listing-no-matching d-none">
 No matching items
 </div>
-</div></main> <!-- /main -->
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>Recent posts will be listed here automatically by Quarto’s listing feature.</p>
+</div>
+</div>
+</div>
+
+
+</section>
+</main>  
+</div>
+ <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -337,13 +350,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
   const isCodeAnnotation = (el) => {
     for (const clz of el.classList) {
       if (clz.startsWith('code-annotation-')) {                     

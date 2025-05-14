@@ -46,49 +46,7 @@
     "href": "index.html#recent-posts",
     "title": "Andrea Di Francia",
     "section": "Recent Posts",
-    "text": "Recent Posts"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About Me",
-    "section": "",
-    "text": "I am a data scientist and programmer with expertise in machine learning, statistical analysis, and data visualization. I’m passionate about using data to solve real-world problems and creating intuitive visualizations to communicate insights."
-  },
-  {
-    "objectID": "about.html#biography",
-    "href": "about.html#biography",
-    "title": "About Me",
-    "section": "",
-    "text": "I am a data scientist and programmer with expertise in machine learning, statistical analysis, and data visualization. I’m passionate about using data to solve real-world problems and creating intuitive visualizations to communicate insights."
-  },
-  {
-    "objectID": "about.html#education",
-    "href": "about.html#education",
-    "title": "About Me",
-    "section": "Education",
-    "text": "Education\nPhD in Data Science | University Name | 2020-2024\nMSc in Computer Science | University Name | 2018-2020\nBSc in Statistics | University Name | 2014-2018"
-  },
-  {
-    "objectID": "about.html#experience",
-    "href": "about.html#experience",
-    "title": "About Me",
-    "section": "Experience",
-    "text": "Experience\nSenior Data Scientist | Company Name | 2022-Present - Led development of predictive models for customer behavior - Implemented machine learning pipelines using Python and R - Collaborated with cross-functional teams to deploy solutions\nData Analyst | Previous Company | 2018-2022 - Analyzed large datasets to extract business insights - Created interactive dashboards using Tableau and R Shiny - Automated reporting processes using Python"
-  },
-  {
-    "objectID": "about.html#skills",
-    "href": "about.html#skills",
-    "title": "About Me",
-    "section": "Skills",
-    "text": "Skills\n\nProgramming Languages: Python, R, SQL, JavaScript\nData Science: Machine Learning, Statistical Analysis, Data Visualization\nTools: Jupyter, RStudio, Git, Docker\nFrameworks: TensorFlow, PyTorch, scikit-learn, tidyverse"
-  },
-  {
-    "objectID": "about.html#interests",
-    "href": "about.html#interests",
-    "title": "About Me",
-    "section": "Interests",
-    "text": "Interests\nWhen I’m not working with data, I enjoy hiking, photography, and playing chess. I’m also an avid reader and enjoy participating in community tech meetups."
+    "text": "Recent Posts\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\n\n\n\n\n\n\n\n\nJul 23, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\n\n\n\n\nJul 20, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items\n\n\n\n\n\n\n\n\nRecent posts will be listed here automatically by Quarto’s listing feature."
   },
   {
     "objectID": "blog.html",
@@ -96,6 +54,62 @@
     "title": "Blog",
     "section": "",
     "text": "Welcome to my blog! Here you’ll find my thoughts, tutorials, and insights on data science, programming, and related topics.\n\n\n\n\n\n\n   \n     \n     \n       Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\nHarlow Malloc\n\n\nJul 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\nTristan O’Malley\n\n\nJul 20, 2024\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About Me",
+    "section": "",
+    "text": "I am a Data Scientist and Economist with expertise in machine learning, statistical analysis, and data visualization. With over 7 years of experience in both public and private sector, I specialize in developing predictive models and implementing data-driven solutions. I’m passionate about using data to solve real-world problems."
+  },
+  {
+    "objectID": "about.html#biography",
+    "href": "about.html#biography",
+    "title": "About Me",
+    "section": "",
+    "text": "I am a Data Scientist and Economist with expertise in machine learning, statistical analysis, and data visualization. With over 7 years of experience in both public and private sector, I specialize in developing predictive models and implementing data-driven solutions. I’m passionate about using data to solve real-world problems."
+  },
+  {
+    "objectID": "about.html#education",
+    "href": "about.html#education",
+    "title": "About Me",
+    "section": "Education",
+    "text": "Education\n\nMSc in Applied Statistics & Operational Research | Birkbeck University, London\nBSc in Economics | University of Nottingham"
+  },
+  {
+    "objectID": "about.html#experience",
+    "href": "about.html#experience",
+    "title": "About Me",
+    "section": "Experience",
+    "text": "Experience\n\nSenior Data Scientist | HEOR | 2022-Present - Led development of predictive models for healthcare analytics - Implemented machine learning pipelines using Python and R - Collaborated with cross-functional teams to deploy solutions\nData Analyst | NHS England | 2018-2022 - Analyzed large healthcare datasets to extract business insights - Created interactive dashboards using Tableau and R Shiny - Automated reporting processes using Python\nEconomic Researcher | Department for Education | 2016-2018 - Conducted statistical analysis on education and workforce data - Developed economic models to evaluate policy effectiveness - Produced research reports for government stakeholders\nResearch Assistant | University of Nottingham | 2015-2016 - Assisted with economic research projects in the Department of Economics - Performed literature reviews and data collection - Contributed to academic publications"
+  },
+  {
+    "objectID": "about.html#skills",
+    "href": "about.html#skills",
+    "title": "About Me",
+    "section": "Skills",
+    "text": "Skills\n\nProgramming Languages: Python, R, SQL,\nData Science: Machine Learning, Statistical Analysis, Data Visualization\nTools: Jupyter, RStudio, Git, Docker\nFrameworks: TensorFlow, PyTorch, scikit-learn, tidyverse\n\n\n\n\n\n\nDownload My CV\n\n{{&lt; bi file-earmark-pdf &gt;}} Andrea_DiFrancia_CV.pdf"
+  },
+  {
+    "objectID": "index copy.html",
+    "href": "index copy.html",
+    "title": "Andrea Di Francia",
+    "section": "",
+    "text": "Hello! I’m Andrea, a data scientist and economist passionate about solving complex problems with data.\n\n\nI work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.\n\n\n\n\n\n\nLatest Projects\n\n\n\nCheck out my Projects page to see what I’ve been working on lately!\n\n\n\n\n\n\n\n\nBlog Updates\n\n\n\nRead my latest thoughts and tutorials on data science and programming."
+  },
+  {
+    "objectID": "index copy.html#what-i-do",
+    "href": "index copy.html#what-i-do",
+    "title": "Andrea Di Francia",
+    "section": "",
+    "text": "I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.\n\n\n\n\n\n\nLatest Projects\n\n\n\nCheck out my Projects page to see what I’ve been working on lately!\n\n\n\n\n\n\n\n\nBlog Updates\n\n\n\nRead my latest thoughts and tutorials on data science and programming."
+  },
+  {
+    "objectID": "index copy.html#recent-posts",
+    "href": "index copy.html#recent-posts",
+    "title": "Andrea Di Francia",
+    "section": "Recent Posts",
+    "text": "Recent Posts\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\n\n\n\n\n\n\n\n\nJul 23, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\n\n\n\n\nJul 20, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items\n\n\n\n\n\n\n\n\nRecent posts will be listed here automatically by Quarto’s listing feature."
   },
   {
     "objectID": "posts/welcome/index.html",
