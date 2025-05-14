@@ -2,7 +2,7 @@
 
 ## Project Context
 This is a personal website built with Quarto, featuring blog posts, project showcases, and professional information. 
-The repository is hosted at https://github.com/andreadifra/Mywebsite
+The repository is hosted at https://github.com/andreadifra
 
 ## Development Environment
 - This project is developed on Windows using PowerShell for terminal operations

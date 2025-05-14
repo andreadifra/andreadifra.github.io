@@ -8,44 +8,69 @@ about:
   links:
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com/in/andrea-difrancia
+      href: https://linkedin.com/in/andreadifrancia
     - icon: github
       text: Github
-      href: https://github.com/andreadifrancia
+      href: https://github.com/andreadifra
     - icon: envelope
       text: Email
       href: mailto:andrea.l.difrancia@gmail.com
+    - icon: file-earmark-text
+      text: CV
+      href: downloads/ds_resume.pdf
 ---
 
+<!-- TODO Insert links to projects you have done -->
 ## Biography
 
-I am a data scientist and programmer with expertise in machine learning, statistical analysis, and data visualization. I'm passionate about using data to solve real-world problems and creating intuitive visualizations to communicate insights.
+I am a Data Scientist and Economist with expertise in machine learning, statistical analysis, and data visualization. With over 7 years of experience in both public and private sector, I specialize in developing predictive models and implementing data-driven solutions. I'm passionate about using data to solve real-world problems.
 
 ## Education
+<!-- Improve education section, or merge into one? create boxes for it possibly? -->
 
-**PhD in Data Science** | University Name | 2020-2024  
-**MSc in Computer Science** | University Name | 2018-2020  
-**BSc in Statistics** | University Name | 2014-2018
+**MSc in Applied Statistics & Operational Research** | Birkbeck University, London 
+
+**BSc in Economics** | University of Nottingham
 
 ## Experience
-
-**Senior Data Scientist** | Company Name | 2022-Present
-- Led development of predictive models for customer behavior
+<!-- TODO Better format the experience sections (maybe create boxes?) -->
+**Senior Data Scientist** | HEOR | 2022-Present
+- Led development of predictive models for healthcare analytics
 - Implemented machine learning pipelines using Python and R
 - Collaborated with cross-functional teams to deploy solutions
 
-**Data Analyst** | Previous Company | 2018-2022
-- Analyzed large datasets to extract business insights
+**Data Analyst** | NHS England | 2018-2022
+- Analyzed large healthcare datasets to extract business insights
 - Created interactive dashboards using Tableau and R Shiny
 - Automated reporting processes using Python
 
+**Economic Researcher** | Department for Education | 2016-2018
+- Conducted statistical analysis on education and workforce data
+- Developed economic models to evaluate policy effectiveness
+- Produced research reports for government stakeholders
+
+**Research Assistant** | University of Nottingham | 2015-2016
+- Assisted with economic research projects in the Department of Economics
+- Performed literature reviews and data collection
+- Contributed to academic publications
+
 ## Skills
 
-- **Programming Languages**: Python, R, SQL, JavaScript
+- **Programming Languages**: Python, R, SQL,
 - **Data Science**: Machine Learning, Statistical Analysis, Data Visualization
 - **Tools**: Jupyter, RStudio, Git, Docker
 - **Frameworks**: TensorFlow, PyTorch, scikit-learn, tidyverse
 
-## Interests
+::: {.grid}
+::: {.g-col-12 .g-col-md-6}
+::: {.card .text-center}
+::: {.card-body}
+::: {.card-title}
+### Download My CV
+:::
+[{{< bi file-earmark-pdf >}} Andrea_DiFrancia_CV.pdf](downloads/Andrea_DiFrancia_CV.pdf){.btn .btn-primary .mt-2}
+:::
+:::
+:::
+:::
 
-When I'm not working with data, I enjoy hiking, photography, and playing chess. I'm also an avid reader and enjoy participating in community tech meetups.
