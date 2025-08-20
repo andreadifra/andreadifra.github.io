@@ -1,0 +1,139 @@
+/*-- scss:defaults --*/
+
+// Import fonts early so families are available to variables
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+// Dark theme color palette
+$dark-bg:          #181818 !default;
+$dark-surface:     #2d2d2d !default;
+$dark-surface-alt: #404040 !default;
+$dark-text:        #e0e0e0 !default;
+$dark-text-muted:  #b0b0b0 !default;
+$dark-accent:      #75AADB !default;
+$dark-primary:     #4a90c2 !default;
+
+// Map to Bootstrap/Quarto variables
+$body-bg:                    $dark-bg !default;
+$body-color:                 $dark-text !default;
+$link-color:                 $dark-accent !default;
+$link-hover-color:           lighten($dark-accent, 15%) !default;
+
+// Text and background colors
+$text-muted:                 $dark-text-muted !default;
+$border-color:               $dark-surface-alt !default;
+
+// Component backgrounds
+$card-bg:                    $dark-surface !default;
+$modal-content-bg:           $dark-surface !default;
+$popover-bg:                 $dark-surface !default;
+$dropdown-bg:                $dark-surface !default;
+$input-bg:                   $dark-surface !default;
+
+// Navigation theming
+$navbar-bg:                  $dark-primary !default;
+$navbar-fg:                  #f8f9fa !default;
+$navbar-hl:                  #b9d3f0 !default;
+$sidebar-bg:                 $dark-surface !default;
+$sidebar-fg:                 $dark-text !default;
+$sidebar-hl:                 $dark-accent !default;
+
+// Footer
+$footer-bg:                  $dark-surface !default;
+$footer-fg:                  $dark-text !default;
+
+// Code theming
+$code-bg:                    $dark-surface-alt !default;
+$code-color:                 #f8f8f2 !default;
+$code-block-bg:              $dark-surface-alt !default;
+$code-block-bg-alpha:        0 !default; // Don't add transparency since we're setting explicit color
+
+// Table of contents
+$toc-color:                  $dark-text !default;
+$toc-active-border:          $dark-accent !default;
+$toc-inactive-border:        transparent !default;
+
+// Fonts (consistent across themes)
+$font-family-sans-serif:     'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !default;
+$font-family-monospace:      'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !default;
+$font-size-root:             17px !default;
+$headings-font-weight:       700 !default;
+
+// Callouts for dark theme
+$callout-color-note:         #5dade2 !default;
+$callout-color-tip:          #58d68d !default;
+$callout-color-important:    #f39c12 !default;
+$callout-color-caution:      #f1c40f !default;
+$callout-color-warning:      #e74c3c !default;
+
+// Button colors
+$btn-code-copy-color:        $dark-accent !default;
+$btn-code-copy-color-active: lighten($dark-accent, 10%) !default;
+
+/*-- scss:rules --*/
+
+// Dark theme specific adjustments
+body {
+  background-color: $body-bg;
+  color: $body-color;
+}
+
+// Enhanced link styling for dark theme
+a {
+  color: $link-color;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $link-hover-color;
+    text-decoration: underline;
+  }
+}
+
+// Profile image treatment with dark theme borders
+.rounded-circle {
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+// Enhanced cards for dark theme
+.quarto-grid-item {
+  background-color: $card-bg;
+  border: 1px solid $border-color;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 6px;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.4);
+    border-color: lighten($border-color, 10%);
+  }
+}
+
+// Ensure code uses configured monospace family
+pre, code, kbd, samp {
+  font-family: $font-family-monospace;
+  background-color: $code-bg;
+  color: $code-color;
+}
+
+// Improve table styling for dark theme
+.table {
+  --bs-table-bg: #{$card-bg};
+  --bs-table-border-color: #{$border-color};
+  color: $body-color;
+}
+
+// Better form controls for dark theme
+.form-control {
+  background-color: $input-bg;
+  border-color: $border-color;
+  color: $body-color;
+
+  &:focus {
+    background-color: $input-bg;
+    border-color: $link-color;
+    color: $body-color;
+    box-shadow: 0 0 0 0.2rem rgba(117, 170, 219, 0.25);
+  }
+}
