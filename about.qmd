@@ -21,7 +21,7 @@ about:
 ---
 
 <!-- TODO Insert links to projects you have done -->
-## Biography
+::: {.column-page}
 
 I am a Data Scientist and Economist with expertise in machine learning, statistical analysis, and data visualization. With over 7 years of experience in both public and private sector, I specialize in developing predictive models and implementing data-driven solutions. I'm passionate about using data to solve real-world problems.
 
@@ -68,7 +68,10 @@ I am a Data Scientist and Economist with expertise in machine learning, statisti
 ::: {.card-title}
 ### Download My CV
 :::
-[{{< bi file-earmark-pdf >}} Andrea_DiFrancia_CV.pdf](downloads/Andrea_DiFrancia_CV.pdf){.btn .btn-primary .mt-2}
+<a class="btn btn-primary mt-2" href="downloads/ds_resume.pdf">
+  <i class="bi bi-file-earmark-pdf" role="img" aria-label="PDF"></i>
+  Download CV
+</a>
 :::
 :::
 :::

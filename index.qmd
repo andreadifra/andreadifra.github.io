@@ -3,8 +3,19 @@ title: "Andrea Di Francia"
 subtitle: "Data Scientist & Economist"
 page-layout: full
 title-block-banner: false
+toc: false
 about:
     template: jolla
+listing:
+  id: recent-posts
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: false
+  sort-ui: false
+  filter-ui: false
+  max-items: 3
+  feed: true
 ---
 
 ::: {.column-page}
@@ -19,8 +30,6 @@ about:
 
 Hello! I'm Andrea, a data scientist and economist passionate about solving complex problems with data.
 
-## What I Do
-
 I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.
 
 ::: {.callout-note}
@@ -31,11 +40,6 @@ Check out my [Projects](projects.qmd) page to see what I've been working on late
 ::: {.callout-tip}
 ## Blog Updates
 Read my [latest thoughts and tutorials](blog.qmd) on data science and programming.
-:::
-
-:::
-
-:::
 :::
 
 ## Recent Posts
@@ -49,3 +53,10 @@ Read my [latest thoughts and tutorials](blog.qmd) on data science and programmin
 # This code will be processed but not shown to create recent posts section
 ```
 
+::: {.callout-note appearance="minimal"}
+Recent posts will be listed here automatically by Quarto's listing feature.
+:::
+
+:::
+:::
+:::
