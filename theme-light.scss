@@ -1,0 +1,64 @@
+/*-- scss:defaults --*/
+
+// Import shared tokens first
+@import 'tokens';
+
+// Light theme color palette (refined)
+$light-bg:          #ffffff !default;
+$light-surface:     #f8f9fa !default;
+$light-surface-alt: #e9ecef !default;
+$light-text:        #333333 !default;
+$light-text-muted:  #6c757d !default;
+$light-accent:      $color-accent !default; // from tokens
+$light-primary:     $color-dark-blue !default; // brand dark-blue
+
+// Map to Bootstrap/Quarto variables
+$body-bg:                    $light-bg !default;
+$body-color:                 $light-text !default;
+$link-color:                 $light-accent !default;
+$link-hover-color:           darken($light-accent, 35%) !default;
+
+// Text and background colors
+$text-muted:                 $light-text-muted !default;
+$border-color:               #dee2e6 !default;
+
+// Component backgrounds
+$card-bg:                    $light-bg !default;
+$modal-content-bg:           $light-bg !default;
+$popover-bg:                 $light-bg !default;
+$dropdown-bg:                $light-bg !default;
+$input-bg:                   $light-bg !default;
+
+// Navigation theming
+$navbar-bg:                  $light-primary !default;
+$navbar-fg:                  #ffffff !default;
+$navbar-hl:                  lighten($light-primary, 40%) !default;
+$sidebar-bg:                 $light-surface !default;
+$sidebar-fg:                 $light-text !default;
+$sidebar-hl:                 $light-accent !default;
+
+// Footer
+$footer-bg:                  $light-surface !default;
+$footer-fg:                  $light-text !default;
+
+// Code theming
+$code-bg:                    $light-surface-alt !default;
+$code-color:                 #333333 !default;
+$code-block-bg:              $light-surface-alt !default;
+$code-block-bg-alpha:        0 !default;
+
+// Table of contents
+$toc-color:                  $light-text !default;
+$toc-active-border:          $light-accent !default;
+$toc-inactive-border:        transparent !default;
+
+// Interaction helpers (theme-specific defaults)
+$border-hover-color:         darken($border-color, 10%) !default;
+$card-hover-shadow:          0 10px 18px rgba(0, 0, 0, 0.08) !default;
+$avatar-border:              rgba(0, 0, 0, 0.1) !default;
+$focus-ring-color:           rgba(13, 110, 253, 0.25) !default; // based on accent
+
+/*-- scss:rules --*/
+
+// Import shared base rules AFTER variables are set
+@import 'styles_base';

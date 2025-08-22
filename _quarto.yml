@@ -38,7 +38,7 @@ website:
 format:
   html:
     theme: 
-      light: [cosmo, styles.scss]
+      light: [cosmo, theme-light.scss]
       dark: [cosmo, theme-dark.scss]
     toc: true
     page-layout: full
