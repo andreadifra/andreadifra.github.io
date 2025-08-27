@@ -1,0 +1,110 @@
+/*
+ * Shared component styles and mixins
+ * Contains reusable styles that work across all themes
+ */
+
+// =============================================================================
+// MIXINS
+// =============================================================================
+
+// Consistent hover effect for interactive cards
+@mixin card-hover-effect {
+  transition: transform $transition-base, box-shadow $transition-base, border-color $transition-base;
+  
+  &:hover {
+    transform: $hover-transform;
+  }
+}
+
+// Focus ring for accessibility
+@mixin focus-ring($color: null) {
+  &:focus {
+    outline: none;
+    @if $color {
+      box-shadow: 0 0 0 $focus-ring-width $color;
+    } @else {
+      box-shadow: 0 0 0 $focus-ring-width $focus-ring-color;
+    }
+  }
+}
+
+// =============================================================================
+// COMPONENT STYLES
+// =============================================================================
+
+/*-- scss:rules --*/
+
+// Consistent link styling across themes
+a {
+  color: $link-color;
+  text-decoration: none;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $link-hover-color;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
+}
+
+// Profile image styling with theme-aware border
+.rounded-circle {
+  border: 3px solid $avatar-border;
+  box-shadow: $shadow-subtle;
+  transition: box-shadow $transition-base;
+}
+
+// Interactive card components
+.quarto-grid-item {
+  background-color: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-base;
+  overflow: hidden;
+  @include card-hover-effect;
+
+  &:hover {
+    box-shadow: $card-hover-shadow;
+    border-color: $border-hover-color;
+  }
+}
+
+// Typography consistency
+pre, code, kbd, samp {
+  font-family: $font-family-monospace;
+}
+
+// Table improvements
+.table {
+  --bs-table-border-color: #{$border-color};
+}
+
+// Form control styling
+.form-control {
+  border-color: $border-color;
+  transition: border-color $transition-base, box-shadow $transition-base;
+  
+  @include focus-ring($focus-ring-color);
+  
+  &:focus {
+    border-color: $link-color;
+  }
+}
+
+// Button improvements
+.btn {
+  border-radius: $border-radius-base;
+  transition: all $transition-base;
+  
+  @include focus-ring($focus-ring-color);
+}
+
+// Code block improvements
+pre {
+  border-radius: $border-radius-base;
+  border-left: 3px solid $link-color;
+  padding-left: 1rem;
+}

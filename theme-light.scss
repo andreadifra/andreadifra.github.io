@@ -1,64 +1,81 @@
 /*-- scss:defaults --*/
 
-// Import shared tokens first
-@import 'tokens';
+// Import shared design tokens first
+@import 'design-tokens';
 
-// Light theme color palette (refined)
-$light-bg:          #ffffff !default;
-$light-surface:     #f8f9fa !default;
-$light-surface-alt: #e9ecef !default;
-$light-text:        #333333 !default;
-$light-text-muted:  #6c757d !default;
-$light-accent:      $color-accent !default; // from tokens
-$light-primary:     $color-dark-blue !default; // brand dark-blue
+// =============================================================================
+// LIGHT THEME COLOR MAPPING
+// =============================================================================
 
-// Map to Bootstrap/Quarto variables
-$body-bg:                    $light-bg !default;
-$body-color:                 $light-text !default;
-$link-color:                 $light-accent !default;
-$link-hover-color:           darken($light-accent, 35%) !default;
+// Surface colors
+$surface-primary:    $neutral-100 !default;  // Pure white for main backgrounds
+$surface-secondary:  $neutral-200 !default;  // Light gray for secondary surfaces
+$surface-tertiary:   $neutral-300 !default;  // Slightly darker for code blocks
 
-// Text and background colors
-$text-muted:                 $light-text-muted !default;
-$border-color:               #dee2e6 !default;
+// Text colors
+$text-primary:       $neutral-700 !default;  // Dark gray for main text
+$text-secondary:     $neutral-500 !default;  // Medium gray for muted text
+
+// Interactive colors
+$accent-primary:     $accent-blue !default;  // Links and interactive elements
+$accent-hover:       darken($accent-blue, 35%) !default;
+
+// =============================================================================
+// BOOTSTRAP VARIABLE MAPPING
+// =============================================================================
+
+// Base colors
+$body-bg:                    $surface-primary !default;
+$body-color:                 $text-primary !default;
+$text-muted:                 $text-secondary !default;
+
+// Link colors
+$link-color:                 $accent-primary !default;
+$link-hover-color:           $accent-hover !default;
+
+// Border colors
+$border-color:               $neutral-400 !default;
 
 // Component backgrounds
-$card-bg:                    $light-bg !default;
-$modal-content-bg:           $light-bg !default;
-$popover-bg:                 $light-bg !default;
-$dropdown-bg:                $light-bg !default;
-$input-bg:                   $light-bg !default;
+$card-bg:                    $surface-primary !default;
+$modal-content-bg:           $surface-primary !default;
+$popover-bg:                 $surface-primary !default;
+$dropdown-bg:                $surface-primary !default;
+$input-bg:                   $surface-primary !default;
 
-// Navigation theming
-$navbar-bg:                  $light-primary !default;
-$navbar-fg:                  #ffffff !default;
-$navbar-hl:                  lighten($light-primary, 40%) !default;
-$sidebar-bg:                 $light-surface !default;
-$sidebar-fg:                 $light-text !default;
-$sidebar-hl:                 $light-accent !default;
+// Navigation
+$navbar-bg:                  $brand-primary !default;
+$navbar-fg:                  $neutral-100 !default;
+$navbar-hl:                  lighten($brand-primary, 40%) !default;
 
-// Footer
-$footer-bg:                  $light-surface !default;
-$footer-fg:                  $light-text !default;
+// Sidebar and footer
+$sidebar-bg:                 $surface-secondary !default;
+$sidebar-fg:                 $text-primary !default;
+$sidebar-hl:                 $accent-primary !default;
+$footer-bg:                  $surface-secondary !default;
+$footer-fg:                  $text-primary !default;
 
-// Code theming
-$code-bg:                    $light-surface-alt !default;
-$code-color:                 #333333 !default;
-$code-block-bg:              $light-surface-alt !default;
+// Code styling
+$code-bg:                    $surface-tertiary !default;
+$code-color:                 $text-primary !default;
+$code-block-bg:              $surface-tertiary !default;
 $code-block-bg-alpha:        0 !default;
 
 // Table of contents
-$toc-color:                  $light-text !default;
-$toc-active-border:          $light-accent !default;
+$toc-color:                  $text-primary !default;
+$toc-active-border:          $accent-primary !default;
 $toc-inactive-border:        transparent !default;
 
-// Interaction helpers (theme-specific defaults)
+// =============================================================================
+// INTERACTION STATES
+// =============================================================================
+
 $border-hover-color:         darken($border-color, 10%) !default;
 $card-hover-shadow:          0 10px 18px rgba(0, 0, 0, 0.08) !default;
 $avatar-border:              rgba(0, 0, 0, 0.1) !default;
-$focus-ring-color:           rgba(13, 110, 253, 0.25) !default; // based on accent
+$focus-ring-color:           rgba(13, 110, 253, 0.25) !default;
 
 /*-- scss:rules --*/
 
-// Import shared base rules AFTER variables are set
-@import 'styles_base';
+// Import shared component styles
+@import 'base-components';

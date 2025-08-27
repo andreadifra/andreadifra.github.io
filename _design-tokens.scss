@@ -1,0 +1,50 @@
+/* 
+ * Shared design tokens and base configuration
+ * Import this file FIRST in each theme
+ */
+
+// Import fonts early so families are available to variables
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+// =============================================================================
+// TYPOGRAPHY TOKENS
+// =============================================================================
+
+$font-family-sans-serif: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !default;
+$font-family-monospace:  'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !default;
+$font-size-root:         17px !default;
+$headings-font-weight:   700 !default;
+
+// =============================================================================
+// COLOR TOKENS
+// =============================================================================
+
+// Brand colors - reused across themes
+$brand-primary:    #203e5c !default; // Dark blue for navigation and brand elements
+$accent-blue:      #0d6efd !default; // Bootstrap blue for links and accents
+
+// Neutral grays - base colors for theme variations
+$neutral-100:      #ffffff !default; // Pure white
+$neutral-200:      #f8f9fa !default; // Very light gray
+$neutral-300:      #e9ecef !default; // Light gray
+$neutral-400:      #dee2e6 !default; // Medium-light gray
+$neutral-500:      #6c757d !default; // Medium gray
+$neutral-600:      #495057 !default; // Medium-dark gray
+$neutral-700:      #343a40 !default; // Dark gray
+$neutral-800:      #212529 !default; // Very dark gray
+$neutral-900:      #0a0c0f !default; // Near black
+
+// =============================================================================
+// SPACING & LAYOUT TOKENS
+// =============================================================================
+
+$border-radius-base:     6px !default;
+$shadow-subtle:          0 0 10px rgba(0, 0, 0, 0.1) !default;
+$transition-base:        0.2s ease !default;
+
+// =============================================================================
+// INTERACTION TOKENS
+// =============================================================================
+
+$hover-transform:        translateY(-4px) !default;
+$focus-ring-width:       0.2rem !default;

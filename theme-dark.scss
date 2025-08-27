@@ -1,62 +1,79 @@
 /*-- scss:defaults --*/
 
-// Import shared tokens first
-@import 'tokens';
+// Import shared design tokens first
+@import 'design-tokens';
 
-// Dark theme color palette
-$dark-bg:          #181818 !default;
-$dark-surface:     #2a2a2a !default;    // a touch softer than #2d2d2d
-$dark-surface-alt: #3a3a3a !default;    // slightly lighter for contrast steps
-$dark-text:        #e6e7eb !default;    // near-white but not stark
-$dark-text-muted:  #aab0b9 !default;    // muted slate
-$dark-accent:      lighten($color-accent, 5%) !default;  // keep accessible
-$dark-primary:     lighten($color-dark-blue, 8%) !default; // lighter variant of brand blue
+// =============================================================================
+// DARK THEME COLOR MAPPING
+// =============================================================================
 
-// Map to Bootstrap/Quarto variables
-$body-bg:                    $dark-bg !default;
-$body-color:                 $dark-text !default;
-$link-color:                 $dark-accent !default;
-$link-hover-color:           lighten($dark-accent, 15%) !default;
+// Dark theme surface colors
+$surface-primary:    #091a31 !default;  // Very dark background
+$surface-secondary:  #2a2a2a !default;  // Slightly lighter for cards/surfaces
+$surface-tertiary:   #3a3a3a !default;  // Code blocks and form elements
 
-// Text and background colors
-$text-muted:                 $dark-text-muted !default;
-$border-color:               $dark-surface-alt !default;
+// Dark theme text colors
+$text-primary:       #e6e7eb !default;  // Near-white for readability
+$text-secondary:     #aab0b9 !default;  // Muted light gray
+
+// Dark theme interactive colors
+$accent-primary:     lighten($accent-blue, 5%) !default;   // Slightly lighter blue
+$accent-hover:       lighten($accent-blue, 15%) !default;  // Even lighter on hover
+
+// =============================================================================
+// BOOTSTRAP VARIABLE MAPPING
+// =============================================================================
+
+// Base colors
+$body-bg:                    $surface-primary !default;
+$body-color:                 $text-primary !default;
+$text-muted:                 $text-secondary !default;
+
+// Link colors
+$link-color:                 $accent-primary !default;
+$link-hover-color:           $accent-hover !default;
+
+// Border colors (lighter in dark theme for visibility)
+$border-color:               $surface-tertiary !default;
 
 // Component backgrounds
-$card-bg:                    $dark-surface !default;
-$modal-content-bg:           $dark-surface !default;
-$popover-bg:                 $dark-surface !default;
-$dropdown-bg:                $dark-surface !default;
-$input-bg:                   $dark-surface !default;
+$card-bg:                    $surface-secondary !default;
+$modal-content-bg:           $surface-secondary !default;
+$popover-bg:                 $surface-secondary !default;
+$dropdown-bg:                $surface-secondary !default;
+$input-bg:                   $surface-secondary !default;
 
-// Navigation theming
-$navbar-bg:                  $dark-primary !default;
-$navbar-fg:                  #f8f9fa !default;
-$navbar-hl:                  lighten($dark-primary, 35%) !default;
-$sidebar-bg:                 $dark-surface !default;
-$sidebar-fg:                 $dark-text !default;
-$sidebar-hl:                 $dark-accent !default;
+// Navigation (slightly lighter brand color for dark theme)
+$navbar-bg:                  lighten($brand-primary, 8%) !default;
+$navbar-fg:                  $neutral-200 !default;
+$navbar-hl:                  lighten($brand-primary, 35%) !default;
 
-// Footer
-$footer-bg:                  $dark-surface !default;
-$footer-fg:                  $dark-text !default;
+// Sidebar and footer
+$sidebar-bg:                 $surface-secondary !default;
+$sidebar-fg:                 $text-primary !default;
+$sidebar-hl:                 $accent-primary !default;
+$footer-bg:                  $surface-secondary !default;
+$footer-fg:                  $text-primary !default;
 
-// Code theming
-$code-bg:                    $dark-surface-alt !default;
+// Code styling
+$code-bg:                    $surface-tertiary !default;
 $code-color:                 #f8f8f2 !default;
-$code-block-bg:              $dark-surface-alt !default;
+$code-block-bg:              $surface-tertiary !default;
 $code-block-bg-alpha:        0 !default;
 
 // Table of contents
-$toc-color:                  $dark-text !default;
-$toc-active-border:          $dark-accent !default;
+$toc-color:                  $text-primary !default;
+$toc-active-border:          $accent-primary !default;
 $toc-inactive-border:        transparent !default;
 
-// Shared tokens for consistent interactions
+// =============================================================================
+// DARK THEME INTERACTION STATES
+// =============================================================================
+
 $border-hover-color:         lighten($border-color, 10%) !default;
 $card-hover-shadow:          0 10px 18px rgba(0, 0, 0, 0.4) !default;
 $avatar-border:              rgba(255, 255, 255, 0.2) !default;
-$focus-ring-color:           rgba(117, 170, 219, 0.25) !default; // tuned for dark
+$focus-ring-color:           rgba(117, 170, 219, 0.25) !default;
 
 /*-- scss:rules --*/
 
@@ -66,20 +83,20 @@ body {
   color: $body-color;
 }
 
-// Ensure code blocks pick up dark bg/text explicitly
+// Enhanced code block styling for dark theme
 pre, code, kbd, samp {
   background-color: $code-bg;
   color: $code-color;
 }
 
-// Improve table styling for dark theme
+// Dark theme table improvements
 .table {
   --bs-table-bg: #{$card-bg};
   --bs-table-border-color: #{$border-color};
   color: $body-color;
 }
 
-// Better form controls for dark theme
+// Dark theme form controls
 .form-control {
   background-color: $input-bg;
   border-color: $border-color;
@@ -89,9 +106,24 @@ pre, code, kbd, samp {
     background-color: $input-bg;
     border-color: $link-color;
     color: $body-color;
-    box-shadow: 0 0 0 0.2rem $focus-ring-color;
+  }
+
+  &::placeholder {
+    color: $text-secondary;
   }
 }
 
-// Inherit shared rules after variables are defined
-@import 'styles_base';
+// Dark theme button adjustments
+.btn-outline-primary {
+  border-color: $accent-primary;
+  color: $accent-primary;
+  
+  &:hover {
+    background-color: $accent-primary;
+    border-color: $accent-primary;
+    color: $surface-primary;
+  }
+}
+
+// Import shared component styles
+@import 'base-components';
