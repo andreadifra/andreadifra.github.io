@@ -5,7 +5,21 @@ page-layout: full
 title-block-banner: false
 toc: false
 about:
+    id: about-me
     template: jolla
+    image: andrea.jpg
+    image-width: 15em
+    image-shape: round
+    links:
+      - icon: linkedin
+        text: LinkedIn
+        href: https://linkedin.com/in/andreadifrancia
+      - icon: github
+        text: Github
+        href: https://github.com/andreadifra
+      - icon: envelope
+        text: Email
+        href: mailto:andrea.l.difrancia@gmail.com
 listing:
   id: recent-posts
   contents: posts
@@ -18,17 +32,10 @@ listing:
   feed: true
 ---
 
-::: {.column-page}
-::: {.grid}
+::: {#about-me}
+::: 
 
-::: {.g-col-4}
-![](andrea.jpg){.rounded-circle width=80%}
-:::
-
-::: {.g-col-8}
-# Welcome to My Website
-
-Hello! I'm Andrea, a data scientist and economist passionate about solving complex problems with data. 
+Hello! I'm Andrea, a Data Scientist and Economist passionate about solving complex problems with data.
 
 I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.
 
