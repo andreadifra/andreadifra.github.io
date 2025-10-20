@@ -23,16 +23,37 @@ $headings-font-weight:   700 !default;
 $brand-primary:    #203e5c !default; // Dark blue for navigation and brand elements
 $accent-blue:      #0d6efd !default; // Bootstrap blue for links and accents
 
-// Neutral grays - base colors for theme variations
-$neutral-100:      #ffffff !default; // Pure white
-$neutral-200:      #f8f9fa !default; // Very light gray
-$neutral-300:      #e9ecef !default; // Light gray
-$neutral-400:      #dee2e6 !default; // Medium-light gray
-$neutral-500:      #6c757d !default; // Medium gray
-$neutral-600:      #495057 !default; // Medium-dark gray
-$neutral-700:      #343a40 !default; // Dark gray
-$neutral-800:      #212529 !default; // Very dark gray
-$neutral-900:      #0a0c0f !default; // Near black
+// Base light theme colors (foundation for all themes)
+$light-base:       #ffffff !default; // Pure white foundation
+$light-surface:    #f8f9fa !default; // Very light gray
+$light-surface-alt: #e9ecef !default; // Light gray
+$light-border:     #dee2e6 !default; // Medium-light gray
+$light-text-muted: #6c757d !default; // Medium gray
+$light-text-dark:  #495057 !default; // Medium-dark gray
+$light-text:       #343a40 !default; // Dark gray
+$light-text-darker: #212529 !default; // Very dark gray
+
+// Dark theme colors using actual values and SCSS functions for relationships
+$dark-primary:     #091a31 !default; // Very dark blue-ish background (actual original)
+$dark-surface:     #2a2a2a !default; // Dark gray surfaces (actual original)
+$dark-surface-alt: #3a3a3a !default; // Lighter dark gray (actual original)
+$dark-text:        #e6e7eb !default; // Near-white text (actual original)
+$dark-text-muted:  #aab0b9 !default; // Muted light gray (actual original)
+
+// Systematic neutral scale derived from base colors
+$neutral-100:      $light-base !default;        // #ffffff
+$neutral-200:      $light-surface !default;     // #f8f9fa
+$neutral-300:      $light-surface-alt !default; // #e9ecef
+$neutral-400:      $light-border !default;      // #dee2e6
+$neutral-500:      $light-text-muted !default;  // #6c757d
+$neutral-600:      $light-text-dark !default;   // #495057
+$neutral-700:      $light-text !default;        // #343a40
+$neutral-800:      $light-text-darker !default; // #212529
+$neutral-900:      $dark-primary !default;      // #091a31 (dark theme primary)
+
+// Dark theme semantic colors using functions for systematic relationships
+$dark-border:      lighten($dark-surface-alt, 5%) !default;  // Slightly lighter than surface-alt
+$dark-hover:       lighten($dark-surface, 8%) !default;      // Hover state for cards/buttons
 
 // =============================================================================
 // SPACING & LAYOUT TOKENS

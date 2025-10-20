@@ -7,18 +7,18 @@
 // LIGHT THEME COLOR MAPPING
 // =============================================================================
 
-// Surface colors
-$surface-primary:    $neutral-100 !default;  // Pure white for main backgrounds
-$surface-secondary:  $neutral-200 !default;  // Light gray for secondary surfaces
-$surface-tertiary:   $neutral-300 !default;  // Slightly darker for code blocks
+// Surface colors using design tokens
+$surface-primary:    $neutral-100 !default;  // #ffffff - Pure white for main backgrounds
+$surface-secondary:  $neutral-200 !default;  // #f8f9fa - Light gray for secondary surfaces
+$surface-tertiary:   $neutral-300 !default;  // #e9ecef - Slightly darker for code blocks
 
-// Text colors
-$text-primary:       $neutral-700 !default;  // Dark gray for main text
-$text-secondary:     $neutral-500 !default;  // Medium gray for muted text
+// Text colors using design tokens
+$text-primary:       $neutral-700 !default;  // #343a40 - Dark gray for main text
+$text-secondary:     $neutral-500 !default;  // #6c757d - Medium gray for muted text
 
 // Interactive colors
-$accent-primary:     $accent-blue !default;  // Links and interactive elements
-$accent-hover:       darken($accent-blue, 35%) !default;
+$accent-primary:     $accent-blue !default;               // #0d6efd - Links and interactive elements
+$accent-hover:       darken($accent-blue, 35%) !default;  // Much darker on hover for contrast
 
 // =============================================================================
 // BOOTSTRAP VARIABLE MAPPING
@@ -67,13 +67,13 @@ $toc-active-border:          $accent-primary !default;
 $toc-inactive-border:        transparent !default;
 
 // =============================================================================
-// INTERACTION STATES
+// INTERACTION STATES (using SCSS functions for systematic relationships)
 // =============================================================================
 
-$border-hover-color:         darken($border-color, 10%) !default;
-$card-hover-shadow:          0 10px 18px rgba(0, 0, 0, 0.08) !default;
-$avatar-border:              rgba(0, 0, 0, 0.1) !default;
-$focus-ring-color:           rgba(13, 110, 253, 0.25) !default;
+$border-hover-color:         darken($border-color, 15%) !default;   // Darker on hover
+$card-hover-shadow:          0 10px 18px rgba(darken($text-primary, 20%), 0.08) !default; // Shadow based on text color
+$avatar-border:              rgba($text-primary, 0.15) !default;    // Based on text color
+$focus-ring-color:           rgba($accent-blue, 0.25) !default;     // Based on accent color
 
 /*-- scss:rules --*/
 

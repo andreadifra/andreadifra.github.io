@@ -7,17 +7,17 @@
 // DARK THEME COLOR MAPPING
 // =============================================================================
 
-// Dark theme surface colors
-$surface-primary:    #091a31 !default;  // Very dark background
-$surface-secondary:  #2a2a2a !default;  // Slightly lighter for cards/surfaces
-$surface-tertiary:   #3a3a3a !default;  // Code blocks and form elements
+// Dark theme surface colors using actual original values and systematic relationships
+$surface-primary:    $dark-primary !default;    // #091a31 - Very dark blue-ish background
+$surface-secondary:  $dark-surface !default;    // #2a2a2a - Dark gray for cards/surfaces  
+$surface-tertiary:   $dark-surface-alt !default; // #3a3a3a - Code blocks and form elements
 
-// Dark theme text colors
-$text-primary:       #e6e7eb !default;  // Near-white for readability
-$text-secondary:     #aab0b9 !default;  // Muted light gray
+// Dark theme text colors using actual values
+$text-primary:       $dark-text !default;       // #e6e7eb - Near-white for readability
+$text-secondary:     $dark-text-muted !default; // #aab0b9 - Muted light gray
 
-// Dark theme interactive colors
-$accent-primary:     lighten($accent-blue, 5%) !default;   // Slightly lighter blue
+// Dark theme interactive colors using SCSS functions for consistency
+$accent-primary:     lighten($accent-blue, 5%) !default;   // Slightly lighter blue for dark bg
 $accent-hover:       lighten($accent-blue, 15%) !default;  // Even lighter on hover
 
 // =============================================================================
@@ -33,8 +33,8 @@ $text-muted:                 $text-secondary !default;
 $link-color:                 $accent-primary !default;
 $link-hover-color:           $accent-hover !default;
 
-// Border colors (lighter in dark theme for visibility)
-$border-color:               $surface-tertiary !default;
+// Border colors using SCSS functions for systematic relationships
+$border-color:               $dark-border !default; // lighten($dark-surface-alt, 5%)
 
 // Component backgrounds
 $card-bg:                    $surface-secondary !default;
@@ -44,9 +44,9 @@ $dropdown-bg:                $surface-secondary !default;
 $input-bg:                   $surface-secondary !default;
 
 // Navigation (slightly lighter brand color for dark theme)
-$navbar-bg:                  lighten($brand-primary, 8%) !default;
-$navbar-fg:                  $neutral-200 !default;
-$navbar-hl:                  lighten($brand-primary, 35%) !default;
+$navbar-bg:                  lighten($brand-primary, 10%) !default;
+$navbar-fg:                  $neutral-100 !default;
+$navbar-hl:                  lighten($brand-primary, 15%) !default;
 
 // Sidebar and footer
 $sidebar-bg:                 $surface-secondary !default;
@@ -67,13 +67,13 @@ $toc-active-border:          $accent-primary !default;
 $toc-inactive-border:        transparent !default;
 
 // =============================================================================
-// DARK THEME INTERACTION STATES
+// DARK THEME INTERACTION STATES (using SCSS functions)
 // =============================================================================
 
-$border-hover-color:         lighten($border-color, 10%) !default;
-$card-hover-shadow:          0 10px 18px rgba(0, 0, 0, 0.4) !default;
-$avatar-border:              rgba(255, 255, 255, 0.2) !default;
-$focus-ring-color:           rgba(117, 170, 219, 0.25) !default;
+$border-hover-color:         lighten($border-color, 15%) !default;  // Lighter on hover
+$card-hover-shadow:          0 10px 18px rgba(darken($surface-primary, 5%), 0.6) !default; // Darker shadow
+$avatar-border:              rgba($text-primary, 0.2) !default;     // Based on text color
+$focus-ring-color:           rgba(lighten($accent-blue, 20%), 0.25) !default; // Lighter focus ring
 
 /*-- scss:rules --*/
 
