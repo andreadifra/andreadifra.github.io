@@ -28,3 +28,6 @@ desktop.ini
 .idea/
 *.swp
 *~
+
+# Quarto freeze folder (generated execution/results/site_libs)
+/_freeze/

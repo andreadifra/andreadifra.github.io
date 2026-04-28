@@ -5,6 +5,7 @@ This document explains how the color system creates relationships between light 
 ## Color Foundation
 
 ### Base Colors (in `_design-tokens.scss`)
+
 ```scss
 // Light theme foundation
 $light-base:       #ffffff  // Pure white
@@ -23,6 +24,7 @@ $dark-text-muted:  #aab0b9  // Muted light gray
 ## Systematic Relationships Using SCSS Functions
 
 ### 1. **Border Colors**
+
 ```scss
 // Light theme
 $border-color: $neutral-400;  // #dee2e6
@@ -34,6 +36,7 @@ $border-hover-color: lighten($border-color, 15%); // Lighter on hover (inverse o
 ```
 
 ### 2. **Interactive States**
+
 ```scss
 // Light theme - darken for emphasis
 $accent-hover: darken($accent-blue, 35%);  // Much darker blue
@@ -45,6 +48,7 @@ $card-hover-shadow: rgba(darken($surface-primary, 5%), 0.6);
 ```
 
 ### 3. **Alpha/Transparency Relationships**
+
 ```scss
 // Light theme - use dark colors with transparency
 $avatar-border: rgba($text-primary, 0.15);    // Dark border with 15% opacity
@@ -58,12 +62,14 @@ $focus-ring-color: rgba(lighten($accent-blue, 20%), 0.25); // Lighter blue with 
 ## Color Mapping Strategy
 
 ### Light Theme Logic
+
 - **Backgrounds**: Start from white (`$neutral-100`) and get progressively darker
 - **Text**: Use dark colors (`$neutral-700`) for contrast against light backgrounds
 - **Interactions**: Darken colors on hover/active states
 - **Shadows**: Use dark colors with low opacity
 
 ### Dark Theme Logic  
+
 - **Backgrounds**: Start from very dark (`$dark-primary`) and get progressively lighter
 - **Text**: Use light colors (`$dark-text`) for contrast against dark backgrounds
 - **Interactions**: Lighten colors on hover/active states (inverse of light theme)
@@ -72,6 +78,7 @@ $focus-ring-color: rgba(lighten($accent-blue, 20%), 0.25); // Lighter blue with 
 ## Advantages of This Approach
 
 ### ✅ **Systematic Relationships**
+
 ```scss
 // Instead of hardcoded values:
 $card-hover-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
@@ -81,11 +88,13 @@ $card-hover-shadow: 0 10px 18px rgba(darken($text-primary, 20%), 0.08);
 ```
 
 ### ✅ **Theme Consistency**
+
 - Light theme: "darken on interaction"
 - Dark theme: "lighten on interaction"
 - Both themes follow logical, inverse patterns
 
 ### ✅ **Maintainability**
+
 ```scss
 // Change the base accent color once:
 $accent-blue: #007bff;
@@ -97,6 +106,7 @@ $focus-ring: rgba($accent-blue, 0.25);           // Transparent version
 ```
 
 ### ✅ **Accessibility**
+
 - Maintains consistent contrast ratios
 - Predictable color relationships
 - Easy to test and adjust contrast
@@ -104,6 +114,7 @@ $focus-ring: rgba($accent-blue, 0.25);           // Transparent version
 ## Common Patterns
 
 ### Hover States
+
 ```scss
 // Light theme pattern
 .button {
@@ -119,6 +130,7 @@ $focus-ring: rgba($accent-blue, 0.25);           // Transparent version
 ```
 
 ### Transparency Effects
+
 ```scss
 // Light theme - dark colors with transparency
 .overlay-light {
@@ -134,6 +146,7 @@ $focus-ring: rgba($accent-blue, 0.25);           // Transparent version
 ```
 
 ### Color Scaling
+
 ```scss
 // Create multiple variations systematically
 $primary-50:  lighten($brand-primary, 40%);  // Very light
