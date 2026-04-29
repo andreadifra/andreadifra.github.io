@@ -49,7 +49,7 @@ All agents **must** produce markdownlint-compliant Markdown. These rules are enf
 - **MD009** — No trailing whitespace.
 - **MD010** — No hard tab characters.
 - **MD012** — No multiple consecutive blank lines.
-- **MD013** — Keep prose lines at 120 characters or fewer when practical.
+- **MD013** — Keep prose lines at 350 characters or fewer when practical.
 - **MD022** — Surround headings with one blank line above and below.
 - **MD031** — Surround fenced code blocks with blank lines.
 - **MD032** — Surround lists with blank lines.
