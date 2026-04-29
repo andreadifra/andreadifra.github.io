@@ -1,30 +1,59 @@
-# AGENTS Guidelines
+# Repository agent guide
 
-## General
+## Project overview
 
-Whenever prompted, split tasks into sub-tasks and spawn an agent to handle each using the `#runSubagent` tool, orchestrating them to keep context manageable.
+- Personal Quarto website for Andrea Di Francia
+- Published via GitHub Pages
+- Local development environment is Windows with PowerShell
+- Quarto theme stack uses Bootstrap Cosmo plus custom SCSS layers
 
-It is probably necessary to run them sequentially to avoid conflicts, but if you are able, you are encouraged to use parallel agents to speed up development.
-For example, if you need to do research before starting the implementation phase, consider using multiple parallel agents: one to analyze the codebase, one to find best practices, one to read the docs, etcetera.
+## Finding current documentation
 
-Always use up-to-date information rather than relying on memory. Use web search sub-agents and appropriate mcps (such as context7) to find the latest information, best practices and documentation on libraries, frameworks, and tools.
+Use current documentation before changing framework configuration.
+
+1. **Quarto**: query Context7 with `/websites/quarto` for website config, render
+   rules, execution freeze behaviour, and theme guidance.
+2. **Bootstrap Sass**: query Context7 with `/websites/getbootstrap` for Sass
+   variable references and component behaviour.
+3. **Repository structure**: read `_quarto.yml`, `posts/_metadata.yml`,
+   `theme-light.scss`, `theme-dark.scss`, `_design-tokens.scss`,
+   `_base-components.scss`, and `docs/scss-reference.md` before making changes.
+
+Use websearch tools to find out current documentation if the tools above don't answer the questions. Return sources used.
+
+## Quarto development workflow
+
+- Use `quarto preview` for iterative work.
+- Use `quarto render` only when you need a full build confirmation.
+- Use `quarto publish gh-pages` only when publishing changes.
+- Posts use `freeze: auto` in `posts/_metadata.yml`.
+- Keep `_freeze/` committed so cached post outputs remain available for site
+  builds.
+
+## Content authoring rules
+
+- Add blog posts under `posts/<slug>/index.qmd`.
+- Keep post images and other assets alongside the post source file.
+- Prefer front matter that includes `title`, `author`, `date`, and `categories`.
+- Add a `description` when a page is likely to appear in listings or social
+  previews.
+- Do not add per-page `format.html.theme` overrides to website pages; inherit the
+  global theme from `_quarto.yml`.
 
 ## Markdown Standards
 
 All agents **must** produce markdownlint-compliant Markdown. These rules are enforced by the `markdownlint` VS Code extension. Spawn a sub-agent to run `npx markdownlint-cli <file>` locally to verify before passing back control. Common infractions include:
 
-- **MD001** — Headings must increment by one level at a time (no skipping levels).
-- **MD003** — Use ATX-style headings (`#`, `##`, `###`, …); never underline-style.
-- **MD009** — No trailing whitespace on any line.
-- **MD010** — No hard tab characters; use spaces for indentation.
-- **MD012** — No multiple consecutive blank lines (one blank line maximum).
-- **MD013** — Keep lines to 120 characters or fewer. Code blocks and tables are exempt.
-- **MD022** — Surround every heading with exactly one blank line above and below.
+- **MD001** — Headings must increment by one level at a time.
+- **MD003** — Use ATX-style headings.
+- **MD009** — No trailing whitespace.
+- **MD010** — No hard tab characters.
+- **MD012** — No multiple consecutive blank lines.
+- **MD013** — Keep prose lines at 120 characters or fewer when practical.
+- **MD022** — Surround headings with one blank line above and below.
 - **MD031** — Surround fenced code blocks with blank lines.
 - **MD032** — Surround lists with blank lines.
-- **MD034** — Never write bare URLs; always use `[text](url)` link syntax.
-- **MD040** — Every fenced code block must declare a language identifier.
-- **MD041** — The first line of every file must be a top-level (`#`) heading.
-- **MD060** — Use consistent table column style. Use `compact` style.
-
-If after a few attempts you are unable to produce markdownlint-compliant Markdown, spawn a sub-agent with the `#runSubagent` tool to handle the task of converting your output into compliant Markdown by consulting the [markdownlint rules documentation](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md) for full details on each rule.
+- **MD034** — Do not use bare URLs.
+- **MD040** — Every fenced code block must declare a language.
+- **MD041** — Start each Markdown file with a top-level heading.
+- **MD060** — Use consistent table style.
