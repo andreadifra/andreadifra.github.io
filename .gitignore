@@ -31,3 +31,5 @@ desktop.ini
 *~
 
 # Keep Quarto execution cache committed for reproducible website builds
+
+**/*.quarto_ipynb
