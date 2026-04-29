@@ -1,107 +1,87 @@
 # Andrea's Quarto Website
 
-A personal website built with [Quarto](https://quarto.org/), featuring a blog, project showcase, and professional information.
+Personal website and blog built with [Quarto](https://quarto.org/) and deployed
+to GitHub Pages at [andreadifra.github.io](https://andreadifra.github.io/).
 
-## Repository Operations (PowerShell)
+## Stack and workflow
 
-This repository is designed to work with PowerShell on Windows. Use the following commands when performing terminal operations.
+- Quarto website project with blog listings and standalone pages
+- Bootstrap Cosmo base theme with custom SCSS layers
+- Post execution caching via `freeze: auto`, with `_freeze/` committed for
+  reproducible renders
 
-### Initial Setup
+Validated with **Quarto 1.9.37**.
 
-Clone the repository and navigate to the project directory:
+## Local development
+
+Clone the repository:
 
 ```powershell
-git clone https://github.com/yourusername/your-repository-name.git
-cd your-repository-name
+git clone https://github.com/andreadifra/andreadifra.github.io.git
+cd andreadifra.github.io
 ```
 
-### Quarto Operations
-
-Preview the website locally:
+Preview the site locally during development:
 
 ```powershell
 quarto preview
 ```
 
-Render the website:
+Run a full site build when you need to confirm the rendered output:
 
 ```powershell
 quarto render
 ```
 
-### Git Operations
-
-PowerShell uses different syntax than bash for command chaining and environment variables. Use these commands for common Git operations:
-
-**Check Status**
-```powershell
-git status
-```
-
-**Stage Changes**
-```powershell
-git add .
-```
-
-**Commit Changes**
-```powershell
-git commit -m "Your commit message"
-```
-
-**Push to GitHub** (main branch)
-```powershell
-git push origin main
-```
-
-**Create and Switch to a New Branch**
-```powershell
-git checkout -b new-branch-name
-```
-
-**Pull Latest Changes**
-```powershell
-git pull origin main
-```
-
-### Publishing to GitHub Pages
-
-For publishing to GitHub Pages using PowerShell:
+Publish to GitHub Pages when changes are ready to go live:
 
 ```powershell
 quarto publish gh-pages
 ```
 
-### Handling Line Endings
+## Project structure
 
-PowerShell and Windows use CRLF for line endings while Git often prefers LF. To configure Git to handle this automatically:
-
-```powershell
-git config --global core.autocrlf true
+```text
+.
+|-- _quarto.yml
+|-- index.qmd
+|-- about.qmd
+|-- blog.qmd
+|-- projects.qmd
+|-- posts/
+|   |-- _metadata.yml
+|   `-- <slug>/index.qmd
+|-- _design-tokens.scss
+|-- _base-components.scss
+|-- theme-light.scss
+|-- theme-dark.scss
+|-- docs/
+|   `-- scss-reference.md
+|-- downloads/
+`-- AGENTS.md
 ```
 
-## Project Structure
+## SCSS architecture
 
-- `_quarto.yml` - Main configuration file
-- `index.qmd` - Homepage
-- `about.qmd` - About page
-- `blog.qmd` - Blog listing page
-- `projects.qmd` - Projects showcase page
-- `posts/` - Directory containing blog posts
-- `styles.css` - Custom CSS styling
+The site theme is organised in layers:
 
-## Maintenance Notes
+1. `_design-tokens.scss` defines shared typography, colour, spacing, and
+   interaction tokens.
+2. `theme-light.scss` and `theme-dark.scss` map those tokens to Bootstrap and
+   Quarto theme variables.
+3. `_base-components.scss` contains shared component rules and mixins imported by
+   both theme files.
 
-When adding new blog posts, place them in the `posts/` directory with the following structure:
+This keeps the light and dark themes aligned while allowing theme-specific
+overrides where needed.
 
-```
-posts/
-  new-post-name/
-    index.qmd
-    any-images.png
-```
+## Content conventions
 
-## Troubleshooting PowerShell Issues
+- Add blog posts under `posts/<slug>/index.qmd`.
+- Keep post images beside the post source file.
+- Use the global site theme from `_quarto.yml` rather than per-page theme
+  overrides.
 
-- If you encounter permission issues, run PowerShell as Administrator
-- Use `(Get-Command quarto).Path` to verify Quarto's installation location
-- For path issues, remember PowerShell uses backslashes (`\`) or forward slashes (`/`) for paths
+## Repository notes
+
+- See `docs/scss-reference.md` for the current theme reference.

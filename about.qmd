@@ -23,7 +23,12 @@ about:
 <!-- TODO Insert links to projects you have done -->
 ::: {.column-page}
 
-I am a Data Scientist and Economist with expertise in machine learning, statistical analysis, and data visualization. With over 7 years of experience in both public and private sector, I specialize in developing predictive models and implementing data-driven solutions. I'm passionate about using data to solve real-world problems.
+I am a Data Scientist and Economist with expertise in machine learning,
+statistical analysis, and data visualization.
+
+With over 7 years of experience across the public and private sectors, I
+specialize in developing predictive models and implementing data-driven
+solutions. I am passionate about using data to solve real-world problems.
 
 ## Education
 <!-- Improve education section, or merge into one? create boxes for it possibly? -->
@@ -35,28 +40,32 @@ I am a Data Scientist and Economist with expertise in machine learning, statisti
 ## Experience
 <!-- TODO Better format the experience sections (maybe create boxes?) -->
 **Senior Data Scientist** | HEOR | 2022-Present
+
 - Led development of predictive models for healthcare analytics
 - Implemented machine learning pipelines using Python and R
 - Collaborated with cross-functional teams to deploy solutions
 
 **Data Analyst** | NHS England | 2018-2022
+
 - Analyzed large healthcare datasets to extract business insights
 - Created interactive dashboards using Tableau and R Shiny
 - Automated reporting processes using Python
 
 **Economic Researcher** | Department for Education | 2016-2018
+
 - Conducted statistical analysis on education and workforce data
 - Developed economic models to evaluate policy effectiveness
 - Produced research reports for government stakeholders
 
 **Research Assistant** | University of Nottingham | 2015-2016
+
 - Assisted with economic research projects in the Department of Economics
 - Performed literature reviews and data collection
 - Contributed to academic publications
 
 ## Skills
 
-- **Programming Languages**: Python, R, SQL,
+- **Programming Languages**: Python, R, SQL
 - **Data Science**: Machine Learning, Statistical Analysis, Data Visualization
 - **Tools**: Jupyter, RStudio, Git, Docker
 - **Frameworks**: TensorFlow, PyTorch, scikit-learn, tidyverse
@@ -66,14 +75,15 @@ I am a Data Scientist and Economist with expertise in machine learning, statisti
 ::: {.card .text-center}
 ::: {.card-body}
 ::: {.card-title}
+
 ### Download My CV
-:::
-<a class="btn btn-primary mt-2" href="downloads/ds_resume.pdf">
-  <i class="bi bi-file-earmark-pdf" role="img" aria-label="PDF"></i>
-  Download CV
-</a>
-:::
-:::
-:::
+
 :::
 
+[Download CV](downloads/ds_resume.pdf){.btn .btn-primary .mt-2}
+
+:::
+:::
+:::
+:::
+:::

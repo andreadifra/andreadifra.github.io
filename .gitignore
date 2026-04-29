@@ -9,6 +9,7 @@
 # R specific
 .Rproj.user
 .Rhistory
+**/.Rhistory
 .RData
 .Ruserdata
 
@@ -29,5 +30,4 @@ desktop.ini
 *.swp
 *~
 
-# Quarto freeze folder (generated execution/results/site_libs)
-/_freeze/
+# Keep Quarto execution cache committed for reproducible website builds

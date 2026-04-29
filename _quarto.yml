@@ -1,7 +1,13 @@
 project:
   type: website
-  preview: 
+  preview:
     port: 7920
+  render:
+    - "*.qmd"
+    - "posts/*/index.qmd"
+    - "!zero-inflated-models-tutorial.qmd"
+
+author: "Andrea Di Francia"
 
 website:
   title: "Andrea Di Francia"
@@ -23,9 +29,9 @@ website:
         text: About
         href: about.qmd
       - icon: github
-        href: https://github.com/
+        href: https://github.com/andreadifra
       - icon: linkedin
-        href: https://linkedin.com
+        href: https://linkedin.com/in/andreadifrancia
   page-footer:
     left: |
       Website made with [Quarto](https://quarto.org), by Andrea Di Francia. License: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/).
