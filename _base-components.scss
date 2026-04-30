@@ -203,7 +203,7 @@ a {
 
   &:hover,
   &:focus-visible {
-    background-color: $chrome-highlight;
+    background-color: rgba($chrome-highlight, 0.5);
     border-color: rgba($chrome-primary-fg, 0.9);
   }
 }
