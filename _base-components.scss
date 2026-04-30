@@ -1,25 +1,27 @@
 /*
  * Shared component styles and mixins
- * Contains reusable styles that work across all themes
+ * Contains reusable styles that work across all themes.
  */
 
 // =============================================================================
 // MIXINS
 // =============================================================================
+// Keep the motion and focus primitives documented because the shared selectors
+// below rely on them in several different Quarto contexts.
 
-// Consistent hover effect for interactive cards
 @mixin card-hover-effect {
-  transition: transform $transition-base, box-shadow $transition-base, border-color $transition-base;
-  
+  transition: transform $transition-base, box-shadow $transition-base,
+    border-color $transition-base, background-color $transition-base;
+
   &:hover {
     transform: $hover-transform;
   }
 }
 
-// Focus ring for accessibility
 @mixin focus-ring($color: null) {
-  &:focus {
+  &:focus-visible {
     outline: none;
+
     @if $color {
       box-shadow: 0 0 0 $focus-ring-width $color;
     } @else {
@@ -29,82 +31,453 @@
 }
 
 // =============================================================================
-// COMPONENT STYLES
+// GLOBAL SURFACES
 // =============================================================================
+// These selectors establish the page-level atmosphere: background wash, heading
+// contrast, and text-selection styling that make the theme feel intentional.
 
-// Shared component rules imported by the top-level theme files.
+body {
+  background-color: $body-bg;
+  // Solid background only; gradients caused visible banding on long pages.
+  color: $body-color;
+}
 
-// Consistent link styling across themes
+main.content {
+  position: relative;
+}
+
+::selection {
+  background-color: $selection-bg;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: $headings-color;
+}
+
+// =============================================================================
+// LINKS, BUTTONS, AND FORMS
+// =============================================================================
+// Quarto listings, search controls, and Bootstrap forms all pass through these
+// shared treatments, so their comments are worth preserving for maintenance.
+
 a {
   color: $link-color;
   text-decoration: none;
-  transition: color $transition-base;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+  transition: color $transition-base, text-decoration-color $transition-base;
 
   &:hover {
     color: $link-hover-color;
     text-decoration: underline;
   }
 
-  &:focus {
-    outline: none;
-    text-decoration: underline;
+  @include focus-ring($focus-ring-color);
+}
+
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+  transition: transform $transition-base, box-shadow $transition-base,
+    background-color $transition-base, border-color $transition-base,
+    color $transition-base;
+
+  @include focus-ring($focus-ring-color);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba($accent-primary, 0.16);
   }
 }
 
-// Profile image styling with theme-aware border
+.btn-outline-primary {
+  border-color: rgba($accent-primary, 0.65);
+  color: $accent-primary;
+
+  &:hover {
+    border-color: $accent-primary;
+    color: $surface-primary;
+  }
+}
+
+.form-control,
+.form-select,
+.quarto-listing-sort select,
+.quarto-listing-filter .search {
+  background-color: $input-bg;
+  border-color: $border-color;
+  border-radius: $border-radius-base;
+  color: $body-color;
+  transition: border-color $transition-base, box-shadow $transition-base,
+    background-color $transition-base;
+
+  @include focus-ring($focus-ring-color);
+
+  &:focus {
+    background-color: $input-bg;
+    border-color: $link-color;
+    color: $body-color;
+  }
+}
+
+.input-group-text {
+  background-color: $surface-tertiary;
+  border-color: $border-color;
+  color: $text-secondary;
+}
+
+// Restore consistent pill border-radius in listing controls.
+// Quarto renders .quarto-listing-sort/.quarto-listing-filter WITHOUT a
+// Bootstrap .input-group wrapper, so we target the icon span and input
+// directly, matching the actual DOM hierarchy.
+.quarto-listing-filter .input-group-text,
+.quarto-listing-sort .input-group-text {
+  border-radius: $border-radius-base 0 0 $border-radius-base;
+}
+
+.quarto-listing-filter .form-control,
+.quarto-listing-sort .form-select {
+  border-radius: 0 $border-radius-base $border-radius-base 0;
+}
+
+// =============================================================================
+// NAVIGATION AND FOOTER
+// =============================================================================
+// Navbar and footer are the most obvious pieces of site chrome, so this block
+// centralizes the visual anchor that should read consistently across pages.
+
+#quarto-header {
+  box-shadow: 0 16px 40px rgba($chrome-primary, 0.18);
+}
+
+.navbar {
+  background:
+    linear-gradient(135deg, $navbar-bg 0%, rgba($accent-primary, 0.18) 100%),
+    $navbar-bg;
+  border-bottom: 1px solid rgba($chrome-highlight, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.navbar-brand,
+.navbar-brand:hover,
+.navbar-title,
+.navbar-nav .nav-link,
+.quarto-navbar-tools .quarto-navigation-tool,
+#quarto-search button {
+  color: $navbar-fg;
+}
+
+.navbar-nav .nav-link,
+.quarto-navbar-tools .quarto-navigation-tool {
+  border-radius: 999px;
+  margin-inline: 0.15rem;
+  padding-inline: 0.9rem;
+  transition: background-color $transition-base, color $transition-base,
+    transform $transition-base;
+
+  &:hover,
+  &:focus-visible,
+  &.active {
+    background-color: rgba($chrome-primary-fg, 0.12);
+    color: $chrome-highlight;
+    transform: translateY(-1px);
+  }
+}
+
+// Give the color-scheme toggle contrast against the navbar background.
+// Specificity 0,2,0 — same as the generic nav-tool rule above — placed after
+// it so the cascade wins. The inverted bg/fg makes it clearly visible on both
+// the light navy and dark teal navbar backgrounds.
+.quarto-navbar-tools .quarto-color-scheme-toggle {
+  background-color: rgba($chrome-primary-fg, 0.92);
+  border: 1px solid rgba($chrome-primary-fg, 0.4);
+  color: $chrome-primary;
+
+  &:hover,
+  &:focus-visible {
+    background-color: $chrome-primary-fg;
+    color: $chrome-primary;
+    transform: translateY(-1px);
+  }
+}
+
+.nav-footer,
+footer.footer {
+  background-color: $footer-bg;
+  border-top: 1px solid rgba($border-color, 0.75);
+  color: $footer-fg;
+}
+
+.nav-footer a,
+footer.footer a {
+  color: $link-color;
+}
+
+// =============================================================================
+// PROFILE, CARDS, LISTINGS, AND PROJECT SECTIONS
+// =============================================================================
+// Quarto uses different markup for about cards, default listings, grid
+// listings, and the hand-written project grid, so this shared block normalizes
+// their surface language.
+
 .rounded-circle {
   border: 3px solid $avatar-border;
   box-shadow: $shadow-subtle;
   transition: box-shadow $transition-base;
 }
 
-// Interactive card components
-.quarto-grid-item {
-  background-color: $card-bg;
+.about-entity,
+.quarto-about-jolla .about-entity,
+.quarto-grid-item,
+.quarto-post,
+main .grid > section.level3 {
+  background:
+    linear-gradient(180deg, rgba($surface-secondary, 0.98) 0%,
+      rgba($surface-tertiary, 0.98) 100%);
   border: 1px solid $border-color;
-  border-radius: $border-radius-base;
-  overflow: hidden;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-subtle;
+}
+
+.quarto-grid-item,
+.quarto-post,
+main .grid > section.level3 {
   @include card-hover-effect;
 
   &:hover {
-    box-shadow: $card-hover-shadow;
     border-color: $border-hover-color;
+    box-shadow: $card-hover-shadow;
   }
 }
 
-// Typography consistency
-pre, code, kbd, samp {
+.about-entity,
+.quarto-about-jolla .about-entity {
+  padding: 1.6rem;
+}
+
+// Remove the hard border from about-entity containers; shadow and background
+// gradient provide sufficient separation. Also clear the trestles template's
+// left-border column divider which creates the visible vertical-edge artifact.
+.about-entity,
+.quarto-about-trestles .about-entity,
+.quarto-about-jolla .about-entity {
+  border: none;
+}
+
+.quarto-about-trestles .about-contents {
+  border-left: none;
+}
+
+.quarto-post {
+  padding: 1rem;
+  gap: 1rem;
+}
+
+// Quarto default listings split each row into thumbnail/body/metadata columns.
+.quarto-post .thumbnail,
+.quarto-post .body,
+.quarto-post .metadata {
+  position: relative;
+  z-index: 1;
+}
+
+.thumbnail-image,
+.card-img,
+.img-fluid,
+.listing-item-img-placeholder,
+main .grid > section.level3 img {
+  border-radius: calc($border-radius-base - 2px);
+}
+
+.listing-item-img-placeholder,
+main .grid > section.level3 img,
+.quarto-grid-item .card-img-top,
+.quarto-post .thumbnail-image {
+  border: 1px solid rgba($border-color, 0.7);
+  background-color: $surface-strong;
+}
+
+.quarto-grid-link {
+  color: inherit;
+}
+
+// Titles stay stronger than the supporting listing copy and attribution text.
+.listing-title,
+.card-title,
+main .grid > section.level3 h3 {
+  color: $headings-color;
+}
+
+.listing-category {
+  background-color: $listing-chip-bg;
+  border: 1px solid $listing-chip-border;
+  border-radius: 999px;
+  color: $listing-chip-color;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.25rem 0.7rem;
+}
+
+.quarto-listing .listing-description,
+.quarto-post .listing-description,
+.card-text,
+.card-attribution {
+  color: $text-secondary;
+}
+
+// The projects page uses plain Quarto grid sections instead of listing cards.
+main .grid > section.level3 {
+  height: 100%;
+  padding: 1.35rem;
+}
+
+main .grid > section.level3 p:last-child {
+  margin-bottom: 0;
+}
+
+// =============================================================================
+// CALLOUTS, TABLES, AND CODE
+// =============================================================================
+// These are the reusable semantic surfaces that most obviously benefit from the
+// refreshed hierarchy in both themes.
+
+.callout {
+  border: 1px solid $border-color;
+  border-left-width: 4px;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-subtle;
+  overflow: hidden;
+}
+
+// Clear the default background on callout sub-regions; each type's outer
+// container gradient (below) supplies the actual background color.
+.callout .callout-header,
+.callout .callout-body,
+.callout .callout-body-container {
+  background-color: transparent;
+}
+
+// Provide a separator only; do NOT override the header background so each
+// callout type's Quarto default header color shows through cleanly.
+.callout .callout-header {
+  border-bottom: 1px solid rgba($border-color, 0.75);
+}
+
+.callout-note {
+  background: linear-gradient(180deg, $callout-note-bg 0%,
+    rgba($surface-secondary, 0.98) 100%);
+  border-left-color: $callout-note-border;
+}
+
+.callout-note .callout-title-container {
+  color: $callout-note-title;
+}
+
+.callout-tip {
+  background: linear-gradient(180deg, $callout-tip-bg 0%,
+    rgba($surface-secondary, 0.98) 100%);
+  border-left-color: $callout-tip-border;
+}
+
+.callout-tip .callout-title-container {
+  color: $callout-tip-title;
+}
+
+.callout-warning {
+  background: linear-gradient(180deg, $callout-warning-bg 0%,
+    rgba($surface-secondary, 0.98) 100%);
+  border-left-color: $callout-warning-border;
+}
+
+.callout-warning .callout-title-container {
+  color: $callout-warning-title;
+}
+
+.callout-caution {
+  background: linear-gradient(180deg, $callout-caution-bg 0%,
+    rgba($surface-secondary, 0.98) 100%);
+  border-left-color: $callout-caution-border;
+}
+
+.callout-caution .callout-title-container {
+  color: $callout-caution-title;
+}
+
+.callout-important {
+  background: linear-gradient(180deg, $callout-important-bg 0%,
+    rgba($surface-secondary, 0.98) 100%);
+  border-left-color: $callout-important-border;
+}
+
+.callout-important .callout-title-container {
+  color: $callout-important-title;
+}
+
+pre,
+code,
+kbd,
+samp {
   font-family: $font-family-monospace;
 }
 
-// Table improvements
-.table {
-  --bs-table-border-color: #{$border-color};
-}
-
-// Form control styling
-.form-control {
-  border-color: $border-color;
-  transition: border-color $transition-base, box-shadow $transition-base;
-  
-  @include focus-ring($focus-ring-color);
-  
-  &:focus {
-    border-color: $link-color;
-  }
-}
-
-// Button improvements
-.btn {
-  border-radius: $border-radius-base;
-  transition: all $transition-base;
-  
-  @include focus-ring($focus-ring-color);
-}
-
-// Code block improvements
+// Keep code surfaces distinct from cards so tutorials read clearly in both
+// modes, especially in longer blog posts.
 pre {
+  background-color: $code-block-bg;
+  border: 1px solid $code-border-color;
+  border-left: 4px solid $link-color;
   border-radius: $border-radius-base;
-  border-left: 3px solid $link-color;
   padding-left: 1rem;
+}
+
+code,
+kbd,
+samp {
+  background-color: rgba($code-bg, 0.92);
+  border-radius: 0.45rem;
+  color: $code-color;
+  padding: 0.15rem 0.35rem;
+}
+
+.table {
+  --bs-table-bg: #{$card-bg};
+  --bs-table-border-color: #{$border-color};
+  border-radius: $border-radius-base;
+  color: $body-color;
+  overflow: hidden;
+}
+
+.table thead th {
+  background-color: $surface-tertiary;
+  color: $headings-color;
+}
+
+// =============================================================================
+// TOC AND SMALL CHROME
+// =============================================================================
+// Small chrome elements should feel connected to the larger surface system
+// without drawing focus away from the content itself.
+
+#TOC,
+.sidebar nav[role='doc-toc'] {
+  background-color: rgba($surface-secondary, 0.92);
+  border: 1px solid rgba($border-color, 0.7);
+  border-radius: $border-radius-base;
+  padding: 0.85rem 1rem;
+}
+
+// Standalone (non-navbar) toggle — applies wherever the toggle appears outside
+// the main navbar, e.g. on mobile or in a sidebar.
+.quarto-color-scheme-toggle {
+  background-color: rgba($surface-secondary, 0.92);
+  border: 1px solid rgba($border-color, 0.8);
+  border-radius: 999px;
+  box-shadow: $shadow-subtle;
+  color: $text-primary;
 }

@@ -1,18 +1,18 @@
 # SCSS reference
 
-This repository uses a small SCSS system layered on top of Quarto's HTML theming
-support and the Bootstrap Cosmo base theme.
+This repository layers a custom semantic SCSS system on top of Quarto HTML
+theming and the Bootstrap Cosmo base theme.
 
 ## Theme file roles
 
-- `_design-tokens.scss`: shared typography, colour, spacing, and interaction
-  tokens
-- `theme-light.scss`: light-theme mappings from shared tokens to Bootstrap and
-  Quarto variables
-- `theme-dark.scss`: dark-theme mappings from shared tokens to Bootstrap and
-  Quarto variables
-- `_base-components.scss`: shared mixins and component rules imported by both
-  theme files
+- `_design-tokens.scss`: shared typography, foundation palette, and light/dark
+  semantic tokens
+- `theme-light.scss`: light-theme semantic mapping into Quarto and Bootstrap
+  variables
+- `theme-dark.scss`: dark-theme semantic mapping into Quarto and Bootstrap
+  variables
+- `_base-components.scss`: shared component rules that consume the mapped theme
+  variables
 
 ## Quarto theme structure
 
@@ -21,12 +21,14 @@ The top-level theme files listed in `_quarto.yml` are:
 - `theme-light.scss`
 - `theme-dark.scss`
 
-These files use Quarto region decorators such as `/*-- scss:defaults --*/` and
-`/*-- scss:rules --*/`. Imported partials should stay plain SCSS and should not
-pretend to define Quarto regions.
+These files use Quarto region decorators such as `/*-- scss:uses --*/`,
+`/*-- scss:defaults --*/`, and `/*-- scss:rules --*/`. Imported partials stay
+plain SCSS and do not declare their own Quarto regions. The light and dark
+theme files load `_design-tokens.scss` through a Sass module in the
+`scss:uses` layer so semantic tokens are available before the theme defaults are
+evaluated.
 
-Current project configuration layers each custom theme file after Bootstrap
-Cosmo:
+Project configuration layers each custom theme file after Bootstrap Cosmo:
 
 ```yaml
 format:
@@ -36,9 +38,10 @@ format:
       dark: [cosmo, theme-dark.scss]
 ```
 
-## Shared design tokens
+## Shared token model
 
-`_design-tokens.scss` defines the raw values that both themes depend on.
+`_design-tokens.scss` is the source of truth for the palette and interaction
+system.
 
 ### Typography tokens
 
@@ -47,83 +50,99 @@ format:
 - `$font-size-root`
 - `$headings-font-weight`
 
-### Colour tokens
+### Foundation palette
 
-- `$brand-primary`
-- `$accent-blue`
-- `$light-*` and `$dark-*` foundation colours
-- `$neutral-100` through `$neutral-900`
-- `$dark-border`
-- `$dark-hover`
+- `$palette-paper`
+- `$palette-mist`
+- `$palette-accent`
+- `$palette-ink`
+- `$palette-ink-soft`
 
-### Layout and interaction tokens
+### Light-theme semantic tokens
+
+- page and surface layers: `$light-page-bg`, `$light-page-bg-alt`,
+  `$light-surface`, `$light-surface-alt`, `$light-surface-strong`
+- borders and text: `$light-border`, `$light-border-strong`, `$light-text`,
+  `$light-text-muted`, `$light-heading`
+- interactive accents: `$light-accent`, `$light-accent-hover`,
+  `$light-accent-soft`, `$light-accent-soft-strong`
+- chrome and code: `$light-navbar-*`, `$light-code-*`, `$light-focus-ring`,
+  `$light-shadow`
+
+### Dark-theme semantic tokens
+
+- page and surface layers: `$dark-page-bg`, `$dark-page-bg-alt`,
+  `$dark-surface`, `$dark-surface-alt`, `$dark-surface-strong`
+- borders and text: `$dark-border`, `$dark-border-strong`, `$dark-text`,
+  `$dark-text-muted`, `$dark-heading`
+- interactive accents: `$dark-accent`, `$dark-accent-hover`,
+  `$dark-accent-soft`, `$dark-accent-soft-strong`
+- chrome and code: `$dark-navbar-*`, `$dark-code-*`, `$dark-focus-ring`,
+  `$dark-shadow`
+
+### Shared interaction tokens
 
 - `$border-radius-base`
+- `$border-radius-lg`
 - `$shadow-subtle`
 - `$transition-base`
 - `$hover-transform`
 - `$focus-ring-width`
 
-## Light theme mappings
+## Theme mappings
 
-`theme-light.scss` maps the shared tokens to the variables used by Quarto and
-Bootstrap.
+`theme-light.scss` and `theme-dark.scss` both follow the same pattern:
 
-Key mappings include:
+1. load `_design-tokens.scss` through `@use 'design-tokens' as tokens;` in the
+   `scss:uses` layer
+2. map the relevant light or dark semantic values to generic theme variables
+   such as `$surface-primary`, `$accent-primary`, and `$focus-ring-color`
+3. map those generic values into Quarto and Bootstrap variables such as
+   `$body-bg`, `$navbar-bg`, `$card-bg`, `$link-color`, and `$toc-color`
+4. define helper variables used by `_base-components.scss`
 
-- page colours: `$body-bg`, `$body-color`, `$text-muted`
-- links: `$link-color`, `$link-hover-color`
-- surfaces: `$card-bg`, `$popover-bg`, `$dropdown-bg`, `$input-bg`
-- navigation: `$navbar-bg`, `$navbar-fg`, `$navbar-hl`
-- secondary layout: `$sidebar-*`, `$footer-*`
-- code: `$code-bg`, `$code-color`, `$code-block-bg`
-- table of contents: `$toc-color`, `$toc-active-border`,
-  `$toc-inactive-border`
-- interaction helpers: `$border-hover-color`, `$card-hover-shadow`,
-  `$avatar-border`, `$focus-ring-color`
-
-## Dark theme mappings
-
-`theme-dark.scss` follows the same structure as the light theme, but uses the
-dark token palette and lighter interactive states to preserve contrast.
-
-Important differences:
-
-- dark surfaces are based on `$dark-primary`, `$dark-surface`, and
-  `$dark-surface-alt`
-- link and hover colours are lightened variants of `$accent-blue`
-- hover borders and focus rings are brighter than their light-theme equivalents
-- code, table, form, and outline-button rules receive extra dark-mode styling
+This keeps both themes aligned around the same semantic roles instead of letting
+light and dark mode drift into separate design systems.
 
 ## Shared component partial
 
-`_base-components.scss` provides reusable behaviour that both themes import.
+`_base-components.scss` styles the reusable surfaces that appear throughout the
+site. It expects the active theme file to provide the generic theme variables.
 
 ### Mixins
 
 - `card-hover-effect`
 - `focus-ring($color: null)`
 
-### Shared rules
+### Shared surfaces
 
-- `a`
-- `.rounded-circle`
-- `.quarto-grid-item`
-- `.table`
-- `.form-control`
-- `.btn`
-- `pre`
+- global page background and text selection
+- navbar and footer chrome
+- profile/about cards
+- project cards and Quarto listings
+- callouts
+- buttons, forms, and listing filters
+- code blocks, inline code, and tables
+- TOC and color-scheme toggle chrome
 
-These rules rely on theme variables already being mapped by `theme-light.scss`
-or `theme-dark.scss`.
+## Warning-avoidance rule
+
+Quarto applies Sass default variables in reverse order when multiple theme files
+are layered. To keep the custom theme deterministic, the internal token layer is
+loaded through `scss:uses` and the semantic mapping layer uses plain
+assignments instead of `!default`.
+
+Only use `!default` when you intentionally want a variable to participate in
+Quarto or Bootstrap override precedence. Do not use it for internal token
+dependencies.
 
 ## Working on the theme
 
-1. Change shared values in `_design-tokens.scss` when a token should affect both
-   themes.
-2. Change `theme-light.scss` or `theme-dark.scss` when only one theme needs a
-   different mapping.
-3. Change `_base-components.scss` for shared component behaviour.
+1. Change `_design-tokens.scss` when the semantic palette or interaction system
+   should affect both themes.
+2. Change `theme-light.scss` or `theme-dark.scss` when one theme needs a
+   different mapping of the shared semantic roles.
+3. Change `_base-components.scss` for shared surface styling.
 4. Validate with `quarto preview` during iteration and `quarto render` before
    finishing a larger change.
 

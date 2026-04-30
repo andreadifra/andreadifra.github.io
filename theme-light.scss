@@ -1,81 +1,153 @@
+/*-- scss:uses --*/
+
+// Load the shared semantic token module before any Quarto defaults are mapped.
+@use 'design-tokens' as tokens;
+
 /*-- scss:defaults --*/
 
-// Import shared design tokens first
-@import 'design-tokens';
+// Typography and interaction primitives are promoted into this layer so both
+// Bootstrap defaults and our component partial resolve to the same values.
+$font-family-sans-serif: tokens.$font-family-sans-serif;
+$font-family-monospace: tokens.$font-family-monospace;
+$font-size-root: tokens.$font-size-root;
+$headings-font-weight: tokens.$headings-font-weight;
+
+$border-radius-base: tokens.$border-radius-base;
+$border-radius-lg: tokens.$border-radius-lg;
+$shadow-subtle: tokens.$shadow-subtle;
+$transition-base: tokens.$transition-base;
+$hover-transform: tokens.$hover-transform;
+$focus-ring-width: tokens.$focus-ring-width;
 
 // =============================================================================
-// LIGHT THEME COLOR MAPPING
+// LIGHT THEME SEMANTIC MAPPING
 // =============================================================================
+// Translate the shared light-mode tokens into generic theme roles used
+// throughout the Quarto and Bootstrap mapping below.
 
-// Surface colors using design tokens
-$surface-primary:    $neutral-100 !default;  // #ffffff - Pure white for main backgrounds
-$surface-secondary:  $neutral-200 !default;  // #f8f9fa - Light gray for secondary surfaces
-$surface-tertiary:   $neutral-300 !default;  // #e9ecef - Slightly darker for code blocks
+$surface-primary: tokens.$light-page-bg; // Main page canvas.
+$surface-secondary: tokens.$light-surface; // Cards and elevated content blocks.
+$surface-tertiary: tokens.$light-surface-alt; // Inputs and subdued UI surfaces.
+$surface-strong: tokens.$light-surface-strong; // Footer/sidebar/background chrome.
 
-// Text colors using design tokens
-$text-primary:       $neutral-700 !default;  // #343a40 - Dark gray for main text
-$text-secondary:     $neutral-500 !default;  // #6c757d - Medium gray for muted text
+$text-primary: tokens.$light-text; // Default body text.
+$text-secondary: tokens.$light-text-muted; // Metadata and supporting labels.
+$heading-color: tokens.$light-heading; // Heading and emphasized title color.
 
-// Interactive colors
-$accent-primary:     $accent-blue !default;               // #0d6efd - Links and interactive elements
-$accent-hover:       darken($accent-blue, 35%) !default;  // Much darker on hover for contrast
+$accent-primary: tokens.$light-accent; // Links and primary emphasis.
+$accent-hover: tokens.$light-accent-hover; // Hover state for interactive text.
+$accent-soft: tokens.$light-accent-soft; // Soft fills behind UI elements.
+$accent-soft-strong: tokens.$light-accent-soft-strong; // Active-state tint.
 
-// =============================================================================
-// BOOTSTRAP VARIABLE MAPPING
-// =============================================================================
+$chrome-primary: tokens.$light-navbar-bg; // Site chrome anchor.
+$chrome-primary-fg: tokens.$light-navbar-fg; // Navbar foreground color.
+$chrome-highlight: tokens.$light-navbar-hl; // Navbar hover/highlight foreground.
 
-// Base colors
-$body-bg:                    $surface-primary !default;
-$body-color:                 $text-primary !default;
-$text-muted:                 $text-secondary !default;
+$border-color-soft: tokens.$light-border; // Default outlines and separators.
+$border-color-strong: tokens.$light-border-strong; // Hover/focus border emphasis.
+$code-surface: tokens.$light-code-bg; // Inline code and preformatted surfaces.
+$code-border-color: tokens.$light-code-border; // Code block border/accent color.
+$focus-ring-color: tokens.$light-focus-ring; // Keyboard focus treatment.
+$elevation-shadow: tokens.$light-shadow; // Hover lift for major cards.
 
-// Link colors
-$link-color:                 $accent-primary !default;
-$link-hover-color:           $accent-hover !default;
+// Decorative helpers used only by the component partial to add atmosphere and
+// stronger hierarchy without touching content markup.
+$ambient-wash: rgba($accent-primary, 0.08);
+$ambient-glow: rgba($chrome-primary, 0.06);
+$surface-tint: rgba($chrome-primary, 0.03);
+$surface-tint-strong: rgba($accent-primary, 0.12);
+$selection-bg: rgba($accent-primary, 0.18);
 
-// Border colors
-$border-color:               $neutral-400 !default;
+$listing-chip-bg: rgba($accent-primary, 0.1);
+$listing-chip-border: rgba($accent-primary, 0.18);
+$listing-chip-color: $heading-color;
 
-// Component backgrounds
-$card-bg:                    $surface-primary !default;
-$modal-content-bg:           $surface-primary !default;
-$popover-bg:                 $surface-primary !default;
-$dropdown-bg:                $surface-primary !default;
-$input-bg:                   $surface-primary !default;
-
-// Navigation
-$navbar-bg:                  $brand-primary !default;
-$navbar-fg:                  $neutral-100 !default;
-$navbar-hl:                  lighten($brand-primary, 40%) !default;
-
-// Sidebar and footer
-$sidebar-bg:                 $surface-secondary !default;
-$sidebar-fg:                 $text-primary !default;
-$sidebar-hl:                 $accent-primary !default;
-$footer-bg:                  $surface-secondary !default;
-$footer-fg:                  $text-primary !default;
-
-// Code styling
-$code-bg:                    $surface-tertiary !default;
-$code-color:                 $text-primary !default;
-$code-block-bg:              $surface-tertiary !default;
-$code-block-bg-alpha:        0 !default;
-
-// Table of contents
-$toc-color:                  $text-primary !default;
-$toc-active-border:          $accent-primary !default;
-$toc-inactive-border:        transparent !default;
+$callout-note-bg: #edf3f9;
+$callout-note-border: $accent-primary;
+$callout-note-title: $heading-color;
+$callout-tip-bg: #edf7f0;
+$callout-tip-border: #28a745;
+$callout-tip-title: #1a6b30;
+$callout-warning-bg: #fff8e6;
+$callout-warning-border: #e0a800;
+$callout-warning-title: #7a5a00;
+$callout-caution-bg: #fff3e6;
+$callout-caution-border: #e07800;
+$callout-caution-title: #7a3a00;
+$callout-important-bg: #fde8ea;
+$callout-important-border: #c82333;
+$callout-important-title: #6b0f1a;
 
 // =============================================================================
-// INTERACTION STATES (using SCSS functions for systematic relationships)
+// BOOTSTRAP AND QUARTO VARIABLE MAPPING
 // =============================================================================
+// Map the semantic roles above into the variables Quarto and Bootstrap consume.
 
-$border-hover-color:         darken($border-color, 15%) !default;   // Darker on hover
-$card-hover-shadow:          0 10px 18px rgba(darken($text-primary, 20%), 0.08) !default; // Shadow based on text color
-$avatar-border:              rgba($text-primary, 0.15) !default;    // Based on text color
-$focus-ring-color:           rgba($accent-blue, 0.25) !default;     // Based on accent color
+$body-bg: $surface-primary;
+$body-color: $text-primary;
+$text-muted: $text-secondary;
+$headings-color: $heading-color;
+
+$primary: $accent-primary;
+$secondary: $accent-soft-strong;
+$info: $accent-soft;
+
+$link-color: $accent-primary;
+$link-hover-color: $accent-hover;
+
+$border-color: $border-color-soft;
+$card-bg: $surface-secondary;
+$modal-content-bg: $surface-secondary;
+$popover-bg: $surface-secondary;
+$dropdown-bg: $surface-secondary;
+$dropdown-border-color: $border-color-soft;
+$dropdown-link-hover-bg: $accent-soft;
+$dropdown-link-active-bg: $accent-soft-strong;
+$dropdown-link-active-color: $heading-color;
+
+$input-bg: $surface-secondary;
+$input-border-color: $border-color-soft;
+$input-focus-border-color: $accent-primary;
+$input-focus-box-shadow: 0 0 0 $focus-ring-width $focus-ring-color;
+$form-select-border-color: $border-color-soft;
+
+$navbar-bg: $chrome-primary;
+$navbar-fg: $chrome-primary-fg;
+$navbar-hl: $chrome-highlight;
+
+$sidebar-bg: $surface-strong;
+$sidebar-fg: $text-primary;
+$sidebar-hl: $accent-primary;
+$footer-bg: $surface-strong;
+$footer-fg: $text-primary;
+
+$code-bg: $code-surface;
+$code-color: $heading-color;
+$code-block-bg: $code-surface;
+$code-block-bg-alpha: 0;
+$pre-color: $text-primary;
+
+$toc-color: $text-primary;
+$toc-active-border: $accent-primary;
+$toc-inactive-border: rgba($border-color-soft, 0.4);
+
+$pagination-color: $accent-primary;
+$pagination-hover-color: $accent-hover;
+$pagination-focus-color: $accent-hover;
+$pagination-active-bg: $accent-primary;
+$pagination-active-border-color: $accent-primary;
+
+// =============================================================================
+// SHARED COMPONENT HELPERS
+// =============================================================================
+// These helpers are consumed in `_base-components.scss` for hover, avatar, and
+// card treatments that must stay theme-aware.
+
+$border-hover-color: $border-color-strong;
+$card-hover-shadow: $elevation-shadow;
+$avatar-border: rgba($chrome-primary, 0.14);
 
 /*-- scss:rules --*/
 
-// Import shared component styles
+// Shared structural styling lives in the component partial.
 @import 'base-components';

@@ -23,7 +23,7 @@ Use websearch tools to find out current documentation if the tools above don't a
 
 ## Quarto development workflow
 
-- Use `quarto preview` for iterative work.
+- Use `quarto preview` for iterative work. Check that there isn't already a preview running by opening the port specified in the `_quarto.yml` file in a browser. Use the browser to see changes live and check outputs during development.
 - Use `quarto render` only when you need a full build confirmation.
 - Use `quarto publish gh-pages` only when publishing changes.
 - Posts use `freeze: auto` in `posts/_metadata.yml`.
