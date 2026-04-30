@@ -191,18 +191,20 @@ a {
 
 // Give the color-scheme toggle contrast against the navbar background.
 // Specificity 0,2,0 — same as the generic nav-tool rule above — placed after
-// it so the cascade wins. The inverted bg/fg makes it clearly visible on both
-// the light navy and dark teal navbar backgrounds.
+// it so the cascade wins. Keep the icon on Quarto's default generated styling
+// and make the pill itself visible with a clearer border and a slightly larger
+// hit area.
 .quarto-navbar-tools .quarto-color-scheme-toggle {
-  background-color: rgba($chrome-primary-fg, 0.92);
-  border: 1px solid rgba($chrome-primary-fg, 0.4);
-  color: $chrome-primary;
+  background-color: $chrome-primary;
+  border: 2px solid rgba($chrome-primary-fg, 0.72);
+  padding-left: 0.45rem !important;
+  padding-right: 0.45rem !important;
+  line-height: 1;
 
   &:hover,
   &:focus-visible {
-    background-color: $chrome-primary-fg;
-    color: $chrome-primary;
-    transform: translateY(-1px);
+    background-color: $chrome-highlight;
+    border-color: rgba($chrome-primary-fg, 0.9);
   }
 }
 
@@ -261,16 +263,44 @@ main .grid > section.level3 {
 }
 
 // Remove the hard border from about-entity containers; shadow and background
-// gradient provide sufficient separation. Also clear the trestles template's
-// left-border column divider which creates the visible vertical-edge artifact.
+// gradient provide sufficient separation.
 .about-entity,
 .quarto-about-trestles .about-entity,
 .quarto-about-jolla .about-entity {
   border: none;
 }
 
-.quarto-about-trestles .about-contents {
-  border-left: none;
+// Desktop trestles pages read better with a slimmer profile column, whitespace
+// between columns instead of a divider, and a truly centered title-meta block.
+@media (min-width: 992px) {
+  div.quarto-about-trestles.quarto-about-trestles {
+    align-items: flex-start;
+    gap: 2rem;
+  }
+
+  div.quarto-about-trestles .about-entity.about-entity {
+    flex: 0 0 35%;
+    max-width: 25rem;
+    padding-right: 0;
+  }
+
+  div.quarto-about-trestles .about-contents.about-contents.page-columns.page-full {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  div.quarto-about-trestles .about-entity
+    #title-block-header.quarto-title-block.default .quarto-title-meta.quarto-title-meta {
+    grid-template-columns: minmax(0, max-content);
+    justify-content: center;
+    justify-items: center;
+    width: 100%;
+  }
+
+  div.quarto-about-trestles .about-entity
+    #title-block-header.quarto-title-block.default .quarto-title-meta > div {
+    margin-inline: auto;
+  }
 }
 
 .quarto-post {
