@@ -8,9 +8,6 @@ editor:
    render-on-save: true
 format:
   html:
-    theme:
-      - theme-light.scss
-    toc: true
     toc-depth: 3
     number-sections: true
     smooth-scroll: true
