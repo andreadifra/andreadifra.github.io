@@ -380,8 +380,8 @@ main .grid > section.level3 p:last-child {
   background-color: transparent;
 }
 
-// Provide a separator only; do NOT override the header background so each
-// callout type's Quarto default header color shows through cleanly.
+// Add only a separator here; the header background is already cleared above
+// so the outer callout gradient remains visible across the full component.
 .callout .callout-header {
   border-bottom: 1px solid rgba($border-color, 0.75);
 }
