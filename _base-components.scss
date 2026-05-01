@@ -281,25 +281,12 @@ main .grid > section.level3 {
   div.quarto-about-trestles .about-entity.about-entity {
     flex: 0 0 35%;
     max-width: 25rem;
-    padding-right: 0;
+    padding-inline: 1.6rem;
   }
 
   div.quarto-about-trestles .about-contents.about-contents.page-columns.page-full {
     border-left: 0;
     padding-left: 0;
-  }
-
-  div.quarto-about-trestles .about-entity
-    #title-block-header.quarto-title-block.default .quarto-title-meta.quarto-title-meta {
-    grid-template-columns: minmax(0, max-content);
-    justify-content: center;
-    justify-items: center;
-    width: 100%;
-  }
-
-  div.quarto-about-trestles .about-entity
-    #title-block-header.quarto-title-block.default .quarto-title-meta > div {
-    margin-inline: auto;
   }
 }
 

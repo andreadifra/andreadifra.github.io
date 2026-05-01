@@ -11,15 +11,22 @@
 
 Use current documentation before changing framework configuration.
 
-1. **Quarto**: query Context7 with `/websites/quarto` for website config, render
-   rules, execution freeze behaviour, and theme guidance.
-2. **Bootstrap Sass**: query Context7 with `/websites/getbootstrap` for Sass
+- **Quarto**: query Context7 with `/websites/quarto` for website config, render
+   rules, execution freeze behaviour, and theme guidance. If Context7 does not answer the question, query GitHub repositories:
+  - For **documentation pages, examples, guides, and website docs**:
+    use [`quarto-dev/quarto-web](https://github.com/quarto-dev/quarto-web)
+  - For **actual Quarto engine behaviour, CLI options, config parsing, rendering,
+    execution, freeze, and defaults**:
+    use  [`quarto-dev/quarto-cli`](https://github.com/quarto-dev/quarto-cli)
+  - For **project-level or newer consolidated Quarto materials**:
+    use [`quarto-dev/quarto`](https://github.com/quarto-dev/quarto)
+- **Bootstrap Sass**: query Context7 with `/websites/getbootstrap` for Sass
    variable references and component behaviour.
-3. **Repository structure**: read `_quarto.yml`, `posts/_metadata.yml`,
+- **Repository structure**: read `_quarto.yml`, `posts/_metadata.yml`,
    `theme-light.scss`, `theme-dark.scss`, `_design-tokens.scss`,
    `_base-components.scss`, and `docs/scss-reference.md` before making changes.
 
-Use websearch tools to find out current documentation if the tools above don't answer the questions. Return sources used.
+If all else fails, use websearch tools if the tools above don't answer the questions. Always return sources used in this.
 
 ## Quarto development workflow
 

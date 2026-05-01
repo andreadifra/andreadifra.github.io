@@ -1,6 +1,6 @@
 ---
 title: "Andrea Di Francia"
-subtitle: "Data Scientist & Economist"
+subtitle: "Data Scientist | Economist | Machine Learning Enthusiast"
 page-layout: full
 title-block-banner: false
 toc: false
@@ -15,7 +15,7 @@ about:
         text: LinkedIn
         href: https://linkedin.com/in/andreadifrancia
       - icon: github
-        text: Github
+        text: GitHub
         href: https://github.com/andreadifra
       - icon: envelope
         text: Email

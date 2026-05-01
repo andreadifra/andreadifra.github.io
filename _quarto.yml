@@ -7,8 +7,6 @@ project:
     - "posts/*/index.qmd"
     - "!zero-inflated-models-tutorial.qmd"
 
-author: "Andrea Di Francia"
-
 website:
   title: "Andrea Di Francia"
   site-url: https://andreadifra.github.io/
