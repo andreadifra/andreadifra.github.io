@@ -48,7 +48,7 @@ format:
       dark: [cosmo, theme-dark.scss]
     toc: true
     page-layout: full
-    mainfont: "Atkinson Hyperlegible, sans-serif"
+    mainfont: "Manrope, sans-serif"
     monofont: "Fira Code, monospace"
 
 

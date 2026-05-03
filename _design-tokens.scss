@@ -81,8 +81,8 @@ $dark-accent-hover: #00c4ce; // Lighter teal for hover/focus states.
 $dark-accent-soft: #1a3d40; // Muted teal fill behind interactive elements.
 $dark-accent-soft-strong: #254f54; // Active-state background tint.
 $dark-navbar-bg: #0b6163; // Teal navbar — user-specified chrome anchor.
-$dark-navbar-fg: #222831; // Dark charcoal on teal — WCAG AA contrast (~5.4:1).
-$dark-navbar-hl: #0d1f22; // Deeper teal-dark for navbar hover text.
+$dark-navbar-fg: #eeeeee; // Near-white navbar text/icons for strong contrast on teal.
+$dark-navbar-hl: #ffffff; // Brighter hover/highlight text for clear accessible emphasis.
 $dark-code-bg: #1a1f28; // Code surfaces — darker than page canvas.
 $dark-code-border: #3a4250; // Code block borders and accent color.
 $dark-focus-ring: rgba(#00adb5, 0.36); // Teal focus ring for keyboard users.
