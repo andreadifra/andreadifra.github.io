@@ -1,0 +1,153 @@
+/*-- scss:uses --*/
+
+// Load the shared semantic token module before any Quarto defaults are mapped.
+@use 'design-tokens' as tokens;
+
+/*-- scss:defaults --*/
+
+// Typography and interaction primitives are promoted into this layer so both
+// Bootstrap defaults and our component partial resolve to the same values.
+$font-family-sans-serif: tokens.$font-family-sans-serif;
+$font-family-monospace: tokens.$font-family-monospace;
+$font-size-root: tokens.$font-size-root;
+$headings-font-weight: tokens.$headings-font-weight;
+
+$border-radius-base: tokens.$border-radius-base;
+$border-radius-lg: tokens.$border-radius-lg;
+$shadow-subtle: tokens.$shadow-subtle;
+$transition-base: tokens.$transition-base;
+$hover-transform: tokens.$hover-transform;
+$focus-ring-width: tokens.$focus-ring-width;
+
+// =============================================================================
+// LIGHT THEME SEMANTIC MAPPING
+// =============================================================================
+// Translate the shared light-mode tokens into generic theme roles used
+// throughout the Quarto and Bootstrap mapping below.
+
+$surface-primary: tokens.$light-page-bg; // Main page canvas.
+$surface-secondary: tokens.$light-surface; // Cards and elevated content blocks.
+$surface-tertiary: tokens.$light-surface-alt; // Inputs and subdued UI surfaces.
+$surface-strong: tokens.$light-surface-strong; // Footer/sidebar/background chrome.
+
+$text-primary: tokens.$light-text; // Default body text.
+$text-secondary: tokens.$light-text-muted; // Metadata and supporting labels.
+$heading-color: tokens.$light-heading; // Heading and emphasized title color.
+
+$accent-primary: tokens.$light-accent; // Links and primary emphasis.
+$accent-hover: tokens.$light-accent-hover; // Hover state for interactive text.
+$accent-soft: tokens.$light-accent-soft; // Soft fills behind UI elements.
+$accent-soft-strong: tokens.$light-accent-soft-strong; // Active-state tint.
+
+$chrome-primary: tokens.$light-navbar-bg; // Site chrome anchor.
+$chrome-primary-fg: tokens.$light-navbar-fg; // Navbar foreground color.
+$chrome-highlight: tokens.$light-navbar-hl; // Navbar hover/highlight foreground.
+
+$border-color-soft: tokens.$light-border; // Default outlines and separators.
+$border-color-strong: tokens.$light-border-strong; // Hover/focus border emphasis.
+$code-surface: tokens.$light-code-bg; // Inline code and preformatted surfaces.
+$code-border-color: tokens.$light-code-border; // Code block border/accent color.
+$focus-ring-color: tokens.$light-focus-ring; // Keyboard focus treatment.
+$elevation-shadow: tokens.$light-shadow; // Hover lift for major cards.
+
+// Decorative helpers used only by the component partial to add atmosphere and
+// stronger hierarchy without touching content markup.
+$ambient-wash: rgba($accent-primary, 0.08);
+$ambient-glow: rgba($chrome-primary, 0.06);
+$surface-tint: rgba($chrome-primary, 0.03);
+$surface-tint-strong: rgba($accent-primary, 0.12);
+$selection-bg: rgba($accent-primary, 0.18);
+
+$listing-chip-bg: rgba($accent-primary, 0.1);
+$listing-chip-border: rgba($accent-primary, 0.18);
+$listing-chip-color: $heading-color;
+
+$callout-note-bg: #edf3f9;
+$callout-note-border: $accent-primary;
+$callout-note-title: $heading-color;
+$callout-tip-bg: #edf7f0;
+$callout-tip-border: #28a745;
+$callout-tip-title: #1a6b30;
+$callout-warning-bg: #fff8e6;
+$callout-warning-border: #e0a800;
+$callout-warning-title: #7a5a00;
+$callout-caution-bg: #fff3e6;
+$callout-caution-border: #e07800;
+$callout-caution-title: #7a3a00;
+$callout-important-bg: #fde8ea;
+$callout-important-border: #c82333;
+$callout-important-title: #6b0f1a;
+
+// =============================================================================
+// BOOTSTRAP AND QUARTO VARIABLE MAPPING
+// =============================================================================
+// Map the semantic roles above into the variables Quarto and Bootstrap consume.
+
+$body-bg: $surface-primary;
+$body-color: $text-primary;
+$text-muted: $text-secondary;
+$headings-color: $heading-color;
+
+$primary: $accent-primary;
+$secondary: $accent-soft-strong;
+$info: $accent-soft;
+
+$link-color: $accent-primary;
+$link-hover-color: $accent-hover;
+
+$border-color: $border-color-soft;
+$card-bg: $surface-secondary;
+$modal-content-bg: $surface-secondary;
+$popover-bg: $surface-secondary;
+$dropdown-bg: $surface-secondary;
+$dropdown-border-color: $border-color-soft;
+$dropdown-link-hover-bg: $accent-soft;
+$dropdown-link-active-bg: $accent-soft-strong;
+$dropdown-link-active-color: $heading-color;
+
+$input-bg: $surface-tertiary;
+$input-border-color: $border-color-soft;
+$input-focus-border-color: $accent-primary;
+$input-focus-box-shadow: 0 0 0 $focus-ring-width $focus-ring-color;
+$form-select-border-color: $border-color-soft;
+
+$navbar-bg: $chrome-primary;
+$navbar-fg: $chrome-primary-fg;
+$navbar-hl: $chrome-highlight;
+
+$sidebar-bg: $surface-strong;
+$sidebar-fg: $text-primary;
+$sidebar-hl: $accent-primary;
+$footer-bg: $surface-strong;
+$footer-fg: $text-primary;
+
+$code-bg: $code-surface;
+$code-color: $heading-color;
+$code-block-bg: $code-surface;
+$code-block-bg-alpha: 0;
+$pre-color: $text-primary;
+
+$toc-color: $text-primary;
+$toc-active-border: $accent-primary;
+$toc-inactive-border: rgba($border-color-soft, 0.4);
+
+$pagination-color: $accent-primary;
+$pagination-hover-color: $accent-hover;
+$pagination-focus-color: $accent-hover;
+$pagination-active-bg: $accent-primary;
+$pagination-active-border-color: $accent-primary;
+
+// =============================================================================
+// SHARED COMPONENT HELPERS
+// =============================================================================
+// These helpers are consumed in `_base-components.scss` for hover, avatar, and
+// card treatments that must stay theme-aware.
+
+$border-hover-color: $border-color-strong;
+$card-hover-shadow: $elevation-shadow;
+$avatar-border: rgba($chrome-primary, 0.14);
+
+/*-- scss:rules --*/
+
+// Shared structural styling lives in the component partial.
+@import 'base-components';

@@ -1,12 +1,24 @@
 ---
 title: "Welcome To My Blog"
-author: "Tristan O'Malley"
+author: "Andrea Di Francia"
 date: "2024-07-20"
 categories: [news]
 ---
 
-This is the first post in a Quarto blog. Welcome!
+Welcome — and thanks for stopping by.
 
-![](thumbnail.jpg)
+This blog is where I share practical notes on data science, economics, and
+statistical modelling. My day-to-day work sits at the intersection of applied
+analytics, machine learning, and decision-focused communication, and this site
+gives me a place to turn that work into clear, reusable write-ups.
 
-Since this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.
+![Welcome post thumbnail](thumbnail.jpg)
+
+You can expect a mix of:
+
+- hands-on tutorials in R and Python
+- project notes on modelling, forecasting, and experimentation
+- lessons on making technical work useful for real decisions
+
+I am starting with a small set of pages, then expanding the site with deeper
+case studies and tutorials over time.

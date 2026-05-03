@@ -1,0 +1,102 @@
+/*
+ * Shared design tokens and base configuration
+ * Import this file FIRST in each theme.
+ */
+
+// Import fonts early so families are available to variables.
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap&family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+// =============================================================================
+// TYPOGRAPHY TOKENS
+// =============================================================================
+// These tokens stay shared so Quarto and Bootstrap inherit the same typographic
+// voice in both modes.
+
+$font-family-sans-serif: 'Manrope', system-ui, -apple-system,
+  'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-monospace: 'Fira Code', ui-monospace, SFMono-Regular, Menlo,
+  Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+$font-size-root: 17px; // Slightly larger base size for long-form readability.
+$headings-font-weight: 700; // Strong enough to anchor article and listing titles.
+
+// =============================================================================
+// FOUNDATION PALETTE
+// =============================================================================
+// The palette stays close to the issue brief: paper, mist, accent blue, and a
+// deep navy anchor for chrome and dark-mode structure.
+
+$palette-paper: #f9f7f7; // Warm near-white for the main light canvas.
+$palette-mist: #dbe2ef; // Cool supporting surface tint.
+$palette-accent: #3f72af; // Primary interactive blue.
+$palette-ink: #112d4e; // Preferred deep navy for the light navbar anchor.
+$palette-ink-soft: #1f436d; // Softer navy for layered dark accents.
+
+// =============================================================================
+// LIGHT THEME SEMANTIC TOKENS
+// =============================================================================
+// Light mode uses a brighter editorial stack: paper background, white cards,
+// mist-tinted secondary surfaces, and darker navy chrome for strong hierarchy.
+
+$light-page-bg: $palette-paper; // Default page background.
+$light-page-bg-alt: #ffffff; // Reserve for fully elevated white sections.
+$light-surface: #ffffff; // Cards, listings, and modal surfaces.
+$light-surface-alt: #f2f6fb; // Inputs, subtle containers, and code shells.
+$light-surface-strong: #e7eef6; // Footer/sidebar surfaces with more presence.
+$light-border: #ccd8e6; // Default dividers and card outlines.
+$light-border-strong: #9fb6cf; // Hover and focus-adjacent border emphasis.
+$light-text: #1b324f; // Primary reading color.
+$light-text-muted: #5a7089; // Supporting metadata and secondary labels.
+$light-heading: $palette-ink; // Title and heading anchor.
+$light-accent: $palette-accent; // Links and primary emphasis.
+$light-accent-hover: #2f5f97; // Darker hover state for clearer affordance.
+$light-accent-soft: $palette-mist; // Soft accent fill for secondary UI.
+$light-accent-soft-strong: #c4d5ea; // Stronger accent tint for active states.
+$light-navbar-bg: $palette-ink; // Explicitly close to the requested #112D4E.
+$light-navbar-fg: #f9fbfd; // High-contrast navbar text/icons.
+$light-navbar-hl: #dbe8f5; // Hover/highlight text in the navbar.
+$light-code-bg: #edf3f8; // Code and preformatted backgrounds.
+$light-code-border: #bfd0e4; // Code block edge and left accent support.
+$light-focus-ring: rgba($light-accent, 0.26); // Accessible but not harsh.
+$light-shadow: 0 18px 45px rgba($palette-ink, 0.1); // Soft editorial elevation.
+
+// =============================================================================
+// DARK THEME SEMANTIC TOKENS
+// =============================================================================
+// Dark mode uses a charcoal + teal palette: deep charcoal page canvas,
+// clearly-stepped elevated surfaces, and a teal accent/navbar for punch.
+// Palette reference: #222831 / #393E46 / #00ADB5 / #EEEEEE.
+
+$dark-page-bg: #222831; // Deep charcoal page canvas.
+$dark-page-bg-alt: #1c2028; // Slightly darker alternate field.
+$dark-surface: #393e46; // Default elevated surfaces and cards.
+$dark-surface-alt: #2e3340; // Inputs, code, and secondary surface tint.
+$dark-surface-strong: #454b55; // Footer/sidebar — clearly separated layer.
+$dark-border: #4a5260; // Default dividers and card outlines.
+$dark-border-strong: #6e7a8a; // Hover/focus border emphasis.
+$dark-text: #eeeeee; // Main body text — near-white on charcoal.
+$dark-text-muted: #a0a8b4; // Supporting metadata and secondary labels.
+$dark-heading: #ffffff; // High-contrast heading color.
+$dark-accent: #00adb5; // Primary teal accent for links and emphasis.
+$dark-accent-hover: #00c4ce; // Lighter teal for hover/focus states.
+$dark-accent-soft: #1a3d40; // Muted teal fill behind interactive elements.
+$dark-accent-soft-strong: #254f54; // Active-state background tint.
+$dark-navbar-bg: #0b6163; // Teal navbar — user-specified chrome anchor.
+$dark-navbar-fg: #eeeeee; // Near-white navbar text/icons for strong contrast on teal.
+$dark-navbar-hl: #ffffff; // Brighter hover/highlight text for clear accessible emphasis.
+$dark-code-bg: #1a1f28; // Code surfaces — darker than page canvas.
+$dark-code-border: #3a4250; // Code block borders and accent color.
+$dark-focus-ring: rgba(#00adb5, 0.36); // Teal focus ring for keyboard users.
+$dark-shadow: 0 22px 60px rgba(10, 12, 15, 0.62); // Deeper elevation shadow.
+
+// =============================================================================
+// SPACING & INTERACTION TOKENS
+// =============================================================================
+// Radius, shadow, and transition values stay shared so components feel like one
+// system even when the color mapping changes drastically between modes.
+
+$border-radius-base: 14px; // Default card, form, and code rounding.
+$border-radius-lg: 22px; // Larger hero/listing/project surface rounding.
+$shadow-subtle: 0 16px 36px rgba($palette-ink, 0.08); // Reusable soft lift.
+$transition-base: 0.24s ease; // Shared interaction timing.
+$hover-transform: translateY(-5px); // Small elevation cue on hover.
+$focus-ring-width: 0.22rem; // Focus ring size reused across interactive controls.

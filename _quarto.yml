@@ -1,11 +1,16 @@
 project:
   type: website
+  preview:
+    port: 7921
+  render:
+    - "*.qmd"
+    - "posts/*/index.qmd"
+    - "!zero-inflated-models-tutorial.qmd"
 
 website:
   title: "Andrea Di Francia"
   site-url: https://andreadifra.github.io/
   navbar:
-    background: primary
     search: true
     left:
       - icon: house-fill
@@ -22,12 +27,12 @@ website:
         text: About
         href: about.qmd
       - icon: github
-        href: https://github.com/
+        href: https://github.com/andreadifra
       - icon: linkedin
-        href: https://linkedin.com
+        href: https://linkedin.com/in/andreadifrancia
   page-footer:
     left: |
-      Website made with [Quarto](https://quarto.org), by Andrea DI Francia. License: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/).
+      Website made with [Quarto](https://quarto.org), by Andrea Di Francia. License: [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/).
     right:
       - icon: github
         href: https://github.com/andreadifra
@@ -38,11 +43,12 @@ website:
 
 format:
   html:
-    theme: cosmo
-    scss: styles.scss
+    theme: 
+      light: [cosmo, theme-light.scss]
+      dark: [cosmo, theme-dark.scss]
     toc: true
     page-layout: full
-    mainfont: "Atkinson Hyperlegible, sans-serif"
+    mainfont: "Manrope, sans-serif"
     monofont: "Fira Code, monospace"
 
 

@@ -1,41 +1,63 @@
 ---
 title: "Andrea Di Francia"
-subtitle: "Data Scientist & Economist"
+subtitle: "Data Scientist | Economist | Machine Learning Enthusiast"
 page-layout: full
 title-block-banner: false
+toc: false
 about:
+    id: about-me
     template: jolla
+    image: andrea.jpg
+    image-width: 15em
+    image-shape: round
+    links:
+      - icon: linkedin
+        text: LinkedIn
+        href: https://linkedin.com/in/andreadifrancia
+      - icon: github
+        text: GitHub
+        href: https://github.com/andreadifra
+      - icon: envelope
+        text: Email
+        href: mailto:andrea.l.difrancia@gmail.com
+listing:
+  id: recent-posts
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: false
+  sort-ui: false
+  filter-ui: false
+  max-items: 3
+  feed: true
 ---
 
-::: {.column-page}
-::: {.grid}
-
-::: {.g-col-4}
-![](andrea.jpg){.rounded-circle width=80%}
+::: {#about-me}
 :::
 
-::: {.g-col-8}
-# Welcome to My Website
+Hello! I'm Andrea, a Data Scientist and Economist passionate about solving
+complex problems with data.
 
-Hello! I'm Andrea, a data scientist and economist passionate about solving complex problems with data.
-
-## What I Do
-
-I work with data science tools and techniques to extract insights and build solutions. My expertise includes machine learning, statistical analysis, and data visualization.
+I work with data science tools and techniques to extract insights and build
+solutions. My expertise includes machine learning, statistical analysis, and
+data visualization.
 
 ::: {.callout-note}
+
 ## Latest Projects
-Check out my [Projects](projects.qmd) page to see what I've been working on lately!
+
+Check out my [Projects](projects.qmd) page to see what I've been working on
+lately!
+
 :::
 
 ::: {.callout-tip}
+
 ## Blog Updates
-Read my [latest thoughts and tutorials](blog.qmd) on data science and programming.
-:::
 
-:::
+Read my [latest thoughts and tutorials](blog.qmd) on data science and
+programming.
 
-:::
 :::
 
 ## Recent Posts
@@ -43,9 +65,6 @@ Read my [latest thoughts and tutorials](blog.qmd) on data science and programmin
 :::{#recent-posts}
 :::
 
-```{r}
-#| echo: false
-#| output: false
-# This code will be processed but not shown to create recent posts section
-```
-
+::: {.callout-note appearance="minimal"}
+Recent posts will be listed here automatically by Quarto's listing feature.
+:::
