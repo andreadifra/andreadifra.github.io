@@ -64,7 +64,7 @@ If all else fails, use websearch tools if the tools above don't answer the quest
 
 ## Markdown Standards
 
-All agents **must** produce markdownlint-compliant Markdown. These rules are enforced by the `markdownlint` VS Code extension. Spawn a sub-agent to run `npx markdownlint-cli <file>` locally to verify before passing back control. Common infractions include:
+All agents **must** produce markdownlint-compliant Markdown unless for files that will be uploaded on GitHub (i.e. GitHub issues, pull requests, etc.). These rules are enforced by the `markdownlint` VS Code extension. Spawn a sub-agent to run `npx markdownlint-cli <file>` locally to verify before passing back control. Common infractions include:
 
 - **MD001** — Headings must increment by one level at a time.
 - **MD003** — Use ATX-style headings.
