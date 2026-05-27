@@ -1,6 +1,7 @@
 ---
-title: "About Me"
+title: "About"
 image: andrea.jpg
+toc: false
 about:
   template: trestles
   image-width: 15em
@@ -15,75 +16,98 @@ about:
     - icon: envelope
       text: Email
       href: mailto:andrea.l.difrancia@gmail.com
-    - icon: file-earmark-text
-      text: CV
-      href: downloads/ds_resume.pdf
 ---
+<br/>
+I'm a London-based data scientist and economist working across health, public policy, and applied machine learning. I turn messy real-world data into decision tools, production pipelines, and evidence that clinicians, policymakers, and research partners can actually use.
 
-<!-- TODO Insert links to projects you have done -->
-::: {.column-page}
+<!-- 
+Unused for now - do not delete, as they may be added back in the future.
 
-I am a Data Scientist and Economist with expertise in machine learning,
-statistical analysis, and data visualization.
+::: about-domain-chips
+[Health analytics]{.about-domain-chip} [Public policy]{.about-domain-chip} [Applied ML]{.about-domain-chip} [Decision tools]{.about-domain-chip}
+::: -->
 
-With over 7 years of experience across the public and private sectors, I
-specialize in developing predictive models and implementing data-driven
-solutions. I am passionate about using data to solve real-world problems.
+::: {.panel-tabset .about-tabset}
+## Overview
 
-## Education
-<!-- Improve education section, or merge into one? create boxes for it possibly? -->
+### How I work
 
-**MSc in Applied Statistics & Operational Research** | Birkbeck University, London 
+I enjoy moving between strategy and implementation: framing the decision, building the data product, and translating the result into something useful for people outside the model itself. That usually means combining statistical modelling, pragmatic engineering, and clear communication rather than treating them as separate jobs.
 
-**BSc in Economics** | University of Nottingham
+### What that looks like in practice
+
+Across my work, I have built production analytics pipelines, scoped predictive risk models, developed evaluation frameworks, and turned complex analyses into briefings, dashboards, and publications. The common thread is taking ambiguous, high-stakes questions and making them operational.
+
+### Where I add the most value
+
+I am most at home on problems that sit between domain expertise and delivery: health assessments, public-sector forecasting, epidemiology, outcomes research, and applied machine learning where robustness matters as much as novelty.
 
 ## Experience
-<!-- TODO Better format the experience sections (maybe create boxes?) -->
-**Senior Data Scientist** | HEOR | 2022-Present
 
-- Led development of predictive models for healthcare analytics
-- Implemented machine learning pipelines using Python and R
-- Collaborated with cross-functional teams to deploy solutions
+### Bupa
 
-**Data Analyst** | NHS England | 2018-2022
+At Bupa, I rebuilt health-assessment pipelines in Snowflake so core analytics were more reliable, easier to extend, and ready for downstream decision-making. I also scoped QRISK3, QDiabetes, and mental-health model opportunities, led white-paper analytics on more than 100,000 records, and drafted the production roadmap for AI-powered health plans.
 
-- Analyzed large healthcare datasets to extract business insights
-- Created interactive dashboards using Tableau and R Shiny
-- Automated reporting processes using Python
+### HEOR
 
-**Economic Researcher** | Department for Education | 2016-2018
+In health economics and outcomes research, I worked on real-world evidence for pharmaceutical clients using survival analysis, zero-inflated cost models, and global evidence synthesis. The work demanded both technical depth and careful translation, because the output had to stand up to clinical, commercial, and market-access scrutiny.
 
-- Conducted statistical analysis on education and workforce data
-- Developed economic models to evaluate policy effectiveness
-- Produced research reports for government stakeholders
+### UK Health Security Agency
 
-**Research Assistant** | University of Nottingham | 2015-2016
+At UKHSA, I worked on NLP for clinical text, Bayesian epidemiology, and surveillance ETL for infectious disease analysis. I also contributed to cloud and MLOps workflows that made it easier to move from exploratory analysis to repeatable, operational pipelines.
 
-- Assisted with economic research projects in the Department of Economics
-- Performed literature reviews and data collection
-- Contributed to academic publications
+### Department for Education
 
-## Skills
+At the Department for Education, I built forecasting models and Shiny decision tools for workforce and funding questions, with a focus on policy evaluation and practical economics. The work ranged from teacher pay-bill analysis to evidence that could support national programme decisions.
 
-- **Programming Languages**: Python, R, SQL
-- **Data Science**: Machine Learning, Statistical Analysis, Data Visualization
-- **Tools**: Jupyter, RStudio, Git, Docker
-- **Frameworks**: TensorFlow, PyTorch, scikit-learn, tidyverse
+## Projects
 
-::: {.grid}
-::: {.g-col-12 .g-col-md-6}
-::: {.card .text-center}
-::: {.card-body}
-::: {.card-title}
+### Zero-inflated obesity cost modelling
 
-### Download My CV
+I built a full worked example of zero-inflated modelling for obesity-related healthcare costs, showing how to separate the probability of incurring costs from the level of spend once costs occur. [Read the tutorial](posts/zero-inflated-models-tutorial/index.qmd).
 
-:::
+### NHS COVID-19 App impact modelling
 
-[Download CV](downloads/ds_resume.pdf){.btn .btn-primary .mt-2}
+I contributed to modelling work that estimated the epidemiological impact of the NHS COVID-19 app across England and Wales, translating app and surveillance data into evidence about infections averted and population-level benefit.
+
+### Hepatitis NLP pipeline on clinical reports
+
+I helped design NLP workflows that extracted usable signals from clinical reports, turning unstructured text into analysis-ready data for surveillance and research use.
+
+### Teacher pay-bill and Early Career Framework dashboards
+
+I developed forecasting and decision-support tools that helped policy teams understand workforce costs, funding trade-offs, and delivery scenarios in a way that was explorable rather than static.
+
+### Bupa health-assessment analytics and risk models
+
+This work combined production analytics, model scoping, and evidence generation: rebuilding the pipeline underneath the product, defining candidate risk models, and producing analyses that could support both strategy and member-facing health planning.
 
 :::
-:::
-:::
-:::
+
+::: {.panel-tabset .about-tabset}
+
+## Publications
+
+### Science (2024)
+
+["Drivers of epidemic dynamics in real time from daily digital COVID-19 measurements"](https://www.science.org/doi/10.1126/science.adm8103) showed how daily digital signals can be used to track changing epidemic dynamics in near real time. I contributed to the analytical work that connected those measurements to actionable epidemiological insight.
+
+### Nature (2023)
+
+["Digital measurement of SARS-CoV-2 transmission risk for precision epidemiology"](https://rdcu.be/dvLyt) demonstrated how digital contact data can sharpen estimates of transmission risk. My contribution focused on turning high-volume behavioural and epidemiological data into evidence that could support more precise public-health analysis.
+
+### Nature Communications (2023)
+
+["Epidemiological impacts of the NHS COVID-19 app in England and Wales throughout its first year"](https://rdcu.be/c6yas) quantified the real-world impact of the NHS COVID-19 app over its first year. I contributed to modelling and evidence generation that helped explain the app's population-level effect in plain, decision-relevant terms.
+
+## Education
+
+### Birkbeck, University of London
+
+**MSc Applied Statistics & Operational Research** — Distinction
+
+### University of Nottingham
+
+**BSc Economics** — First Class Honours
+
 :::
