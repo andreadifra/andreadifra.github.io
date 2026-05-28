@@ -100,6 +100,7 @@ a {
   color: $accent-primary;
 
   &:hover {
+    background-color: $accent-primary;
     border-color: $accent-primary;
     color: $surface-primary;
   }
@@ -160,6 +161,7 @@ a {
     linear-gradient(135deg, $navbar-bg 0%, rgba($accent-primary, 0.18) 100%),
     $navbar-bg;
   border-bottom: 1px solid rgba($chrome-highlight, 0.2);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -260,6 +262,8 @@ main .grid > section.level3 {
 .about-entity,
 .quarto-about-jolla .about-entity {
   padding: 1.6rem;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
 }
 
 // Remove the hard border from about-entity containers; shadow and background
@@ -293,6 +297,104 @@ main .grid > section.level3 {
 .quarto-post {
   padding: 1rem;
   gap: 1rem;
+}
+
+// About page right side entities.
+
+// These are unused for now - do not delete.
+.about-domain-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 1.2rem 0 1.75rem;
+}
+
+.about-domain-chip {
+  background-color: $listing-chip-bg;
+  border: 1px solid $listing-chip-border;
+  border-radius: 999px;
+  color: $listing-chip-color;
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.38rem 0.85rem;
+}
+
+.about-tabset.panel-tabset > .nav-tabs {
+  align-items: center;
+  border-bottom: none;
+  column-gap: 0.55rem;
+  flex-wrap: nowrap;
+  margin-bottom: 0.4rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 0.45rem;
+  row-gap: 0.35rem;
+  scrollbar-color: rgba($accent-primary, 0.55) transparent;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.about-tabset.panel-tabset > .nav-tabs .nav-item {
+  flex: 0 0 auto;
+  margin-bottom: 0;
+  scroll-snap-align: start;
+}
+
+.about-tabset.panel-tabset > .nav-tabs .nav-link {
+  background-color: rgba($surface-secondary, 0.96);
+  border: 1px solid rgba($border-color, 0.88);
+  border-radius: 999px;
+  color: $text-secondary;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.45rem 0.85rem;
+  transition: background-color $transition-base, border-color $transition-base,
+    box-shadow $transition-base, color $transition-base,
+    transform $transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: rgba($surface-tertiary, 0.98);
+    border-color: $border-hover-color;
+    color: $headings-color;
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+
+  @include focus-ring($focus-ring-color);
+}
+
+.about-tabset.panel-tabset > .nav-tabs .nav-link.active,
+.about-tabset.panel-tabset > .nav-tabs .nav-item.show .nav-link {
+  background:
+    linear-gradient(135deg, rgba($accent-primary, 0.18) 0%,
+      rgba($surface-secondary, 0.98) 100%);
+  border-color: rgba($accent-primary, 0.58);
+  box-shadow: 0 2px 8px rgba($accent-primary, 0.16);
+  color: $headings-color;
+}
+
+.about-tabset.panel-tabset > .tab-content {
+  background:
+    linear-gradient(180deg, rgba($surface-secondary, 0.98) 0%,
+      rgba($surface-tertiary, 0.96) 100%);
+  border: 1px solid rgba($border-color, 0.82);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-subtle;
+  padding: 1.5rem;
+}
+
+.about-tabset.panel-tabset > .tab-content > .tab-pane > :last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .about-tabset.panel-tabset > .tab-content {
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 // Quarto default listings split each row into thumbnail/body/metadata columns.
