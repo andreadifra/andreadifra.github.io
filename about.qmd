@@ -17,8 +17,10 @@ about:
       text: Email
       href: mailto:andrea.l.difrancia@gmail.com
 ---
-<br/>
-I'm a London-based data scientist and economist working across health, public policy, and applied machine learning. I turn messy real-world data into decision tools, production pipelines, and evidence that clinicians, policymakers, and research partners can actually use.
+
+I'm Andrea, and I've been working within the data, ML & AI space for nearly a [decade](https://www.linkedin.com/in/andreadifrancia/). 
+
+Throughout my career, I've had the opportunity to work on a wide range of projects across different sectors, including healthcare, public policy, and education, utilising a variety of tooling and techniques, some of which I like to write about -- (check out my [blog](blog.qmd) and [projects](projects.qmd) section)!
 
 <!-- 
 Unused for now - do not delete, as they may be added back in the future.
@@ -28,37 +30,44 @@ Unused for now - do not delete, as they may be added back in the future.
 ::: -->
 
 ::: {.panel-tabset .about-tabset}
-## Overview
+## Bio
 
-### How I work
+### Background
 
-I enjoy moving between strategy and implementation: framing the decision, building the data product, and translating the result into something useful for people outside the model itself. That usually means combining statistical modelling, pragmatic engineering, and clear communication rather than treating them as separate jobs.
+I studied economics and statistics, and started my career in the [Government Economic Service (GES)](https://www.gov.uk/government/organisations/civil-service-government-economic-service). I spent nearly 5 years at the Department for Education across a range of policy areas, starting in economic modelling and gradually moving into broader data science work.
 
-### What that looks like in practice
+Since then, I've worked across the public and private sectors and built experience across the full ML lifecycle: from scoping projects, building prototypes, developing data pipelines, to productionising models, setting up monitoring, and evaluating how they perform in practice.
 
-Across my work, I have built production analytics pipelines, scoped predictive risk models, developed evaluation frameworks, and turned complex analyses into briefings, dashboards, and publications. The common thread is taking ambiguous, high-stakes questions and making them operational.
-
-### Where I add the most value
-
-I am most at home on problems that sit between domain expertise and delivery: health assessments, public-sector forecasting, epidemiology, outcomes research, and applied machine learning where robustness matters as much as novelty.
+Outside work, I write about the things I build — mostly statistical methods, ML workflows, and the occasional detour into something I'm trying to understand better. If you want to collaborate or just talk through a problem, [get in touch](mailto:andrea.l.difrancia@gmail.com).
 
 ## Experience
 
 ### Bupa
 
-At Bupa, I rebuilt health-assessment pipelines in Snowflake so core analytics were more reliable, easier to extend, and ready for downstream decision-making. I also scoped QRISK3, QDiabetes, and mental-health model opportunities, led white-paper analytics on more than 100,000 records, and drafted the production roadmap for AI-powered health plans.
+Recently, I've been doing some contract work with Bupa on their AI Emblematic initiative - a multi-year programme to use AI and data science to improve the health outcomes of their customers.
 
-### HEOR
+My work there has been focused on building production analytics pipelines, scoping predictive risk models, and generating evidence to support both strategy and member-facing health planning. This has involved a mix of data engineering, model development, and analysis that can inform both internal decision-making and customer-facing tools.
 
-In health economics and outcomes research, I worked on real-world evidence for pharmaceutical clients using survival analysis, zero-inflated cost models, and global evidence synthesis. The work demanded both technical depth and careful translation, because the output had to stand up to clinical, commercial, and market-access scrutiny.
+### Health Economics and Outcomes Research Ltd.
+
+At HEOR, most of my work there was focussed on large-scale real-world evidence studies and health economics projects for pharmaceutical clients, using UK healthcare databases and datasets like CPRD Aurum, HES, and ONS.
+
+That included things like parametric survival modelling, healthcare cost modelling, and evidence synthesis. Examples include modelling the cost of obesity-related healthcare, and global meta-analysis of meningitis carriage for vaccine development.
 
 ### UK Health Security Agency
 
-At UKHSA, I worked on NLP for clinical text, Bayesian epidemiology, and surveillance ETL for infectious disease analysis. I also contributed to cloud and MLOps workflows that made it easier to move from exploratory analysis to repeatable, operational pipelines.
+At UKHSA, I was initially supporting the UK's COVID-19 response, specifically working on the NHS COVID-19 App, collaborating with academic partners to publish research evaluating and estimating the effectiveness of the app in preventing covid cases, and subsequent hospitalisation and deaths.
+
+Once the programme ended, I was also involved in other health protection efforts, such as Mpox, Avian Influenza, and Hepatitis B, where one of my later project involved training text classifiers using Transformers-based architectures to extract hepatitis markers status from unstructured clinical reports.
 
 ### Department for Education
 
-At the Department for Education, I built forecasting models and Shiny decision tools for workforce and funding questions, with a focus on policy evaluation and practical economics. The work ranged from teacher pay-bill analysis to evidence that could support national programme decisions.
+At the Department for Education, I worked predominantly on forecasting and policy modelling, with a focus on policy evaluation and practical economics. I worked across a variety of policy areas, including teachers funding, school infrastracture and capital expenditure, and higher education.
+
+One of my highlights was working on the Teacher Pay-Bill model and the School's Cost Pressures Model, which were used by the government to predict spending as well as funding growth for schools in England.
+
+```{=html}
+<!-- Do not display this for now as it is still being edited. Will be added back in the future.  
 
 ## Projects
 
@@ -80,12 +89,11 @@ I developed forecasting and decision-support tools that helped policy teams unde
 
 ### Bupa health-assessment analytics and risk models
 
-This work combined production analytics, model scoping, and evidence generation: rebuilding the pipeline underneath the product, defining candidate risk models, and producing analyses that could support both strategy and member-facing health planning.
-
+This work combined production analytics, model scoping, and evidence generation: rebuilding the pipeline underneath the product, defining candidate risk models, and producing analyses that could support both strategy and member-facing health planning. -->
+```
 :::
 
 ::: {.panel-tabset .about-tabset}
-
 ## Publications
 
 ### Science (2024)
@@ -109,5 +117,4 @@ This work combined production analytics, model scoping, and evidence generation:
 ### University of Nottingham
 
 **BSc Economics** — First Class Honours
-
 :::

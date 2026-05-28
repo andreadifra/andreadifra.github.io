@@ -1,6 +1,6 @@
 ---
 title: "Andrea Di Francia"
-subtitle: "Data Scientist | Economist | Machine Learning Enthusiast"
+subtitle: "Data Scientist | Economist | AI & Machine Learning Enthusiast"
 page-layout: full
 title-block-banner: false
 toc: false
@@ -35,34 +35,23 @@ listing:
 ::: {#about-me}
 :::
 
-Hello! I'm Andrea, a Data Scientist and Economist passionate about solving
-complex problems with data.
+Hi there👋, I'm Andrea, and welcome to my **personal website**. Here I mostly write about  things I worked on that I think are cool, and perhaps useful, and the odd technical rabbit hole. You can find more about me [here](about.qmd).
 
-I work with data science tools and techniques to extract insights and build
-solutions. My expertise includes machine learning, statistical analysis, and
-data visualization.
-
-::: {.callout-note}
-
+::: callout-note
 ## Latest Projects
 
-Check out my [Projects](projects.qmd) page to see what I've been working on
-lately!
-
+Check out my [Projects](projects.qmd) page to see what I've been working on lately!
 :::
 
-::: {.callout-tip}
-
+::: callout-tip
 ## Blog Updates
 
-Read my [latest thoughts and tutorials](blog.qmd) on data science and
-programming.
-
+Read my [latest thoughts and tutorials](blog.qmd) on data science and programming.
 :::
 
 ## Recent Posts
 
-:::{#recent-posts}
+::: {#recent-posts}
 :::
 
 ::: {.callout-note appearance="minimal"}
