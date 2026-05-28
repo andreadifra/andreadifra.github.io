@@ -50,7 +50,7 @@ My work there has been focused on building production analytics pipelines, scopi
 
 ### Health Economics and Outcomes Research Ltd.
 
-At HEOR, most of my work there was focussed on large-scale real-world evidence studies and health economics projects for pharmaceutical clients, using UK healthcare databases and datasets like CPRD Aurum, HES, and ONS.
+At HEOR, most of my work was focused on large-scale real-world evidence studies and health economics projects for pharmaceutical clients, using UK healthcare databases and datasets like CPRD Aurum, HES, and ONS.
 
 That included things like parametric survival modelling, healthcare cost modelling, and evidence synthesis. Examples include modelling the cost of obesity-related healthcare, and global meta-analysis of meningitis carriage for vaccine development.
 
@@ -58,15 +58,14 @@ That included things like parametric survival modelling, healthcare cost modelli
 
 At UKHSA, I was initially supporting the UK's COVID-19 response, specifically working on the NHS COVID-19 App, collaborating with academic partners to publish research evaluating and estimating the effectiveness of the app in preventing covid cases, and subsequent hospitalisation and deaths.
 
-Once the programme ended, I was also involved in other health protection efforts, such as Mpox, Avian Influenza, and Hepatitis B, where one of my later project involved training text classifiers using Transformers-based architectures to extract hepatitis markers status from unstructured clinical reports.
+Once the programme ended, I was also involved in other health protection efforts, such as Mpox, Avian Influenza, and Hepatitis B, where one of my later projects involved training text classifiers using Transformers-based architectures to extract hepatitis markers status from unstructured clinical reports.
 
 ### Department for Education
 
-At the Department for Education, I worked predominantly on forecasting and policy modelling, with a focus on policy evaluation and practical economics. I worked across a variety of policy areas, including teachers funding, school infrastracture and capital expenditure, and higher education.
+At the Department for Education, I worked predominantly on forecasting and policy modelling, with a focus on policy evaluation and practical economics. I worked across a variety of policy areas, including teachers funding, school infrastructure and capital expenditure, and higher education.
 
 One of my highlights was working on the Teacher Pay-Bill model and the School's Cost Pressures Model, which were used by the government to predict spending as well as funding growth for schools in England.
 
-```{=html}
 <!-- Do not display this for now as it is still being edited. Will be added back in the future.  
 
 ## Projects
@@ -90,7 +89,7 @@ I developed forecasting and decision-support tools that helped policy teams unde
 ### Bupa health-assessment analytics and risk models
 
 This work combined production analytics, model scoping, and evidence generation: rebuilding the pipeline underneath the product, defining candidate risk models, and producing analyses that could support both strategy and member-facing health planning. -->
-```
+
 :::
 
 ::: {.panel-tabset .about-tabset}
