@@ -7,6 +7,21 @@
 - Local development environment is Windows with PowerShell
 - Quarto theme stack uses Bootstrap Cosmo plus custom SCSS layers
 
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues is the source of truth for work in this repo. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the canonical triage labels unless the repo adopts different names
+later. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This repo uses a single-context layout with one root `CONTEXT.md` and `docs/adr/`. See `docs/agents/domain.md`.
+
 ## Finding current documentation
 
 Use current documentation before changing framework configuration.
