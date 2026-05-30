@@ -4,1137 +4,388 @@ description: "Private recruiter landing page for Andrea Di Francia with key high
 page-layout: full
 toc: false
 title-block-banner: false
+draft: true
+sitemap: false
+search: false
+format:
+  html:
+    css: hire-me.css
+header-includes:
+  - |
+    <meta name="robots" content="noindex, nofollow">
+  - |
+    <link
+      href="https://assets.calendly.com/assets/external/widget.css"
+      rel="stylesheet"
+    >
 ---
 
-<!-- markdownlint-disable MD013 MD033 MD034 -->
-
-<style>
-  .quarto-title-block {
-    display: none;
-  }
-
-  .recruiter-page {
-    padding: 1.25rem 0 4rem;
-  }
-
-  .recruiter-shell {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
-
-  .recruiter-label,
-  .recruiter-card-label,
-  .recruiter-stat-label,
-  .recruiter-section-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    font-size: 0.74rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--bs-secondary-color);
-  }
-
-  .recruiter-label::before,
-  .recruiter-card-label::before,
-  .recruiter-stat-label::before,
-  .recruiter-section-label::before {
-    content: "";
-    width: 1.85rem;
-    height: 1px;
-    background: rgba(var(--bs-primary-rgb), 0.4);
-  }
-
-  .recruiter-hero {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
-    gap: clamp(1.5rem, 3vw, 3rem);
-    align-items: stretch;
-    padding: clamp(1.5rem, 3vw, 2.8rem);
-    border: 1px solid rgba(var(--bs-primary-rgb), 0.18);
-    border-radius: 2rem;
-    overflow: hidden;
-    background:
-      linear-gradient(
-        135deg,
-        rgba(var(--bs-primary-rgb), 0.13) 0%,
-        rgba(var(--bs-primary-rgb), 0) 42%
-      ),
-      linear-gradient(
-        180deg,
-        rgba(var(--bs-secondary-bg-rgb), 0.94) 0%,
-        rgba(var(--bs-body-bg-rgb), 0.98) 100%
-      );
-    box-shadow: 0 28px 72px rgba(17, 45, 78, 0.12);
-  }
-
-  [data-bs-theme="dark"] .recruiter-hero {
-    box-shadow: 0 28px 72px rgba(0, 0, 0, 0.32);
-  }
-
-  .recruiter-hero::after {
-    content: "";
-    position: absolute;
-    inset: 1rem;
-    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.06);
-    border-radius: 1.4rem;
-    pointer-events: none;
-  }
-
-  .recruiter-photo-frame {
-    position: relative;
-    display: flex;
-    align-items: stretch;
-    padding: 1rem;
-    border: 1px solid rgba(var(--bs-primary-rgb), 0.16);
-    border-radius: 1.6rem;
-    background:
-      linear-gradient(
-        160deg,
-        rgba(var(--bs-body-bg-rgb), 0.68) 0%,
-        rgba(var(--bs-primary-rgb), 0.1) 100%
-      );
-  }
-
-  .recruiter-photo-frame::before {
-    content: "Candidate profile";
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    padding: 0.35rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--bs-emphasis-color);
-    background: rgba(var(--bs-body-bg-rgb), 0.75);
-    border: 1px solid rgba(var(--bs-primary-rgb), 0.15);
-    backdrop-filter: blur(8px);
-  }
-
-  .recruiter-photo-frame img {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    border-radius: 1.2rem;
-    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.08);
-    box-shadow: 0 22px 40px rgba(17, 45, 78, 0.18);
-  }
-
-  [data-bs-theme="dark"] .recruiter-photo-frame img {
-    box-shadow: 0 22px 40px rgba(0, 0, 0, 0.36);
-  }
-
-  .recruiter-copy {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .recruiter-copy h2 {
-    margin: 0;
-    font-size: clamp(2.4rem, 5vw, 4.5rem);
-    line-height: 0.94;
-    letter-spacing: -0.04em;
-    text-transform: uppercase;
-  }
-
-  .recruiter-kicker {
-    max-width: 12ch;
-    margin: 0;
-    font-size: clamp(1.2rem, 2vw, 1.75rem);
-    font-weight: 600;
-    line-height: 1.15;
-    color: var(--bs-emphasis-color);
-  }
-
-  .recruiter-copy p {
-    max-width: 62ch;
-    margin: 0;
-    font-size: 1.02rem;
-    color: var(--bs-secondary-color);
-  }
-
-  .recruiter-hero-links p {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.85rem;
-    margin: 0.35rem 0 0;
-  }
-
-  .recruiter-hero-links .btn {
-    min-width: 13rem;
-  }
-
-  .recruiter-highlights {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1.4rem;
-  }
-
-  .recruiter-stat {
-    padding: 1rem 1.1rem;
-    border: 1px solid rgba(var(--bs-border-color-rgb), 0.8);
-    border-radius: 1.35rem;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(var(--bs-body-bg-rgb), 0.96) 0%,
-        rgba(var(--bs-secondary-bg-rgb), 0.92) 100%
-      );
-    box-shadow: 0 18px 36px rgba(17, 45, 78, 0.06);
-  }
-
-  [data-bs-theme="dark"] .recruiter-stat {
-    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
-  }
-
-  .recruiter-stat-value {
-    display: block;
-    margin-top: 0.75rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--bs-emphasis-color);
-  }
-
-  .recruiter-section {
-    margin-top: 2.1rem;
-  }
-
-  .recruiter-section h2 {
-    margin-bottom: 0.45rem;
-    font-size: clamp(1.9rem, 3vw, 2.6rem);
-    letter-spacing: -0.03em;
-  }
-
-  .recruiter-section > p {
-    max-width: 62ch;
-    color: var(--bs-secondary-color);
-  }
-
-  .recruiter-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1.2rem;
-  }
-
-  .recruiter-action-card {
-    height: 100%;
-    padding: 1.35rem;
-    border: 1px solid rgba(var(--bs-border-color-rgb), 0.8);
-    border-radius: 1.55rem;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(var(--bs-secondary-bg-rgb), 0.96) 0%,
-        rgba(var(--bs-body-bg-rgb), 0.98) 100%
-      );
-    box-shadow: 0 20px 40px rgba(17, 45, 78, 0.08);
-  }
-
-  [data-bs-theme="dark"] .recruiter-action-card {
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  }
-
-  .recruiter-action-card h3 {
-    margin: 0.8rem 0 0.45rem;
-    font-size: 1.55rem;
-    letter-spacing: -0.03em;
-  }
-
-  .recruiter-action-card p {
-    color: var(--bs-secondary-color);
-  }
-
-  .recruiter-action-card .btn,
-  .recruiter-action-card .btn-group {
-    margin-top: 0.75rem;
-  }
-
-  .recruiter-placeholder-note {
-    margin-top: 0.7rem;
-    padding: 0.7rem 0.85rem;
-    border-radius: 1rem;
-    font-size: 0.92rem;
-    color: var(--bs-secondary-color);
-    background: rgba(var(--bs-warning-rgb), 0.12);
-    border: 1px solid rgba(var(--bs-warning-rgb), 0.24);
-  }
-
-  .recruiter-faq-layout {
-    display: grid;
-    gap: 1.25rem;
-    margin-top: 1.25rem;
-  }
-
-  .recruiter-faq-nav {
-    display: grid;
-    gap: 0.6rem;
-    align-content: start;
-  }
-
-  .recruiter-faq-nav .nav-link {
-    width: 100%;
-    padding: 0.95rem 1rem;
-    border: 1px solid rgba(var(--bs-border-color-rgb), 0.85);
-    border-radius: 1.1rem;
-    text-align: left;
-    font-weight: 700;
-    color: var(--bs-emphasis-color);
-    background:
-      linear-gradient(
-        180deg,
-        rgba(var(--bs-secondary-bg-rgb), 0.92) 0%,
-        rgba(var(--bs-body-bg-rgb), 0.95) 100%
-      );
-  }
-
-  .recruiter-faq-nav .nav-link.active {
-    color: var(--bs-primary);
-    border-color: rgba(var(--bs-primary-rgb), 0.32);
-    background:
-      linear-gradient(
-        180deg,
-        rgba(var(--bs-primary-rgb), 0.14) 0%,
-        rgba(var(--bs-secondary-bg-rgb), 0.96) 100%
-      );
-    box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.16);
-  }
-
-  .recruiter-faq-panel {
-    padding: 1.35rem;
-    border: 1px solid rgba(var(--bs-border-color-rgb), 0.8);
-    border-radius: 1.55rem;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(var(--bs-secondary-bg-rgb), 0.98) 0%,
-        rgba(var(--bs-body-bg-rgb), 0.98) 100%
-      );
-    box-shadow: 0 22px 42px rgba(17, 45, 78, 0.08);
-  }
-
-  [data-bs-theme="dark"] .recruiter-faq-panel {
-    box-shadow: 0 22px 42px rgba(0, 0, 0, 0.2);
-  }
-
-  .recruiter-faq-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-
-  .recruiter-faq-toolbar p {
-    margin: 0;
-    color: var(--bs-secondary-color);
-  }
-
-  .recruiter-faq-toolbar .btn-group {
-    gap: 0.5rem;
-  }
-
-  .recruiter-accordion .accordion-item {
-    margin-bottom: 0.85rem;
-    border: 1px solid rgba(var(--bs-border-color-rgb), 0.82);
-    border-radius: 1.15rem;
-    overflow: hidden;
-    background: rgba(var(--bs-body-bg-rgb), 0.72);
-  }
-
-  .recruiter-accordion .accordion-item:last-child {
-    margin-bottom: 0;
-  }
-
-  .recruiter-accordion .accordion-button {
-    padding: 1rem 1.1rem;
-    font-weight: 700;
-    color: var(--bs-emphasis-color);
-    background: rgba(var(--bs-body-bg-rgb), 0.2);
-    box-shadow: none;
-  }
-
-  .recruiter-accordion .accordion-button:not(.collapsed) {
-    color: var(--bs-primary);
-    background: rgba(var(--bs-primary-rgb), 0.1);
-  }
-
-  .recruiter-accordion .accordion-body {
-    color: var(--bs-secondary-color);
-    line-height: 1.7;
-  }
-
-  .recruiter-footnote {
-    margin-top: 1.2rem;
-    font-size: 0.95rem;
-    color: var(--bs-secondary-color);
-  }
-
-  @media (min-width: 992px) {
-    .recruiter-faq-layout {
-      grid-template-columns: 260px minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 991.98px) {
-    .recruiter-hero,
-    .recruiter-highlights,
-    .recruiter-actions-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .recruiter-copy h2 {
-      font-size: clamp(2.25rem, 10vw, 3.4rem);
-    }
-  }
-</style>
-
-<link
-  href="https://assets.calendly.com/assets/external/widget.css"
-  rel="stylesheet"
->
+<!-- markdownlint-disable MD033 -->
 
 ::: {.recruiter-page}
-::: {.recruiter-shell}
-::: {.recruiter-hero}
-::: {.recruiter-photo-frame}
-![Portrait of Andrea Di Francia](andrea.jpg){.img-fluid}
-:::
+[Private recruiter dossier]{.recruiter-label}
 
-::: {.recruiter-copy}
-<span class="recruiter-label">Private recruiter dossier</span>
+::: {.recruiter-hero}
 
 ## Andrea Di Francia
 
-<p class="recruiter-kicker">
+::: {.lead}
 Senior data scientist for teams that need rigorous analytics, clear product
 thinking, and stakeholder-ready communication.
-</p>
+:::
 
 I combine machine learning, statistics, and economics to deliver work that
 holds up in research-heavy environments and still ships cleanly into practical
 decision-making.
 
-::: {.recruiter-hero-links}
-[Download short resume](downloads/ds_resume.pdf){.btn .btn-primary target="_blank" rel="noopener"}
-[See full profile](about.qmd){.btn .btn-outline-primary target="_blank" rel="noopener"}
-:::
+::: {.d-flex .flex-wrap .gap-3 .mt-4}
+[Download short resume](downloads/ds_resume.pdf){
+  .btn .btn-primary
+  target="_blank"
+  rel="noopener"
+}
+[See full profile](about.html){.btn .btn-outline-primary target="_blank" rel="noopener"}
 :::
 :::
 
-::: {.recruiter-highlights}
+::: {.row .row-cols-1 .row-cols-sm-2 .row-cols-xl-4 .g-3 .mt-1 .recruiter-stats}
+::: {.col}
 ::: {.recruiter-stat}
-<span class="recruiter-stat-label">Experience</span>
-<span class="recruiter-stat-value">7+ years in applied analytics</span>
+[Experience]{.recruiter-stat-label}
+
+7+ years in applied analytics.
+:::
 :::
 
+::: {.col}
 ::: {.recruiter-stat}
-<span class="recruiter-stat-label">Seniority</span>
-<span class="recruiter-stat-value">Senior / lead individual contributor</span>
+[Seniority]{.recruiter-stat-label}
+
+Senior / lead individual contributor.
+:::
 :::
 
+::: {.col}
 ::: {.recruiter-stat}
-<span class="recruiter-stat-label">Domain focus</span>
-<span class="recruiter-stat-value">Healthcare, public sector, and economics</span>
+[Domain focus]{.recruiter-stat-label}
+
+Healthcare, public sector, and economics.
+:::
 :::
 
+::: {.col}
 ::: {.recruiter-stat}
-<span class="recruiter-stat-label">Delivery style</span>
-<span class="recruiter-stat-value">Hands-on build partner with strong stakeholder fluency</span>
+[Delivery style]{.recruiter-stat-label}
+
+Hands-on build partner with strong stakeholder fluency.
+:::
 :::
 :::
 
-::: {.recruiter-section}
-<span class="recruiter-section-label">Documents and booking</span>
+[Documents and booking]{.recruiter-label}
 
 ## Recruiter essentials
 
 Use the short resume for a fast skim, the full CV for depth, or open a
 Calendly slot if you want to assess fit live.
 
-::: {.recruiter-actions-grid}
-::: {.recruiter-action-card}
-<span class="recruiter-card-label">01 / Resume</span>
+::: {.row .row-cols-1 .row-cols-lg-3 .g-4 .recruiter-essentials-grid}
+::: {.col}
 
 ### Short resume
 
 The concise version for intake screens, shortlists, and quick internal
 circulation.
 
-[Download short resume](downloads/ds_resume.pdf){.btn .btn-primary target="_blank" rel="noopener"}
+[Download short resume](downloads/ds_resume.pdf){
+  .btn .btn-primary
+  target="_blank"
+  rel="noopener"
+}
 :::
 
-::: {.recruiter-action-card}
-<span class="recruiter-card-label">02 / Full CV</span>
+::: {.col}
 
-### Full CV placeholder
+### Full CV
 
-This card deliberately points to a non-broken placeholder asset until the final
-full CV is ready to replace it.
+The long-form document for deeper background checks and full experience review.
 
-[Download placeholder CV](downloads/ds_cv.pdf){.btn .btn-outline-primary target="_blank" rel="noopener"}
+[Download full CV](downloads/ds_cv.pdf){
+  .btn .btn-outline-primary
+  target="_blank"
+  rel="noopener"
+}
 
-<div class="recruiter-placeholder-note">
-  Placeholder file only. Replace <code>downloads/ds_cv.pdf</code> before
-  publishing or sharing externally.
-</div>
+::: {.small .text-body-secondary .mt-3}
+Current file is a placeholder PDF until the final full CV is swapped in.
+:::
 :::
 
-::: {.recruiter-action-card}
-<span class="recruiter-card-label">03 / Meeting</span>
+::: {.col}
 
 ### Calendly booking
 
 Open a recruiter call popup without leaving this page, or fall back to the
-direct booking link if your browser blocks popups.
+direct booking page if the Calendly widget has not loaded yet.
 
 <button
-  type="button"
   class="btn btn-primary recruiter-calendly-trigger"
-  data-calendly-url="https://calendly.com/andreadf/recruiter-call"
+  type="button"
+  data-calendly-path="andreadf/recruiter-call"
 >
   Book recruiter call
 </button>
 
-<p class="recruiter-footnote">
-  Direct link:
-  <a
-    href="https://calendly.com/andreadf/recruiter-call"
-    target="_blank"
-    rel="noopener"
-  >
-    calendly.com/andreadf/recruiter-call
-  </a>
-</p>
+::: {.small .text-body-secondary .mt-3}
+Direct link:
+[Open the direct booking page](
+  https://calendly.com/andreadf/recruiter-call
+){
+  target="_blank"
+  rel="noopener"
+}
 :::
 :::
 :::
 
-::: {.recruiter-section}
-<span class="recruiter-section-label">Frequently asked questions</span>
+[Frequently asked questions]{.recruiter-label}
 
 ## Recruiter FAQ
 
 The topics below cover the questions that usually come up first. Each answer is
 collapsed by default so you can skim the dossier and open only what you need.
 
-```{=html}
-<div class="recruiter-faq-layout">
-  <div
-    class="nav nav-pills recruiter-faq-nav"
-    id="recruiter-faq-tabs"
-    role="tablist"
-    aria-orientation="vertical"
-  >
-    <button
-      class="nav-link active"
-      id="availability-tab"
-      data-bs-toggle="pill"
-      data-bs-target="#availability-panel"
-      type="button"
-      role="tab"
-      aria-controls="availability-panel"
-      aria-selected="true"
-    >
-      Availability
-    </button>
-    <button
-      class="nav-link"
-      id="roles-tab"
-      data-bs-toggle="pill"
-      data-bs-target="#roles-panel"
-      type="button"
-      role="tab"
-      aria-controls="roles-panel"
-      aria-selected="false"
-    >
-      Role preferences
-    </button>
-    <button
-      class="nav-link"
-      id="stack-tab"
-      data-bs-toggle="pill"
-      data-bs-target="#stack-panel"
-      type="button"
-      role="tab"
-      aria-controls="stack-panel"
-      aria-selected="false"
-    >
-      Tech stack &amp; skills
-    </button>
-    <button
-      class="nav-link"
-      id="location-tab"
-      data-bs-toggle="pill"
-      data-bs-target="#location-panel"
-      type="button"
-      role="tab"
-      aria-controls="location-panel"
-      aria-selected="false"
-    >
-      Location &amp; remote
-    </button>
-    <button
-      class="nav-link"
-      id="comp-tab"
-      data-bs-toggle="pill"
-      data-bs-target="#comp-panel"
-      type="button"
-      role="tab"
-      aria-controls="comp-panel"
-      aria-selected="false"
-    >
-      Compensation
-    </button>
-    <button
-      class="nav-link"
-      id="process-tab"
-      data-bs-toggle="pill"
-      data-bs-target="#process-panel"
-      type="button"
-      role="tab"
-      aria-controls="process-panel"
-      aria-selected="false"
-    >
-      Process &amp; timeline
-    </button>
-  </div>
+::: {.panel-tabset .recruiter-faq-tabset}
 
-  <div class="tab-content">
-    <div
-      class="tab-pane fade show active recruiter-faq-panel"
-      id="availability-panel"
-      role="tabpanel"
-      aria-labelledby="availability-tab"
-      tabindex="0"
-    >
-      <div class="recruiter-faq-toolbar">
-        <p>Current bandwidth, start windows, and interview flexibility.</p>
-        <div class="btn-group" role="group" aria-label="Availability controls">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="expand"
-            data-accordion-target="availability-accordion"
-          >
-            Expand all
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="collapse"
-            data-accordion-target="availability-accordion"
-          >
-            Collapse all
-          </button>
-        </div>
-      </div>
+## Availability
 
-      <div
-        class="accordion recruiter-accordion"
-        id="availability-accordion"
-      >
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="availability-heading-one">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#availability-collapse-one"
-              aria-expanded="false"
-              aria-controls="availability-collapse-one"
-            >
-              When could Andrea start a new role?
-            </button>
-          </h3>
-          <div
-            id="availability-collapse-one"
-            class="accordion-collapse collapse"
-            aria-labelledby="availability-heading-one"
-            data-bs-parent="#availability-accordion"
-          >
-            <div class="accordion-body">
-              Andrea is open to conversations now and can discuss realistic
-              start dates based on notice, interview pacing, and the fit of the
-              opportunity.
-            </div>
-          </div>
-        </div>
+Current bandwidth, start windows, and interview flexibility.
 
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="availability-heading-two">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#availability-collapse-two"
-              aria-expanded="false"
-              aria-controls="availability-collapse-two"
-            >
-              Is he open to exploratory recruiter calls?
-            </button>
-          </h3>
-          <div
-            id="availability-collapse-two"
-            class="accordion-collapse collapse"
-            aria-labelledby="availability-heading-two"
-            data-bs-parent="#availability-accordion"
-          >
-            <div class="accordion-body">
-              Yes. A concise recruiter intro with role scope, team context, and
-              rough seniority range is usually enough to make an initial call
-              useful.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="tab-pane fade recruiter-faq-panel"
-      id="roles-panel"
-      role="tabpanel"
-      aria-labelledby="roles-tab"
-      tabindex="0"
-    >
-      <div class="recruiter-faq-toolbar">
-        <p>Preferred scope, team shape, and working style.</p>
-        <div class="btn-group" role="group" aria-label="Role controls">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="expand"
-            data-accordion-target="roles-accordion"
-          >
-            Expand all
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="collapse"
-            data-accordion-target="roles-accordion"
-          >
-            Collapse all
-          </button>
-        </div>
-      </div>
-
-      <div class="accordion recruiter-accordion" id="roles-accordion">
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="roles-heading-one">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#roles-collapse-one"
-              aria-expanded="false"
-              aria-controls="roles-collapse-one"
-            >
-              What kinds of roles are the best fit?
-            </button>
-          </h3>
-          <div
-            id="roles-collapse-one"
-            class="accordion-collapse collapse"
-            aria-labelledby="roles-heading-one"
-            data-bs-parent="#roles-accordion"
-          >
-            <div class="accordion-body">
-              Senior data scientist roles are the clearest fit, especially where
-              analytical depth, model thinking, and cross-functional influence
-              matter as much as shipping code.
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="roles-heading-two">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#roles-collapse-two"
-              aria-expanded="false"
-              aria-controls="roles-collapse-two"
-            >
-              Individual contributor or management track?
-            </button>
-          </h3>
-          <div
-            id="roles-collapse-two"
-            class="accordion-collapse collapse"
-            aria-labelledby="roles-heading-two"
-            data-bs-parent="#roles-accordion"
-          >
-            <div class="accordion-body">
-              Andrea is strongest as a senior individual contributor who can
-              lead technical direction, mentor informally, and partner tightly
-              with product or research stakeholders.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="tab-pane fade recruiter-faq-panel"
-      id="stack-panel"
-      role="tabpanel"
-      aria-labelledby="stack-tab"
-      tabindex="0"
-    >
-      <div class="recruiter-faq-toolbar">
-        <p>Core tools, technical strengths, and complementary skills.</p>
-        <div class="btn-group" role="group" aria-label="Stack controls">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="expand"
-            data-accordion-target="stack-accordion"
-          >
-            Expand all
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="collapse"
-            data-accordion-target="stack-accordion"
-          >
-            Collapse all
-          </button>
-        </div>
-      </div>
-
-      <div class="accordion recruiter-accordion" id="stack-accordion">
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="stack-heading-one">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#stack-collapse-one"
-              aria-expanded="false"
-              aria-controls="stack-collapse-one"
-            >
-              Which technologies does he use most often?
-            </button>
-          </h3>
-          <div
-            id="stack-collapse-one"
-            class="accordion-collapse collapse"
-            aria-labelledby="stack-heading-one"
-            data-bs-parent="#stack-accordion"
-          >
-            <div class="accordion-body">
-              Python, R, SQL, notebook-driven analysis, statistical modelling,
-              machine learning workflows, and data communication are the core
-              stack. Andrea also works comfortably with Git-based delivery.
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="stack-heading-two">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#stack-collapse-two"
-              aria-expanded="false"
-              aria-controls="stack-collapse-two"
-            >
-              What makes his technical profile distinctive?
-            </button>
-          </h3>
-          <div
-            id="stack-collapse-two"
-            class="accordion-collapse collapse"
-            aria-labelledby="stack-heading-two"
-            data-bs-parent="#stack-accordion"
-          >
-            <div class="accordion-body">
-              The edge is the mix of statistical discipline, applied ML, and
-              economics-informed problem framing. That tends to work especially
-              well in regulated, ambiguous, or evidence-heavy environments.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="tab-pane fade recruiter-faq-panel"
-      id="location-panel"
-      role="tabpanel"
-      aria-labelledby="location-tab"
-      tabindex="0"
-    >
-      <div class="recruiter-faq-toolbar">
-        <p>Geography, remote expectations, and collaboration setup.</p>
-        <div class="btn-group" role="group" aria-label="Location controls">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="expand"
-            data-accordion-target="location-accordion"
-          >
-            Expand all
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="collapse"
-            data-accordion-target="location-accordion"
-          >
-            Collapse all
-          </button>
-        </div>
-      </div>
-
-      <div class="accordion recruiter-accordion" id="location-accordion">
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="location-heading-one">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#location-collapse-one"
-              aria-expanded="false"
-              aria-controls="location-collapse-one"
-            >
-              Where is Andrea based?
-            </button>
-          </h3>
-          <div
-            id="location-collapse-one"
-            class="accordion-collapse collapse"
-            aria-labelledby="location-heading-one"
-            data-bs-parent="#location-accordion"
-          >
-            <div class="accordion-body">
-              Andrea is based in the UK and is comfortable coordinating with
-              distributed teams when expectations around collaboration cadence
-              are clear.
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="location-heading-two">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#location-collapse-two"
-              aria-expanded="false"
-              aria-controls="location-collapse-two"
-            >
-              What work setup is preferred?
-            </button>
-          </h3>
-          <div
-            id="location-collapse-two"
-            class="accordion-collapse collapse"
-            aria-labelledby="location-heading-two"
-            data-bs-parent="#location-accordion"
-          >
-            <div class="accordion-body">
-              Hybrid or remote-first roles are typically the best match, with
-              in-person collaboration welcomed when it adds real value to team
-              or project work.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="tab-pane fade recruiter-faq-panel"
-      id="comp-panel"
-      role="tabpanel"
-      aria-labelledby="comp-tab"
-      tabindex="0"
-    >
-      <div class="recruiter-faq-toolbar">
-        <p>How compensation discussions are best handled.</p>
-        <div class="btn-group" role="group" aria-label="Compensation controls">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="expand"
-            data-accordion-target="comp-accordion"
-          >
-            Expand all
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="collapse"
-            data-accordion-target="comp-accordion"
-          >
-            Collapse all
-          </button>
-        </div>
-      </div>
-
-      <div class="accordion recruiter-accordion" id="comp-accordion">
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="comp-heading-one">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#comp-collapse-one"
-              aria-expanded="false"
-              aria-controls="comp-collapse-one"
-            >
-              Is there a fixed compensation expectation?
-            </button>
-          </h3>
-          <div
-            id="comp-collapse-one"
-            class="accordion-collapse collapse"
-            aria-labelledby="comp-heading-one"
-            data-bs-parent="#comp-accordion"
-          >
-            <div class="accordion-body">
-              It is usually more useful to discuss compensation in relation to
-              scope, seniority, location assumptions, and whether the role leans
-              more toward research depth, product delivery, or leadership.
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="comp-heading-two">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#comp-collapse-two"
-              aria-expanded="false"
-              aria-controls="comp-collapse-two"
-            >
-              What helps make compensation talks efficient?
-            </button>
-          </h3>
-          <div
-            id="comp-collapse-two"
-            class="accordion-collapse collapse"
-            aria-labelledby="comp-heading-two"
-            data-bs-parent="#comp-accordion"
-          >
-            <div class="accordion-body">
-              A sensible range, hiring level, and any location constraints are
-              ideal to share early. That makes it easier to decide quickly
-              whether a process is worth both sides' time.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="tab-pane fade recruiter-faq-panel"
-      id="process-panel"
-      role="tabpanel"
-      aria-labelledby="process-tab"
-      tabindex="0"
-    >
-      <div class="recruiter-faq-toolbar">
-        <p>Interview style, practicalities, and next-step expectations.</p>
-        <div class="btn-group" role="group" aria-label="Process controls">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="expand"
-            data-accordion-target="process-accordion"
-          >
-            Expand all
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-accordion-action="collapse"
-            data-accordion-target="process-accordion"
-          >
-            Collapse all
-          </button>
-        </div>
-      </div>
-
-      <div class="accordion recruiter-accordion" id="process-accordion">
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="process-heading-one">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#process-collapse-one"
-              aria-expanded="false"
-              aria-controls="process-collapse-one"
-            >
-              What interview formats work best?
-            </button>
-          </h3>
-          <div
-            id="process-collapse-one"
-            class="accordion-collapse collapse"
-            aria-labelledby="process-heading-one"
-            data-bs-parent="#process-accordion"
-          >
-            <div class="accordion-body">
-              Strong processes usually combine one practical discussion about
-              problem solving with one conversation on stakeholder judgment or
-              project delivery, rather than relying on generic puzzle rounds.
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <h3 class="accordion-header" id="process-heading-two">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#process-collapse-two"
-              aria-expanded="false"
-              aria-controls="process-collapse-two"
-            >
-              What happens after an initial recruiter conversation?
-            </button>
-          </h3>
-          <div
-            id="process-collapse-two"
-            class="accordion-collapse collapse"
-            aria-labelledby="process-heading-two"
-            data-bs-parent="#process-accordion"
-          >
-            <div class="accordion-body">
-              If the fit looks promising, the fastest next step is usually a
-              clear role brief, hiring level, and process outline so Andrea can
-              decide quickly whether to continue.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-```
-
+::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="expand"
+>
+  Expand all
+</button>
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="collapse"
+>
+  Collapse all
+</button>
 :::
+
+<details>
+<summary>When could Andrea start a new role?</summary>
+<p>
+Andrea is open to conversations now and can discuss realistic start dates based
+on notice, interview pacing, and the fit of the opportunity.
+</p>
+</details>
+
+<details>
+<summary>Is he open to exploratory recruiter calls?</summary>
+<p>
+Yes. A concise recruiter intro with role scope, team context, and rough
+seniority range is usually enough to make an initial call useful.
+</p>
+</details>
+
+## Role preferences
+
+Preferred scope, team shape, and working style.
+
+::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="expand"
+>
+  Expand all
+</button>
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="collapse"
+>
+  Collapse all
+</button>
+:::
+
+<details>
+<summary>What kinds of roles are the best fit?</summary>
+<p>
+Senior data scientist roles are the clearest fit, especially where analytical
+depth, model thinking, and cross-functional influence matter as much as
+shipping code.
+</p>
+</details>
+
+<details>
+<summary>Individual contributor or management track?</summary>
+<p>
+Andrea is strongest as a senior individual contributor who can lead technical
+direction, mentor informally, and partner tightly with product or research
+stakeholders.
+</p>
+</details>
+
+## Tech stack & skills
+
+Core tools, technical strengths, and complementary skills.
+
+::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="expand"
+>
+  Expand all
+</button>
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="collapse"
+>
+  Collapse all
+</button>
+:::
+
+<details>
+<summary>Which technologies does he use most often?</summary>
+<p>
+Python, R, SQL, notebook-driven analysis, statistical modelling, machine
+learning workflows, and data communication are the core stack. Andrea also
+works comfortably with Git-based delivery.
+</p>
+</details>
+
+<details>
+<summary>What makes his technical profile distinctive?</summary>
+<p>
+The edge is the mix of statistical discipline, applied ML, and
+economics-informed problem framing. That tends to work especially well in
+regulated, ambiguous, or evidence-heavy environments.
+</p>
+</details>
+
+## Location & remote
+
+Geography, remote expectations, and collaboration setup.
+
+::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="expand"
+>
+  Expand all
+</button>
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="collapse"
+>
+  Collapse all
+</button>
+:::
+
+<details>
+<summary>Where is Andrea based?</summary>
+<p>
+Andrea is based in the UK and is comfortable coordinating with distributed
+teams when expectations around collaboration cadence are clear.
+</p>
+</details>
+
+<details>
+<summary>What work setup is preferred?</summary>
+<p>
+Hybrid or remote-first roles are typically the best match, with in-person
+collaboration welcomed when it adds real value to team or project work.
+</p>
+</details>
+
+## Compensation
+
+How compensation discussions are best handled.
+
+::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="expand"
+>
+  Expand all
+</button>
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="collapse"
+>
+  Collapse all
+</button>
+:::
+
+<details>
+<summary>Is there a fixed compensation expectation?</summary>
+<p>
+It is usually more useful to discuss compensation in relation to scope,
+seniority, location assumptions, and whether the role leans more toward
+research depth, product delivery, or leadership.
+</p>
+</details>
+
+<details>
+<summary>What helps make compensation talks efficient?</summary>
+<p>
+A sensible range, hiring level, and any location constraints are ideal to
+share early. That makes it easier to decide quickly whether a process is worth
+both sides' time.
+</p>
+</details>
+
+## Process & timeline
+
+Interview style, practicalities, and next-step expectations.
+
+::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="expand"
+>
+  Expand all
+</button>
+<button
+  class="btn btn-sm btn-outline-primary"
+  type="button"
+  data-details-action="collapse"
+>
+  Collapse all
+</button>
+:::
+
+<details>
+<summary>What interview formats work best?</summary>
+<p>
+Strong processes usually combine one practical discussion about problem solving
+with one conversation on stakeholder judgment or project delivery, rather than
+relying on generic puzzle rounds.
+</p>
+</details>
+
+<details>
+<summary>What happens after an initial recruiter conversation?</summary>
+<p>
+If the fit looks promising, the fastest next step is usually a clear role
+brief, hiring level, and process outline so Andrea can decide quickly whether
+to continue.
+</p>
+</details>
 :::
 :::
 
@@ -1145,44 +396,46 @@ collapsed by default so you can skim the dossier and open only what you need.
 ></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".recruiter-calendly-trigger").forEach((button) => {
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        const url = button.dataset.calendlyUrl;
+    const calendlyBaseUrl = "https://calendly.com";
 
-        if (url && window.Calendly) {
-          window.Calendly.initPopupWidget({ url });
-        } else if (url) {
+    document.querySelectorAll(".recruiter-calendly-trigger").forEach(
+      (trigger) => {
+        trigger.addEventListener("click", (event) => {
+          const path = trigger.dataset.calendlyPath;
+          const url = path ? `${calendlyBaseUrl}/${path}` : undefined;
+
+          if (!url) {
+            return;
+          }
+
+          if (window.Calendly) {
+            event.preventDefault();
+            window.Calendly.initPopupWidget({ url });
+            return;
+          }
+
           window.open(url, "_blank", "noopener");
-        }
-      });
-    });
+        });
+      },
+    );
 
-    document.querySelectorAll("[data-accordion-action]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const accordion = document.getElementById(
-          button.dataset.accordionTarget,
-        );
-        const action = button.dataset.accordionAction;
+    document.querySelectorAll("[data-details-action]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const tabPane = button.closest(".tab-pane");
+        const shouldOpen = button.dataset.detailsAction === "expand";
 
-        if (!accordion || !window.bootstrap) {
+        event.preventDefault();
+
+        if (!tabPane) {
           return;
         }
 
-        accordion.querySelectorAll(".accordion-collapse").forEach((panel) => {
-          const instance = window.bootstrap.Collapse.getOrCreateInstance(panel, {
-            toggle: false,
-          });
-
-          if (action === "expand") {
-            instance.show();
-          } else {
-            instance.hide();
-          }
+        tabPane.querySelectorAll("details").forEach((detail) => {
+          detail.open = shouldOpen;
         });
       });
     });
   });
 </script>
 
-<!-- markdownlint-enable MD013 MD033 MD034 -->
+<!-- markdownlint-enable MD033 -->
