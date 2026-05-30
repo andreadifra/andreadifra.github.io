@@ -2,6 +2,8 @@ project:
   type: website
   preview:
     port: 7921
+  post-render:
+    - pwsh -NoProfile -File scripts/remove-private-pages-from-sitemap.ps1
   render:
     - "*.qmd"
     - "posts/*/index.qmd"
@@ -10,7 +12,6 @@ project:
 website:
   title: "Andrea Di Francia"
   site-url: https://andreadifra.github.io/
-  draft-mode: unlinked
   navbar:
     search: true
     left:
