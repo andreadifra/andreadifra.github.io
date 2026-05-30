@@ -4,8 +4,6 @@ description: "Private recruiter landing page for Andrea Di Francia with key high
 page-layout: full
 toc: false
 title-block-banner: false
-draft: true
-sitemap: false
 search: false
 format:
   html:
@@ -19,8 +17,6 @@ header-includes:
       rel="stylesheet"
     >
 ---
-
-<!-- markdownlint-disable MD033 -->
 
 ::: {.recruiter-page}
 [Private recruiter dossier]{.recruiter-label}
@@ -437,5 +433,3 @@ to continue.
     });
   });
 </script>
-
-<!-- markdownlint-enable MD033 -->
