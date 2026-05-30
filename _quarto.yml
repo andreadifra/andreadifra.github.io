@@ -2,8 +2,6 @@ project:
   type: website
   preview:
     port: 7921
-  post-render:
-    - node scripts/remove-hire-me-from-sitemap.mjs
   render:
     - "*.qmd"
     - "posts/*/index.qmd"
@@ -12,6 +10,7 @@ project:
 website:
   title: "Andrea Di Francia"
   site-url: https://andreadifra.github.io/
+  draft-mode: unlinked
   navbar:
     search: true
     left:
@@ -52,5 +51,3 @@ format:
     page-layout: full
     mainfont: "Manrope, sans-serif"
     monofont: "Fira Code, monospace"
-
-
