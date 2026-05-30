@@ -26,8 +26,7 @@ This repo uses a single-context layout with one root `CONTEXT.md` and `docs/adr/
 
 Use current documentation before changing framework configuration.
 
-- **Quarto**: query Context7 with `/websites/quarto` for website config, render
-   rules, execution freeze behaviour, and theme guidance. If Context7 does not answer the question, query GitHub repositories:
+- **Quarto**: query Context7 with `/websites/quarto` for website config, render rules, execution freeze behaviour, and theme guidance. If Context7 does not answer the question, query GitHub repositories:
   - For **documentation pages, examples, guides, and website docs**:
     use [`quarto-dev/quarto-web](https://github.com/quarto-dev/quarto-web)
   - For **actual Quarto engine behaviour, CLI options, config parsing, rendering,
@@ -61,21 +60,3 @@ If all else fails, use websearch tools if the tools above don't answer the quest
   previews.
 - Do not add per-page `format.html.theme` overrides to website pages; inherit the
   global theme from `_quarto.yml`.
-
-## Markdown Standards
-
-All agents **must** produce markdownlint-compliant Markdown unless for files that will be uploaded on GitHub (i.e. GitHub issues, pull requests, etc.). These rules are enforced by the `markdownlint` VS Code extension. Spawn a sub-agent to run `npx markdownlint-cli <file>` locally to verify before passing back control. Common infractions include:
-
-- **MD001** — Headings must increment by one level at a time.
-- **MD003** — Use ATX-style headings.
-- **MD009** — No trailing whitespace.
-- **MD010** — No hard tab characters.
-- **MD012** — No multiple consecutive blank lines.
-- **MD013** — Keep prose lines at 350 characters or fewer when practical.
-- **MD022** — Surround headings with one blank line above and below.
-- **MD031** — Surround fenced code blocks with blank lines.
-- **MD032** — Surround lists with blank lines.
-- **MD034** — Do not use bare URLs.
-- **MD040** — Every fenced code block must declare a language.
-- **MD041** — Start each Markdown file with a top-level heading.
-- **MD060** — Use consistent table style.
