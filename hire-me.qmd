@@ -5,9 +5,6 @@ page-layout: full
 toc: false
 title-block-banner: false
 search: false
-format:
-  html:
-    css: hire-me.css
 header-includes:
   - |
     <meta name="robots" content="noindex, nofollow">
@@ -44,12 +41,12 @@ decision-making.
 :::
 :::
 
-::: {.row .row-cols-1 .row-cols-sm-2 .row-cols-xl-4 .g-3 .mt-1 .recruiter-stats}
+::: {.row .row-cols-1 .row-cols-sm-2 .row-cols-lg-4 .g-3 .mt-1 .recruiter-stats}
 ::: {.col}
 ::: {.recruiter-stat}
 [Experience]{.recruiter-stat-label}
 
-7+ years in applied analytics.
+7+ years in applied analytics
 :::
 :::
 
@@ -57,7 +54,7 @@ decision-making.
 ::: {.recruiter-stat}
 [Seniority]{.recruiter-stat-label}
 
-Senior / lead individual contributor.
+Senior / lead individual contributor
 :::
 :::
 
@@ -65,7 +62,7 @@ Senior / lead individual contributor.
 ::: {.recruiter-stat}
 [Domain focus]{.recruiter-stat-label}
 
-Healthcare, public sector, and economics.
+Healthcare, public sector, and economics
 :::
 :::
 
@@ -73,7 +70,7 @@ Healthcare, public sector, and economics.
 ::: {.recruiter-stat}
 [Delivery style]{.recruiter-stat-label}
 
-Hands-on build partner with strong stakeholder fluency.
+Hands-on build partner with strong stakeholder fluency
 :::
 :::
 :::
@@ -88,42 +85,54 @@ Calendly slot if you want to assess fit live.
 ::: {.row .row-cols-1 .row-cols-lg-3 .g-4 .recruiter-essentials-grid}
 ::: {.col}
 
+[01 / Resume]{.recruiter-card-index}
+
 ### Short resume
 
 The concise version for intake screens, shortlists, and quick internal
 circulation.
 
+::: {.recruiter-resource-actions}
 [Download short resume](downloads/ds_resume.pdf){
   .btn .btn-primary
   target="_blank"
   rel="noopener"
 }
 :::
+:::
 
 ::: {.col}
+
+[02 / Full CV]{.recruiter-card-index}
 
 ### Full CV
 
 The long-form document for deeper background checks and full experience review.
 
+::: {.recruiter-resource-actions}
 [Download full CV](downloads/ds_cv.pdf){
   .btn .btn-outline-primary
   target="_blank"
   rel="noopener"
 }
 
-::: {.small .text-body-secondary .mt-3}
-Current file is a placeholder PDF until the final full CV is swapped in.
+::: {.recruiter-resource-note}
+Placeholder file only. Replace `downloads/ds_cv.pdf` before publishing or
+sharing externally.
+:::
 :::
 :::
 
 ::: {.col}
+
+[03 / Meeting]{.recruiter-card-index}
 
 ### Calendly booking
 
 Open a recruiter call popup without leaving this page, or fall back to the
 direct booking page if the Calendly widget has not loaded yet.
 
+::: {.recruiter-resource-actions}
 <button
   class="btn btn-primary recruiter-calendly-trigger"
   type="button"
@@ -132,14 +141,15 @@ direct booking page if the Calendly widget has not loaded yet.
   Book recruiter call
 </button>
 
-::: {.small .text-body-secondary .mt-3}
+::: {.recruiter-direct-link}
 Direct link:
-[Open the direct booking page](
+[calendly.com/andreadf/recruiter-call](
   https://calendly.com/andreadf/recruiter-call
 ){
   target="_blank"
   rel="noopener"
 }
+:::
 :::
 :::
 :::
@@ -155,9 +165,10 @@ collapsed by default so you can skim the dossier and open only what you need.
 
 ## Availability
 
+::: {.recruiter-faq-toolbar}
 Current bandwidth, start windows, and interview flexibility.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+::: {.recruiter-faq-actions}
 <button
   class="btn btn-sm btn-outline-primary"
   type="button"
@@ -172,6 +183,7 @@ Current bandwidth, start windows, and interview flexibility.
 >
   Collapse all
 </button>
+:::
 :::
 
 <details>
@@ -192,9 +204,10 @@ seniority range is usually enough to make an initial call useful.
 
 ## Role preferences
 
+::: {.recruiter-faq-toolbar}
 Preferred scope, team shape, and working style.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+::: {.recruiter-faq-actions}
 <button
   class="btn btn-sm btn-outline-primary"
   type="button"
@@ -209,6 +222,7 @@ Preferred scope, team shape, and working style.
 >
   Collapse all
 </button>
+:::
 :::
 
 <details>
@@ -231,9 +245,10 @@ stakeholders.
 
 ## Tech stack & skills
 
+::: {.recruiter-faq-toolbar}
 Core tools, technical strengths, and complementary skills.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+::: {.recruiter-faq-actions}
 <button
   class="btn btn-sm btn-outline-primary"
   type="button"
@@ -248,6 +263,7 @@ Core tools, technical strengths, and complementary skills.
 >
   Collapse all
 </button>
+:::
 :::
 
 <details>
@@ -270,9 +286,10 @@ regulated, ambiguous, or evidence-heavy environments.
 
 ## Location & remote
 
+::: {.recruiter-faq-toolbar}
 Geography, remote expectations, and collaboration setup.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+::: {.recruiter-faq-actions}
 <button
   class="btn btn-sm btn-outline-primary"
   type="button"
@@ -287,6 +304,7 @@ Geography, remote expectations, and collaboration setup.
 >
   Collapse all
 </button>
+:::
 :::
 
 <details>
@@ -307,9 +325,10 @@ collaboration welcomed when it adds real value to team or project work.
 
 ## Compensation
 
+::: {.recruiter-faq-toolbar}
 How compensation discussions are best handled.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+::: {.recruiter-faq-actions}
 <button
   class="btn btn-sm btn-outline-primary"
   type="button"
@@ -324,6 +343,7 @@ How compensation discussions are best handled.
 >
   Collapse all
 </button>
+:::
 :::
 
 <details>
@@ -346,9 +366,10 @@ both sides' time.
 
 ## Process & timeline
 
+::: {.recruiter-faq-toolbar}
 Interview style, practicalities, and next-step expectations.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-3 .mb-4}
+::: {.recruiter-faq-actions}
 <button
   class="btn btn-sm btn-outline-primary"
   type="button"
@@ -363,6 +384,7 @@ Interview style, practicalities, and next-step expectations.
 >
   Collapse all
 </button>
+:::
 :::
 
 <details>
