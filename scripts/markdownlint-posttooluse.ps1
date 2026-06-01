@@ -123,7 +123,7 @@ if ($null -ne $toolInput) {
     }
 }
 
-$markdownExtensions = @('.md', '.markdown', '.qmd')
+$markdownExtensions = @('.md', '.markdown')
 $excludedSegments = @('\_site\', '\_freeze\', '\.quarto\', '\node_modules\')
 
 $filesToLint = $candidatePaths |
