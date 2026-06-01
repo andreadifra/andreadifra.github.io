@@ -36,6 +36,7 @@ body:has(.recruiter-page) .quarto-title-block {
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
+  transform: translateY(-10px);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -122,7 +123,7 @@ body:has(.recruiter-page) .quarto-title-block {
 .recruiter-stat {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   height: 100%;
   min-height: 10.5rem;
   padding: 1.25rem 1.25rem 1.4rem;
@@ -136,8 +137,11 @@ body:has(.recruiter-page) .quarto-title-block {
   box-shadow: $shadow-subtle;
 }
 
-.recruiter-stat p:last-child {
-  margin-bottom: 0;
+.recruiter-stat > p {
+  margin: 0;
+}
+
+.recruiter-stat > p:not(:first-child) {
   font-size: 1.28rem;
   font-weight: 700;
   line-height: 1.35;
@@ -356,7 +360,7 @@ body:has(.recruiter-page) .quarto-title-block {
 
 @media (min-width: 992px) {
   .recruiter-faq-tabset.panel-tabset {
-    grid-template-columns: minmax(15rem, 17rem) minmax(0, 1fr);
+    grid-template-columns: minmax(13rem, 15rem) minmax(0, 1fr);
     align-items: start;
   }
 
