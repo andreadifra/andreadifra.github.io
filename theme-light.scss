@@ -33,9 +33,12 @@ $surface-strong: tokens.$light-surface-strong; // Footer/sidebar/background chro
 $text-primary: tokens.$light-text; // Default body text.
 $text-secondary: tokens.$light-text-muted; // Metadata and supporting labels.
 $heading-color: tokens.$light-heading; // Heading and emphasized title color.
+$about-link-color: tokens.$light-about-link; // Dedicated resting color for About pills.
 
-$accent-primary: tokens.$light-accent; // Links and primary emphasis.
-$accent-hover: tokens.$light-accent-hover; // Hover state for interactive text.
+$accent-primary: tokens.$light-accent; // Primary UI and buttons.
+$accent-hover: tokens.$light-accent-hover; // Button hover state.
+$link-color-override: tokens.$light-link-color; // Hyperlinks — separate from accent.
+$link-hover-override: tokens.$light-link-hover; // Link hover — separate from accent.
 $accent-soft: tokens.$light-accent-soft; // Soft fills behind UI elements.
 $accent-soft-strong: tokens.$light-accent-soft-strong; // Active-state tint.
 
@@ -92,8 +95,8 @@ $primary: $accent-primary;
 $secondary: $accent-soft-strong;
 $info: $accent-soft;
 
-$link-color: $accent-primary;
-$link-hover-color: $accent-hover;
+$link-color: $link-color-override;
+$link-hover-color: $link-hover-override;
 
 $border-color: $border-color-soft;
 $card-bg: $surface-secondary;
