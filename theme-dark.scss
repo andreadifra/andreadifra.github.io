@@ -33,6 +33,7 @@ $surface-strong: tokens.$dark-surface-strong; // Stronger layer for standout UI.
 $text-primary: tokens.$dark-text; // Default body text.
 $text-secondary: tokens.$dark-text-muted; // Metadata and lower-contrast labels.
 $heading-color: tokens.$dark-heading; // Headings and standout labels.
+$about-link-color: lighten($text-primary, 20%); // Preserve Quarto's default About pill rest color.
 
 $accent-primary: tokens.$dark-accent; // Links and primary emphasis.
 $accent-hover: tokens.$dark-accent-hover; // Hover state for interactive text.

@@ -44,11 +44,14 @@ $light-surface-alt: #f2f6fb; // Inputs, subtle containers, and code shells.
 $light-surface-strong: #e7eef6; // Footer/sidebar surfaces with more presence.
 $light-border: #ccd8e6; // Default dividers and card outlines.
 $light-border-strong: #9fb6cf; // Hover and focus-adjacent border emphasis.
-$light-text: #1b324f; // Primary reading color.
+$light-text: #16304a; // Primary reading color.
 $light-text-muted: #5a7089; // Supporting metadata and secondary labels.
 $light-heading: $palette-ink; // Title and heading anchor.
-$light-accent: $palette-accent; // Links and primary emphasis.
-$light-accent-hover: #2f5f97; // Darker hover state for clearer affordance.
+$light-about-link: $light-text-muted; // Resting color for Quarto About pills.
+$light-accent: #1a4079; // Primary button and UI emphasis.
+$light-accent-hover: #05367c; // Darker hover state for clearer affordance.
+$light-link-color: #0056cc; // Hyperlinks — brighter for light-mode visibility.
+$light-link-hover: #003d99; // Link hover state — darker for affordance.
 $light-accent-soft: $palette-mist; // Soft accent fill for secondary UI.
 $light-accent-soft-strong: #c4d5ea; // Stronger accent tint for active states.
 $light-navbar-bg: $palette-ink; // Explicitly close to the requested #112D4E.

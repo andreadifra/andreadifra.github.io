@@ -171,6 +171,7 @@ body:has(.recruiter-page) .quarto-title-block {
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin-top: -0.6rem;
 }
 
 .recruiter-essentials-grid > .col > section.level3 > h3 {
@@ -259,7 +260,7 @@ body:has(.recruiter-page) .quarto-title-block {
 .recruiter-faq-tabset.panel-tabset > .nav-tabs .nav-link:hover,
 .recruiter-faq-tabset.panel-tabset > .nav-tabs .nav-link:focus-visible {
   border-color: $recruiter-surface-border-strong;
-  transform: translateY(-1px);
+  transform: translateY(-4px);
 }
 
 .recruiter-faq-tabset.panel-tabset > .nav-tabs .nav-link.active,
