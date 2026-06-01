@@ -23,16 +23,13 @@ header-includes:
 ## Andrea Di Francia
 
 ::: {.lead}
-Senior data scientist for teams that need rigorous analytics, clear product
-thinking, and stakeholder-ready communication.
+Senior data scientist for teams that need rigorous analytics, clear product thinking, and stakeholder-ready communication.
 :::
 
-I combine machine learning, statistics, and economics to deliver work that
-holds up in research-heavy environments and still ships cleanly into practical
-decision-making.
+I combine machine learning, statistics, and economics to deliver work that holds up in research-heavy environments and still ships cleanly into practical decision-making.
 
 ::: {.d-flex .flex-wrap .mt-4}
-[Download short resume](downloads/ds_resume.pdf){
+[Download short resume](downloads/adf_resume.pdf){
   .btn .btn-primary
   target="_blank"
   rel="noopener"
@@ -46,7 +43,7 @@ decision-making.
 ::: {.recruiter-stat}
 [Experience]{.recruiter-stat-label}
 
-7+ years in applied analytics
+9+ years in applied analytics, data science, and machine learning.
 :::
 :::
 
@@ -60,17 +57,19 @@ Senior / lead individual contributor
 
 ::: {.col}
 ::: {.recruiter-stat}
-[Domain focus]{.recruiter-stat-label}
+[Tech Stack]{.recruiter-stat-label}
 
-Healthcare, public sector, and economics
+Python · R · SQL\
+Full ML lifecycle
 :::
 :::
 
 ::: {.col}
 ::: {.recruiter-stat}
-[Delivery style]{.recruiter-stat-label}
+[Engagement type]{.recruiter-stat-label}
 
-Hands-on build partner with strong stakeholder fluency
+Open to contract and permanent\
+London-based, remote or hybrid
 :::
 :::
 :::
@@ -87,13 +86,12 @@ Calendly slot if you want to assess fit live.
 
 [01 / Resume]{.recruiter-card-index}
 
-### Short resume
+### Résumé
 
-The concise version for intake screens, shortlists, and quick internal
-circulation.
+One Page Résumé with key highlights, double column.
 
 ::: {.recruiter-resource-actions}
-[Download short resume](downloads/adf_resume.pdf){
+[Download résumé](downloads/adf_resume.pdf){
   .btn .btn-primary
   target="_blank"
   rel="noopener"
@@ -103,14 +101,14 @@ circulation.
 
 ::: {.col}
 
-[02 / Full CV]{.recruiter-card-index}
+[02 / CV]{.recruiter-card-index}
 
-### Full CV
+### CV
 
-The long-form document for deeper background checks and full experience review.
+Long-form CV, multi-page
 
 ::: {.recruiter-resource-actions}
-[Download full CV](downloads/adf_cv.pdf){
+[Download CV](downloads/adf_cv.pdf){
   .btn .btn-outline-primary
   target="_blank"
   rel="noopener"
@@ -130,8 +128,10 @@ sharing externally.
 
 ### Calendly booking
 
-Open a recruiter call popup without leaving this page, or fall back to the
-direct booking page if the Calendly widget has not loaded yet.
+Schedule a 15-minute call with me. Please see the FAQ below prior as it will cover most of the common questions.
+
+Use [direct link](https://calendly.com/andreadf/recruiter-call) or button below.
+
 
 ::: {.recruiter-resource-actions}
 <button
@@ -142,7 +142,8 @@ direct booking page if the Calendly widget has not loaded yet.
   Book recruiter call
 </button>
 
-::: {.recruiter-direct-link}
+
+<!-- ::: {.recruiter-direct-link}
 Direct link:
 [calendly.com/andreadf/recruiter-call](
   https://calendly.com/andreadf/recruiter-call
@@ -150,7 +151,7 @@ Direct link:
   target="_blank"
   rel="noopener"
 }
-:::
+::: -->
 :::
 :::
 :::
@@ -188,18 +189,16 @@ Current bandwidth, start windows, and interview flexibility.
 :::
 
 <details>
-<summary>When could Andrea start a new role?</summary>
+<summary>When could you start a new role?</summary>
 <p>
-Andrea is open to conversations now and can discuss realistic start dates based
-on notice, interview pacing, and the fit of the opportunity.
+I am currently undertaking contract work, therefore my notice period is fairly short with the possibility to start a new role as soon as a week after accepting an offer, depending on the specific circumstances of the role.
 </p>
 </details>
 
 <details>
-<summary>Is he open to exploratory recruiter calls?</summary>
+<summary>Are you open to exploratory recruiter calls?</summary>
 <p>
-Yes. A concise recruiter intro with role scope, team context, and rough
-seniority range is usually enough to make an initial call useful.
+Yes - although most of the required information can be found on this page
 </p>
 </details>
 
