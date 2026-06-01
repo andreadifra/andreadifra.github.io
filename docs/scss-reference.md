@@ -5,14 +5,10 @@ theming and the Bootstrap Cosmo base theme.
 
 ## Theme file roles
 
-- `_design-tokens.scss`: shared typography, foundation palette, and light/dark
-  semantic tokens
-- `theme-light.scss`: light-theme semantic mapping into Quarto and Bootstrap
-  variables
-- `theme-dark.scss`: dark-theme semantic mapping into Quarto and Bootstrap
-  variables
-- `_base-components.scss`: shared component rules that consume the mapped theme
-  variables
+- `_design-tokens.scss`: shared typography, foundation palette, and light/dark semantic tokens
+- `theme-light.scss`: light-theme semantic mapping into Quarto and Bootstrap variables
+- `theme-dark.scss`: dark-theme semantic mapping into Quarto and Bootstrap variables
+- `_base-components.scss`: shared component rules that consume the mapped theme variables
 
 ## Quarto theme structure
 

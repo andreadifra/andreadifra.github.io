@@ -107,10 +107,8 @@ body:has(.recruiter-page) .quarto-title-block {
 .recruiter-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(1rem, 1.8vw, 1.25rem);
-  margin-top: 1.35rem !important;
-  margin-right: 0;
-  margin-left: 0;
+  gap: clamp(0.75rem, 1.8vw, 0.9rem);
+  margin: 1.25rem auto 1.5rem auto;
 }
 
 .recruiter-stats > .col,
@@ -149,10 +147,8 @@ body:has(.recruiter-page) .quarto-title-block {
 .recruiter-essentials-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 1.8vw, 1.25rem);
-  margin-top: 1.25rem;
-  margin-right: 0;
-  margin-left: 0;
+  gap: clamp(0.8rem, 1.8vw, 1rem);
+  margin: 1.25rem 0 1.5rem 0;
 }
 
 .recruiter-essentials-grid > .col {
@@ -237,7 +233,7 @@ body:has(.recruiter-page) .quarto-title-block {
   flex-wrap: nowrap;
   overflow-x: auto;
   padding-bottom: 0.35rem;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .recruiter-faq-tabset.panel-tabset > .nav-tabs .nav-item {

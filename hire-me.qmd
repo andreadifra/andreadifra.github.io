@@ -1,6 +1,6 @@
 ---
-title: "Recruiter dossier | Andrea Di Francia"
-description: "Private recruiter landing page for Andrea Di Francia with key highlights, document downloads, Calendly booking, and recruiter FAQ."
+title: "Hire Me"
+description: "Private landing page for Andrea Di Francia with key highlights, document downloads, Calendly booking, and recruiter FAQ."
 page-layout: full
 toc: false
 title-block-banner: false
@@ -16,7 +16,7 @@ header-includes:
 ---
 
 ::: {.recruiter-page}
-[Private recruiter dossier]{.recruiter-label}
+[Dossier]{.recruiter-label}
 
 ::: {.recruiter-hero}
 
@@ -31,7 +31,7 @@ I combine machine learning, statistics, and economics to deliver work that
 holds up in research-heavy environments and still ships cleanly into practical
 decision-making.
 
-::: {.d-flex .flex-wrap .gap-3 .mt-4}
+::: {.d-flex .flex-wrap .mt-4}
 [Download short resume](downloads/ds_resume.pdf){
   .btn .btn-primary
   target="_blank"
@@ -41,7 +41,7 @@ decision-making.
 :::
 :::
 
-::: {.row .row-cols-1 .row-cols-sm-2 .row-cols-lg-4 .g-3 .mt-1 .recruiter-stats}
+::: {.recruiter-stats}
 ::: {.col}
 ::: {.recruiter-stat}
 [Experience]{.recruiter-stat-label}
@@ -82,7 +82,7 @@ Hands-on build partner with strong stakeholder fluency
 Use the short resume for a fast skim, the full CV for depth, or open a
 Calendly slot if you want to assess fit live.
 
-::: {.row .row-cols-1 .row-cols-lg-3 .g-4 .recruiter-essentials-grid}
+::: {.recruiter-essentials-grid}
 ::: {.col}
 
 [01 / Resume]{.recruiter-card-index}
@@ -93,7 +93,7 @@ The concise version for intake screens, shortlists, and quick internal
 circulation.
 
 ::: {.recruiter-resource-actions}
-[Download short resume](downloads/ds_resume.pdf){
+[Download short resume](downloads/adf_resume.pdf){
   .btn .btn-primary
   target="_blank"
   rel="noopener"
@@ -110,16 +110,17 @@ circulation.
 The long-form document for deeper background checks and full experience review.
 
 ::: {.recruiter-resource-actions}
-[Download full CV](downloads/ds_cv.pdf){
+[Download full CV](downloads/adf_cv.pdf){
   .btn .btn-outline-primary
   target="_blank"
   rel="noopener"
 }
 
+<!-- Unnecessary now - delete
 ::: {.recruiter-resource-note}
-Placeholder file only. Replace `downloads/ds_cv.pdf` before publishing or
+Placeholder file only. Replace `downloads/adf_cv.pdf` before publishing or
 sharing externally.
-:::
+::: -->
 :::
 :::
 
@@ -347,20 +348,16 @@ How compensation discussions are best handled.
 :::
 
 <details>
-<summary>Is there a fixed compensation expectation?</summary>
+<summary>What are your compensation expectations?</summary>
 <p>
-It is usually more useful to discuss compensation in relation to scope,
-seniority, location assumptions, and whether the role leans more toward
-research depth, product delivery, or leadership.
+With the usual disclaimer that it will depend heavily on other non-monetary factors as well as benefits, for contract roles I would typically expect a minimum day rate of around £500 for outside IR35, and £650 for inside IR35. For permanent roles, a total compensation range of around £80k-£120k would be a reasonable starting point for discussions, depending on the factors mentioned above.
 </p>
 </details>
 
 <details>
 <summary>What helps make compensation talks efficient?</summary>
 <p>
-A sensible range, hiring level, and any location constraints are ideal to
-share early. That makes it easier to decide quickly whether a process is worth
-both sides' time.
+A sensible range, hiring level, and any location constraints are ideal to share early. That makes it easier to decide quickly whether a process is worth both sides' time.
 </p>
 </details>
 
@@ -390,9 +387,7 @@ Interview style, practicalities, and next-step expectations.
 <details>
 <summary>What interview formats work best?</summary>
 <p>
-Strong processes usually combine one practical discussion about problem solving
-with one conversation on stakeholder judgment or project delivery, rather than
-relying on generic puzzle rounds.
+Strong processes usually combine one practical discussion about problem solving with one conversation on stakeholder judgment or project delivery, rather than relying on generic puzzle rounds.
 </p>
 </details>
 
