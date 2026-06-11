@@ -23,13 +23,13 @@ header-includes:
 ## Andrea Di Francia
 
 ::: {.lead}
-Senior data scientist for teams that need rigorous analytics, clear product thinking, and stakeholder-ready communication.
+Experienced professional working in the ambit of applied analytics, data science, economics, AI and Machine Learning, with a track record of delivering impact in regulated, ambiguous, or evidence-heavy environments.
 :::
 
-I combine machine learning, statistics, and economics to deliver work that holds up in research-heavy environments and still ships cleanly into practical decision-making.
+I enjoy wearing multiple hats, and working along the full machine learning pipeline, from project ideation to deployment, with a preference for senior individual contributor roles that can leverage my mix of technical skills, problem framing, and production experience.
 
 ::: {.d-flex .flex-wrap .mt-4}
-[Download short resume](downloads/adf_resume.pdf){
+[Download short resumé](downloads/adf_resume.pdf){
   .btn .btn-primary
   target="_blank"
   rel="noopener"
@@ -78,20 +78,19 @@ London-based, remote or hybrid
 
 ## Recruiter essentials
 
-Use the short resume for a fast skim, the full CV for depth, or open a
-Calendly slot if you want to assess fit live.
+Take a look at my one-page resumé and full CV, or schedule a quick meeting for any outstanding questions using the button or by opening this [direct link](https://calendly.com/andreadf/recruiter-call).
 
 ::: {.recruiter-essentials-grid}
 ::: {.col}
 
 [01 / Resume]{.recruiter-card-index}
 
-### Résumé
+### Resumé
 
-One Page Résumé with key highlights, double column.
+One page resumé with key highlights, double column.
 
 ::: {.recruiter-resource-actions}
-[Download résumé](downloads/adf_resume.pdf){
+[Download resumé](downloads/adf_resume.pdf){
   .btn .btn-primary
   target="_blank"
   rel="noopener"
@@ -105,7 +104,7 @@ One Page Résumé with key highlights, double column.
 
 ### CV
 
-Long-form CV, multi-page
+Long-form CV, multi-page.
 
 ::: {.recruiter-resource-actions}
 [Download CV](downloads/adf_cv.pdf){
@@ -128,10 +127,7 @@ sharing externally.
 
 ### Calendly booking
 
-Schedule a 15-minute call with me. Please see the FAQ below prior as it will cover most of the common questions.
-
-Use [direct link](https://calendly.com/andreadf/recruiter-call) or button below.
-
+Schedule a 15-minute call with me. Please see the [FAQ](#recruiter-faq) below prior as it will cover most of the required information and help make our conversation more efficient. 
 
 ::: {.recruiter-resource-actions}
 <button
@@ -160,8 +156,7 @@ Direct link:
 
 ## Recruiter FAQ
 
-The topics below cover the questions that usually come up first. Each answer is
-collapsed by default so you can skim the dossier and open only what you need.
+The topics below cover the questions that usually come up first. Each answer is collapsed by default so you can skim the dossier and open only what you need.
 
 ::: {.panel-tabset .recruiter-faq-tabset}
 
@@ -191,14 +186,14 @@ Current bandwidth, start windows, and interview flexibility.
 <details>
 <summary>When could you start a new role?</summary>
 <p>
-I am currently undertaking contract work, therefore my notice period is fairly short with the possibility to start a new role as soon as a week after accepting an offer, depending on the specific circumstances of the role.
+I'm currently undertaking contract work, therefore my notice period is fairly short with the possibility to start a new role as soon as a week after accepting an offer, depending on the specific circumstances of the role.
 </p>
 </details>
 
 <details>
 <summary>Are you open to exploratory recruiter calls?</summary>
 <p>
-Yes - although most of the required information can be found on this page
+Yes. Most of the required information can be found on this page, but I'm happy to have a quick chat if you have specific questions or want to discuss a potential opportunity in more detail.
 </p>
 </details>
 
@@ -228,18 +223,24 @@ Preferred scope, team shape, and working style.
 <details>
 <summary>What kinds of roles are the best fit?</summary>
 <p>
-Senior data scientist roles are the clearest fit, especially where analytical
-depth, model thinking, and cross-functional influence matter as much as
-shipping code.
+I am strongest in technical roles where I can build, improve, or shape machine learning and AI capabilities. I enjoy working across the full pipeline, especially in high-velocity environments: understanding the problem, designing the approach, building the system, and improving it from real-world feedback. I am also comfortable owning a specific stage of the work in larger organisations.</p>
+<p>
+Good-fit titles currently include Applied Scientist, Machine Learning Engineer, AI Engineer, Data Scientist, and Analytics Lead, though I care more about the work itself than the title.
 </p>
 </details>
 
 <details>
 <summary>Individual contributor or management track?</summary>
 <p>
-Andrea is strongest as a senior individual contributor who can lead technical
-direction, mentor informally, and partner tightly with product or research
-stakeholders.
+I am currently prioritising senior individual contributor roles where I can keep my technical edge sharp. I have led small teams before and would consider management opportunities, but only when they remain close to the technical work, problem solving, and delivery.
+</p>
+</details>
+
+<details>
+<summary>What kinds of roles would <u><i>not</i></u> be a good fit?</summary>
+<p>
+I am less interested in roles centred mainly on product analytics, experiment reporting, dashboards, frequent stakeholder presentations, or one-off analysis pieces. I am looking for work where the main contribution is building durable technical capabilities, not primarily coordinating, reporting, or presenting.
+I am also unlikely to thrive in heavily meeting-driven roles where the day-to-day work is mostly alignment rather than technical problem solving.
 </p>
 </details>
 
@@ -267,27 +268,43 @@ Core tools, technical strengths, and complementary skills.
 :::
 
 <details>
-<summary>Which technologies does he use most often?</summary>
+<summary>Which technologies do you use most often?</summary>
 <p>
-Python, R, SQL, notebook-driven analysis, statistical modelling, machine
-learning workflows, and data communication are the core stack. Andrea also
-works comfortably with Git-based delivery.
+My core working stack is Python, R, and SQL. I am comfortable moving between exploratory analysis, statistical modelling, machine learning workflows, data pipelines, and production-facing analytics.
+</p>
+<p>
+I have worked across the main cloud platforms: GCP, Azure, and AWS, and have recent experience working with Snowflake as a data warehouse. 
 </p>
 </details>
 
 <details>
-<summary>What makes his technical profile distinctive?</summary>
+<summary>What are your strongest technical areas?</summary>
 <p>
-The edge is the mix of statistical discipline, applied ML, and
-economics-informed problem framing. That tends to work especially well in
-regulated, ambiguous, or evidence-heavy environments.
+My strongest areas are applied machine learning, statistical modelling, health and policy analytics, evidence generation, and translating ambiguous questions into usable analytical or ML systems. I am especially strong where the work requires both technical depth and careful interpretation: regulated domains, healthcare data, public-sector evidence, or high-stakes decisions.
 </p>
 </details>
 
-## Location & remote
+<details>
+<summary>What makes your technical profile distinctive?</summary>
+<p>
+The distinctive part of my profile is the combination of statistics, economics, applied ML, and production experience. I can help frame the problem, choose a sensible modelling approach, build the workflow, evaluate the evidence, and explain the trade-offs to technical and non-technical audiences.
+</p>
+<p>
+That mix tends to work well in teams that need someone who can bridge research, modelling, engineering, and decision-making rather than sit in only one narrow lane.
+</p>
+</details>
+
+<details>
+<summary>Do you have experience with ML lifecycle and reproducibility?</summary>
+<p>
+Yes. I have worked across the ML lifecycle, from project scoping and prototyping through to data pipelines, model development, monitoring, and evaluation. I care about reproducibility, version control, clear analytical assumptions, and making models or analyses understandable enough to be used responsibly.
+</p>
+</details>
+
+## Location & eligibility
 
 ::: {.recruiter-faq-toolbar}
-Geography, remote expectations, and collaboration setup.
+Geography, remote work, and right to work considerations.
 
 ::: {.recruiter-faq-actions}
 <button
@@ -308,20 +325,33 @@ Geography, remote expectations, and collaboration setup.
 :::
 
 <details>
-<summary>Where is Andrea based?</summary>
+<summary>Where are you based?</summary>
 <p>
-Andrea is based in the UK and is comfortable coordinating with distributed
-teams when expectations around collaboration cadence are clear.
+I am currently based in London, UK, and have the right to work here. I am open to roles based in the UK or fully remote roles based in other locations, as long as they are compatible with my time zone and legal eligibility.
 </p>
 </details>
 
 <details>
 <summary>What work setup is preferred?</summary>
 <p>
-Hybrid or remote-first roles are typically the best match, with in-person
-collaboration welcomed when it adds real value to team or project work.
+Hybrid or remote-first roles are typically the best match, with in-person collaboration up to 3 days a week in London.
 </p>
 </details>
+
+<details>
+<summary>Do you have right to work in the UK?</summary>
+<p>
+Yes, I have the right to work in the UK under the EU Settled Scheme and in EU countries as an Italian national.
+</p>
+</details>
+
+<details>
+<summary>Do you hold any clearance?</summary>
+<p>
+Although I have held SC clearance in the past, I do not currently hold any active security clearance. I am open to roles that require clearance and would be willing to go through the necessary process if required.
+</p>
+</details>
+
 
 ## Compensation
 
@@ -349,7 +379,7 @@ How compensation discussions are best handled.
 <details>
 <summary>What are your compensation expectations?</summary>
 <p>
-With the usual disclaimer that it will depend heavily on other non-monetary factors as well as benefits, for contract roles I would typically expect a minimum day rate of around £500 for outside IR35, and £650 for inside IR35. For permanent roles, a total compensation range of around £80k-£120k would be a reasonable starting point for discussions, depending on the factors mentioned above.
+With the usual disclaimer that it will depend heavily on other non-monetary factors as well as benefits, for contract roles I would typically expect a <u><i>minimum</i></u> day rate of around £500 for outside IR35, and £650 for inside IR35. For permanent roles, a total compensation range of around £80k-£120k would be a reasonable starting point for discussions, depending on the factors mentioned above.
 </p>
 </details>
 
@@ -363,7 +393,7 @@ A sensible range, hiring level, and any location constraints are ideal to share 
 ## Process & timeline
 
 ::: {.recruiter-faq-toolbar}
-Interview style, practicalities, and next-step expectations.
+Practical logistics and next-step expectations.
 
 ::: {.recruiter-faq-actions}
 <button
@@ -384,20 +414,26 @@ Interview style, practicalities, and next-step expectations.
 :::
 
 <details>
-<summary>What interview formats work best?</summary>
+<summary>What should recruiters include when reaching out?</summary>
 <p>
-Strong processes usually combine one practical discussion about problem solving with one conversation on stakeholder judgment or project delivery, rather than relying on generic puzzle rounds.
+Please include the role title, company or sector, contract or permanent status, location and remote expectations, compensation range, hiring level, and a short description of the work. That makes it much easier to respond quickly and usefully.
 </p>
 </details>
 
 <details>
-<summary>What happens after an initial recruiter conversation?</summary>
+<summary>Are you open to contract and permanent roles?</summary>
 <p>
-If the fit looks promising, the fastest next step is usually a clear role
-brief, hiring level, and process outline so Andrea can decide quickly whether
-to continue.
+Yes. I am open to both contract and permanent roles, provided the work is a strong fit technically and the expectations are clear.
 </p>
 </details>
+
+<details>
+<summary>How quickly can you decide to proceed/interview?</summary>
+<p>
+If the role brief, compensation range, location expectations, and hiring level are clear, I can usually give a quick view on whether the opportunity is worth exploring further.
+</p>
+</details>
+
 :::
 :::
 
