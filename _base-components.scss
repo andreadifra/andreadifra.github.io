@@ -68,7 +68,7 @@ h6 {
 a {
   color: $link-color;
   text-decoration: none;
-  text-decoration-thickness: 0.08em;
+  text-decoration-thickness: 0.1em;
   text-underline-offset: 0.18em;
   transition: color $transition-base, text-decoration-color $transition-base;
 
@@ -83,6 +83,7 @@ a {
 .btn {
   border-radius: 999px;
   font-weight: 600;
+  text-decoration: none;
   transition: transform $transition-base, box-shadow $transition-base,
     background-color $transition-base, border-color $transition-base,
     color $transition-base;
@@ -90,7 +91,8 @@ a {
   @include focus-ring($focus-ring-color);
 
   &:hover {
-    transform: translateY(-1px);
+    text-decoration: none;
+    transform: translateY(-3px);
     box-shadow: 0 10px 22px rgba($accent-primary, 0.16);
   }
 }
@@ -187,7 +189,7 @@ a {
   &.active {
     background-color: rgba($chrome-primary-fg, 0.12);
     color: $chrome-highlight;
-    transform: translateY(-1px);
+    transform: translateY(-1.5px);
   }
 }
 
@@ -264,6 +266,29 @@ main .grid > section.level3 {
   padding: 1.6rem;
   margin-bottom: 1.5rem;
   margin-top: 1rem;
+}
+
+// Keep About pills on their own resting tone while preserving the shared link
+// accent on hover.
+div.quarto-about-jolla .about-links .about-link,
+div.quarto-about-trestles .about-links .about-link,
+div.quarto-about-solana .about-links .about-link,
+div.quarto-about-marquee .about-links .about-link,
+div.quarto-about-broadside .about-links .about-link {
+  color: $about-link-color;
+}
+
+div.quarto-about-jolla .about-links .about-link:hover,
+div.quarto-about-jolla .about-links .about-link:focus-visible,
+div.quarto-about-trestles .about-links .about-link:hover,
+div.quarto-about-trestles .about-links .about-link:focus-visible,
+div.quarto-about-solana .about-links .about-link:hover,
+div.quarto-about-solana .about-links .about-link:focus-visible,
+div.quarto-about-marquee .about-links .about-link:hover,
+div.quarto-about-marquee .about-links .about-link:focus-visible,
+div.quarto-about-broadside .about-links .about-link:hover,
+div.quarto-about-broadside .about-links .about-link:focus-visible {
+  color: $link-color;
 }
 
 // Remove the hard border from about-entity containers; shadow and background
@@ -600,3 +625,5 @@ samp {
   box-shadow: $shadow-subtle;
   color: $text-primary;
 }
+
+@import 'hire-me';

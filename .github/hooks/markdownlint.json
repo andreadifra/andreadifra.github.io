@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "windows": "pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File ./scripts/markdownlint-posttooluse.ps1",
+        "linux": "pwsh -NoLogo -NoProfile -File ./scripts/markdownlint-posttooluse.ps1",
+        "osx": "pwsh -NoLogo -NoProfile -File ./scripts/markdownlint-posttooluse.ps1",
+        "cwd": ".",
+        "timeout": 60
+      }
+    ]
+  }
+}
