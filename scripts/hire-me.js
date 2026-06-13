@@ -1,8 +1,51 @@
 document.addEventListener("DOMContentLoaded", () => {
   const calendlyBaseUrl = "https://calendly.com";
+  const calendlyWidgetScript =
+    "https://assets.calendly.com/assets/external/widget.js";
+  const calendlyWidgetStylesheet =
+    "https://assets.calendly.com/assets/external/widget.css";
+
+  const loadStylesheet = (href) => {
+    if (document.querySelector(`link[href="${href}"]`)) {
+      return;
+    }
+
+    const link = document.createElement("link");
+    link.href = href;
+    link.rel = "stylesheet";
+    document.head.append(link);
+  };
+
+  const loadScript = (src) =>
+    new Promise((resolve, reject) => {
+      if (window.Calendly) {
+        resolve();
+        return;
+      }
+
+      const existingScript = document.querySelector(`script[src="${src}"]`);
+
+      if (existingScript) {
+        existingScript.addEventListener("load", resolve, { once: true });
+        existingScript.addEventListener("error", reject, { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      script.addEventListener("load", resolve, { once: true });
+      script.addEventListener("error", reject, { once: true });
+      document.head.append(script);
+    });
+
+  const calendlyWidgetReady = (() => {
+    loadStylesheet(calendlyWidgetStylesheet);
+    return loadScript(calendlyWidgetScript).catch(() => null);
+  })();
 
   document.querySelectorAll(".recruiter-calendly-trigger").forEach((trigger) => {
-    trigger.addEventListener("click", (event) => {
+    trigger.addEventListener("click", async (event) => {
       const path = trigger.dataset.calendlyPath;
       const url = path ? `${calendlyBaseUrl}/${path}` : undefined;
 
@@ -10,8 +53,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      event.preventDefault();
+      await calendlyWidgetReady;
+
       if (window.Calendly) {
-        event.preventDefault();
         window.Calendly.initPopupWidget({ url });
         return;
       }

@@ -1,6 +1,8 @@
 ---
 title: "Hire Me"
 description: "Private landing page for Andrea Di Francia with key highlights, document downloads, Calendly booking, and recruiter FAQ."
+# Publishing contract: direct-link shareable, but not publicly discoverable.
+# Keep out of navigation, listings, site search, sitemap output, and indexing.
 page-layout: full
 toc: false
 title-block-banner: false
@@ -8,11 +10,6 @@ search: false
 header-includes:
   - |
     <meta name="robots" content="noindex, nofollow">
-  - |
-    <link
-      href="https://assets.calendly.com/assets/external/widget.css"
-      rel="stylesheet"
-    >
 ---
 
 ::: {.recruiter-page}
@@ -78,7 +75,7 @@ London-based, remote or hybrid
 
 ## Recruiter essentials
 
-Take a look at my one-page resumé and full CV, or schedule a quick meeting for any outstanding questions using the button or by opening this [direct link](https://calendly.com/andreadf/recruiter-call).
+Take a look at my one-page resumé and full CV, or schedule a quick meeting for any outstanding questions using the button or by opening this [direct link](https://calendly.com/andreadf/recruiter-call){target="_blank" rel="noopener"}.
 
 ::: {.recruiter-essentials-grid}
 ::: {.col}
@@ -437,9 +434,4 @@ If the role brief, compensation range, location expectations, and hiring level a
 :::
 :::
 
-<script
-  src="https://assets.calendly.com/assets/external/widget.js"
-  type="text/javascript"
-  async
-></script>
 <script src="scripts/hire-me.js"></script>
