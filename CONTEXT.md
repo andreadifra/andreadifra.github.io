@@ -27,3 +27,6 @@ direct-link page creates a real seam.
 The recruiter interaction script is also `hire-me`-specific. Keep page
 behaviour in `scripts/hire-me.js` and load it from `hire-me.qmd` rather than
 embedding substantial inline JavaScript in the page source.
+
+`scripts/hire-me.js` owns the Calendly adapter. The page source should not load
+Calendly's external script or stylesheet directly.
