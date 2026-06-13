@@ -23,3 +23,7 @@ publishing.
 The sitemap exclusion is intentionally `hire-me`-specific. Keep the post-render
 hook and script named around the `hire-me` page until another private
 direct-link page creates a real seam.
+
+The recruiter interaction script is also `hire-me`-specific. Keep page
+behaviour in `scripts/hire-me.js` and load it from `hire-me.qmd` rather than
+embedding substantial inline JavaScript in the page source.
