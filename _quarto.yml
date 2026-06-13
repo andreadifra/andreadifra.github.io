@@ -3,7 +3,7 @@ project:
   preview:
     port: 7921
   post-render:
-    - pwsh -NoProfile -File scripts/remove-private-pages-from-sitemap.ps1
+    - pwsh -NoProfile -File scripts/exclude-hire-me-from-sitemap.ps1
   render:
     - "*.qmd"
     - "posts/*/index.qmd"

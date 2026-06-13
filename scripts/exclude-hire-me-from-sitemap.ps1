@@ -12,10 +12,8 @@ if (-not (Test-Path -LiteralPath $sitemapPath)) {
 $namespaceManager = [System.Xml.XmlNamespaceManager]::new($sitemap.NameTable)
 $namespaceManager.AddNamespace('sm', 'http://www.sitemaps.org/schemas/sitemap/0.9')
 
-# Keep recruiter-only pages rendered but explicitly out of the published sitemap.
-$excludedUrls = @(
-    'https://andreadifra.github.io/hire-me.html'
-)
+# The hire-me page is direct-link shareable, but not publicly discoverable.
+$hireMeUrl = 'https://andreadifra.github.io/hire-me.html'
 
 $changed = $false
 $urlNodes = @($sitemap.SelectNodes('/sm:urlset/sm:url', $namespaceManager))
@@ -27,7 +25,7 @@ foreach ($urlNode in $urlNodes) {
         continue
     }
 
-    if ($excludedUrls -contains $locNode.InnerText) {
+    if ($locNode.InnerText -eq $hireMeUrl) {
         [void]$urlNode.ParentNode.RemoveChild($urlNode)
         $changed = $true
     }
