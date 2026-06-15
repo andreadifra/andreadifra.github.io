@@ -1,55 +1,29 @@
 ---
 title: "Zero-Inflated Models: A Comprehensive Tutorial"
-description: "A complete guide to understanding and implementing zero-inflated models for count data analysis"
+description: "A practical guide to understanding and implementing zero-inflated models for count data analysis"
 author: "Andrea Di Francia"
 date: "2026-06-15"
 categories: [statistics, modeling, R, tutorial]
-editor: 
-  render-on-save: true
 execute:
   echo: true
   warning: false
   message: false
-  cache: false
 format:
   html:
-    theme: flatly
-    toc: true
     toc-depth: 3
     number-sections: true
-    smooth-scroll: true
     code-copy: true
-    code-tools: 
-      source: true
-      toggle: true
-      caption: "Code"
-    code-fold: false
-    code-summary: "Show code"
-    code-line-numbers: false
     code-overflow: wrap
-    # fig-width: 8
-    # fig-height: 5
-    # fig-dpi: 144
     fig-align: center
     fig-cap-location: bottom
     tbl-cap-location: top
-    anchor-sections: true
-    embed-resources: true
-    html-math-method: katex
-mermaid:
-  theme: forest
-  themeVariables:
-    primaryColor: "#0d6efd"
-    primaryTextColor: "#ffffff"
-    primaryBorderColor: "#0d6efd"
-    lineColor: "#0d6efd"
-    secondaryColor: "#e9ecef"
-    tertiaryColor: "#f8f9fa"
 ---
 
 # Core Topics
 
 ## Introduction
+
+Testing
 
 ### What Are Zero-Inflation Models?
 
