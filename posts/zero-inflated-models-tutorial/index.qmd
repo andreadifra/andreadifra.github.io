@@ -4,12 +4,20 @@ description: "A practical guide to understanding and implementing zero-inflated 
 author: "Andrea Di Francia"
 date: "2026-06-15"
 categories: [statistics, modeling, R, tutorial]
+bibliography: references.bib
+cite-method: citeproc
+citeproc: true
 execute:
   echo: true
   warning: false
   message: false
 format:
   html:
+    bibliography: references.bib
+    cite-method: citeproc
+    citeproc: true
+    pandoc-args:
+      - --citeproc
     toc-depth: 3
     number-sections: true
     code-copy: true
@@ -23,7 +31,9 @@ format:
 
 ## Introduction
 
-Testing testing
+Count data often looks simple until the zeros start piling up. A standard Poisson or negative binomial model assumes that every observation comes from the same count-generating process. In many applied settings, that assumption is too tidy: some people, places, or systems are never really at risk of the event, while others are at risk but happen to record zero during the observation window.
+
+Zero-inflated models give us a way to represent that distinction explicitly. This tutorial builds up from generalized linear models to zero-inflated Poisson and zero-inflated negative binomial models, using healthcare utilization as the running example.
 
 ### What Are Zero-Inflation Models?
 
@@ -40,23 +50,7 @@ Zero-inflated models address a fundamental challenge in count data analysis: **e
  - **Disease surveillance (infection detection)**: Some locations truly have zero prevalence for a pathogen because the pathogen cannot survive there or has been eradicated (structural zeros). Other locations harbor the pathogen but a given survey fails to detect it during that sampling round (sampling zeros) — e.g., low prevalence or imperfect tests.
  - **Access to specialist treatments / prescriptions**: Some patients will never be eligible for a specific specialist-only procedure or advanced drug (structural zeros) — think of treatments restricted by age, comorbidity, or insurance coverage. Other patients are eligible but simply don't receive the treatment during the study window (sampling zeros) because they don't yet need it, they defer care, or the treatment is rarely used in short follow-up.
 
-```{mermaid}
-flowchart LR
-  A["Healthcare counts<br/>(e.g. clinic visits)\nwith many zeros"] --> B{Why are there zeros?}
-  B --> C["Structural zeros\n(can never have events)"]
-  B --> D["Sampling zeros\n(could have events)"]
-
-  C --> C1["Remote residents\n(no clinic access)"]
-  C --> C2["Excluded by policy\nor eligibility criteria"]
-
-  D --> D1["Healthy people\n(no care needed during window)"]
-  D --> D2["Random non-attendance\n(or short study window)"]
-
-  style C fill:#f8d7da,stroke:#c82333,stroke-width:1px
-  style D fill:#d1ecf1,stroke:#0dcaf0,stroke-width:1px
-```
-
-_Figure: In healthcare data, zeros can come from fundamentally different processes — policy/access barriers (structural) versus not needing or not attending care during the observation window (sampling). Modeling these separately is what zero-inflated models enable._
+![In healthcare data, zeros can come from fundamentally different processes: policy or access barriers create structural zeros, while ordinary non-use during the observation window creates sampling zeros.](zero-sources.svg){#fig-zero-sources fig-alt="A hand-drawn flow diagram splitting healthcare count zeros into structural zeros from access or eligibility barriers and sampling zeros from no care needed or non-attendance."}
 
 ## Theoretical Foundation: Generalized Linear Models
 
@@ -66,7 +60,7 @@ Before diving into zero-inflated models, we need to understand **Generalized Lin
 
 **The key insight**: Regular linear regression assumes your outcome is continuous and normally distributed (like height or temperature). But what if you're counting discrete events (number of hospital visits) or dealing with yes/no outcomes (did the patient develop diabetes)? GLMs provide the mathematical machinery to handle these situations properly.
 
-Zero-inflated models are sophisticated GLMs that combine two simpler GLM components — that's why understanding GLMs is essential.
+Zero-inflated models are sophisticated GLMs that combine two simpler GLM components. The original zero-inflated Poisson regression paper framed this as a practical way to model excess zeros in manufacturing defects [@lambert1992]; the same idea now appears across health, ecology, insurance, and many other count-data settings.
 
 ### The Exponential Family: The Mathematical Foundation
 
@@ -138,19 +132,7 @@ Think of a GLM as having three essential ingredients, like a recipe:
 2. **Link function** ($g(\mu) = \eta$): This connects your linear predictor to the expected value of your outcome
 3. **Response distribution**: From the exponential family (Poisson, binomial, etc.)
 
-```{mermaid}
-flowchart LR
-    A["Predictors<br/>(age, treatment, etc.)"] --> B["Linear Combination<br/>η = β₀ + β₁X₁ + β₂X₂ + ..."]
-    B --> C["Link Function<br/>g(μ) = η"]
-    C --> D["Expected Response<br/>μ (mean count, probability, etc.)"]
-    D --> E["Actual Observations<br/>Y ~ Distribution(μ)"]
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#fff8e1
-```
+![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](glm-pipeline.svg){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
 
 **The beauty of this system**: You can mix and match different link functions and distributions to model different types of data appropriately.
 
@@ -210,11 +192,11 @@ glimpse(medcare)
 
 Let's explore the key characteristics that suggest we need zero-inflated models:
 
-```{r data_exploration}
+```{r tbl-doctor-visit-summary}
 #| echo: false
 #| code-fold: true
-#| code-summary: "Show data exploration code"
-# Basic statistics for doctor visits — print as a compact table
+#| code-summary: "Show summary table code"
+#| tbl-cap: "Doctor visits (`ofp`) summary."
 library(dplyr)
 library(knitr)
 
@@ -228,12 +210,18 @@ stats_tbl <- tibble::tibble(
   )
 )
 
-knitr::kable(stats_tbl, caption = "Doctor visits (ofp) summary")
+knitr::kable(stats_tbl)
+```
 
+```{r tbl-doctor-visit-counts}
+#| echo: false
+#| code-fold: true
+#| code-summary: "Show visit count table code"
+#| tbl-cap: "Frequency of the first ten observed visit counts."
 # First 10 frequency counts
 freqs <- as.data.frame(table(medcare$ofp))
 names(freqs) <- c("visits", "count")
-knitr::kable(head(freqs, 10), caption = "First 10 visit counts")
+knitr::kable(head(freqs, 10))
 ```
 
 **Key observations:**
@@ -244,10 +232,20 @@ knitr::kable(head(freqs, 10), caption = "First 10 visit counts")
 
 ### Visualizing Zero-Inflation
 
-```{r visualization}
+```{r}
 #| echo: false
 #| code-fold: true
 #| code-summary: "Show visualization code"
+#| label: fig-zero-inflation-eda
+#| fig-cap:
+#|   - "Distribution of physician office visits, zoomed to the most common range."
+#|   - "Zero-visit proportions vary across self-reported health status."
+#|   - "Zero-visit proportions fall as the number of chronic conditions rises."
+#| fig-alt:
+#|   - "Histogram of doctor visits with a tall bar at zero and a right-skewed distribution of low visit counts."
+#|   - "Bar chart comparing the proportion of zero visits for poor, average, and excellent health status."
+#|   - "Bar chart showing lower proportions of zero visits among patients with more chronic conditions."
+
 # Create comprehensive visualization
 p1 <- ggplot(medcare, aes(x = ofp)) +
   geom_histogram(binwidth = 1, fill = "lightblue", alpha = 0.7, color = "black") +
@@ -420,9 +418,11 @@ Let's see how many zeros each model predicts compared to what we actually observ
 
 **Mathematical background**: For a Poisson distribution with parameter $\lambda$, the probability of observing zero is $P(Y=0) = e^{-\lambda}$. We can use this to calculate expected zeros from our fitted model.
 
-```{r zero_comparison}
+```{r}
 #| code-fold: true
 #| code-summary: "Show zero-inflation comparison analysis"
+#| label: tbl-zero-comparison
+#| tbl-cap: "Observed zero visits compared with the zeros expected from the fitted Poisson model."
 # Observed zeros
 observed_zeros <- sum(medcare$ofp == 0)
 total_obs <- nrow(medcare)
@@ -432,9 +432,9 @@ poisson_pred <- predict(poisson_model, type = "response")
 poisson_zero_prob <- exp(-poisson_pred)  # P(Y=0) for Poisson
 expected_zeros_poisson <- sum(poisson_zero_prob)
 
-# Use performance package to check zero-inflation
+# Use performance package to check zero-inflation. Folded output is useful
+# for readers who want the diagnostic object.
 zero_inflation_check <- check_zeroinflation(poisson_model)
-print("=== ZERO INFLATION CHECK (Performance Package) ===")
 print(zero_inflation_check)
 
 # Manual comparison for educational purposes
@@ -446,7 +446,7 @@ poisson_pred <- predict(poisson_model, type = "response")
 poisson_zero_prob <- exp(-poisson_pred)  # P(Y=0) for Poisson
 expected_zeros_poisson <- sum(poisson_zero_prob)
 
-# Create comparison table
+# Create comparison table for the article body.
 zero_comparison <- data.frame(
   Metric = c("Observed zeros", "Expected zeros (Poisson)", "Excess zeros"),
   Count = c(observed_zeros, round(expected_zeros_poisson), 
@@ -456,17 +456,10 @@ zero_comparison <- data.frame(
                 round(100*(observed_zeros - expected_zeros_poisson)/total_obs, 1))
 )
 
-print("=== ZERO INFLATION COMPARISON ===")
-print(zero_comparison, row.names = FALSE)
-
-if(observed_zeros > expected_zeros_poisson * 1.2) {
-  print("CONCLUSION: Clear evidence of ZERO-INFLATION!")
-} else {
-  print("CONCLUSION: Minimal zero-inflation")
-}
+knitr::kable(zero_comparison)
 ```
 
-**The smoking gun**: We observe far more zeros than Poisson predicts, confirming we need zero-inflated models.
+**The smoking gun**: We observe 683 zero-visit records, while the Poisson model expects only about 37. That gap is the practical evidence that a one-process count model is missing something important.
 
 ## Zero-Inflated Models: Theory and Implementation
 
@@ -476,18 +469,7 @@ Now that we've established the need for zero-inflated models, let's understand e
 
 Think of zero-inflated models as having two interconnected parts working together, like a two-stage screening process:
 
-```{mermaid}
-flowchart LR
-    A["New Patient"] --> B{"Stage 1: Zero-Inflation Process<br/>Will this person ever<br/>access healthcare?"}
-    B -->|"No (π probability)"| C["Structural Zero<br/>(Guaranteed 0 visits)"]
-    B -->|"Yes (1-π probability)"| D{"Stage 2: Count Process<br/>How many visits<br/>will they have?"}
-    D --> E["Sampling Zero<br/>(Could visit but didn't)"]
-    D --> F["1+ visits<br/>(Standard count model)"]
-    
-    style C fill:#f8d7da,stroke:#c82333,stroke-width:2px
-    style E fill:#d1ecf1,stroke:#0dcaf0,stroke-width:1px
-    style F fill:#d4edda,stroke:#28a745,stroke-width:1px
-```
+![A zero-inflated model first estimates whether an observation belongs to a structural-zero group, then uses a count process for observations that can produce events.](zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a new patient enters a zero-inflation process, which either produces a structural zero or passes the patient to a count process that can produce a sampling zero or one or more visits."}
 
 **The beauty of this approach**: We can model the factors that influence each stage separately, giving us much richer insights than simple count models.
 
@@ -651,22 +633,13 @@ Understanding zero-inflated model output requires interpreting **two separate se
 #| code-summary: "Show interpretation of zero-inflated model results"
 # Extract and interpret results from ZINB model using easystats
 zinb_params <- model_parameters(zinb_model)
-print("=== Complete Model Parameters ===")
 print(zinb_params)
 
 # Separate the two components for clearer interpretation
 count_coefs <- fixef(zinb_model)$cond
 zi_coefs <- fixef(zinb_model)$zi
 
-print("=== COUNT MODEL COEFFICIENTS (Log Scale) ===")
-print(round(count_coefs, 3))
-print("\n=== ZERO-INFLATION COEFFICIENTS (Logit Scale) ===") 
-print(round(zi_coefs, 3))
-
 # Convert to interpretable scales
-print("\n=== PRACTICAL INTERPRETATIONS ===")
-
-print("COUNT MODEL - Effects on visit rates (among healthcare users):")
 count_effects <- exp(count_coefs)
 count_df <- data.frame(
   Variable = names(count_effects),
@@ -682,9 +655,12 @@ count_df <- data.frame(
     "Married vs unmarried"
   )
 )
-print(count_df[, c("Variable", "Rate_Ratio", "Interpretation")], row.names = FALSE)
+knitr::kable(
+  count_df[, c("Variable", "Rate_Ratio", "Percent_Change", "Interpretation")],
+  caption = "Count component: multiplicative effects on expected visit rates.",
+  row.names = FALSE
+)
 
-print("\nZERO-INFLATION MODEL - Probability of structural zero (never visits):")
 zi_probs <- plogis(zi_coefs)
 zi_odds <- exp(zi_coefs)
 zi_df <- data.frame(
@@ -698,17 +674,21 @@ zi_df <- data.frame(
     "Male effect on never visiting"
   )
 )
-print(zi_df[, c("Variable", "Odds_Ratio", "Interpretation")], row.names = FALSE)
+knitr::kable(
+  zi_df[, c("Variable", "Odds_Ratio", "Interpretation")],
+  caption = "Zero-inflation component: odds ratios for belonging to the structural-zero group.",
+  row.names = FALSE
+)
 ```
 
 #### Key Healthcare Insights from the Model
 
 **From the Count Component** (visit rates among users):
 
-- **Chronic conditions**: Each additional condition increases visit rate by ~X% (strong effect)
-- **Poor health**: Dramatically increases visit frequency among healthcare users
-- **Age**: Older patients have more visits when they do use healthcare
-- **Excellent health**: Even among healthcare users, excellent health reduces visit frequency
+- **Chronic conditions**: Each additional condition increases the visit rate by about 20% among healthcare users.
+- **Poor health**: Poor health is associated with about 32% more visits among healthcare users.
+- **Age**: In this fitted model, age is associated with slightly fewer visits in the count component, while also affecting the zero-inflation component.
+- **Excellent health**: Even among healthcare users, excellent health is associated with a lower visit rate.
 
 **From the Zero-Inflation Component** (probability of never visiting):
 
@@ -920,16 +900,7 @@ This section covers advanced model choices and extensions beyond the core materi
 - First process: Will there be any events? (Binary)
 - Second process: How many events? (Truncated count)
 
-```{mermaid}
-graph TD
-    A[Observed Zero] --> B{Model Type}
-    B --> C[Zero-Inflated: Could be structural OR sampling zero]
-    B --> D[Hurdle: Single process determines all zeros]
-    
-    E[Observed Positive Count] --> F{Model Type}  
-    F --> G[Zero-Inflated: Standard count distribution]
-    F --> H[Hurdle: Truncated count distribution]
-```
+![Zero-inflated models treat observed zeros as a mixture of structural and sampling zeros, while hurdle models put all zeros on one side of a participation hurdle and positive counts on the other.](hurdle-vs-zi.svg){#fig-hurdle-vs-zi fig-alt="A hand-drawn comparison diagram showing observed zeros and positive counts split differently by zero-inflated and hurdle models."}
 
 ### Mathematical Formulation
 
@@ -1190,12 +1161,19 @@ ggplot(effect_plot_data, aes(x = hours_fishing, y = predicted)) +
 | **Zero-Inflated NB** | Excess zeros AND overdispersion | Zero deflation |
 | **Hurdle Models** | Want flexibility, possible zero deflation | Strong theory for mixture processes |
 
+: Practical guide for choosing among common count-data model families. {#tbl-model-choice}
+
 ### Further Reading
 
-- Zeileis, A., Kleiber, C., & Jackman, S. (2008). Regression models for count data in R. *Journal of Statistical Software*, 27(8), 1-25.
-- Lambert, D. (1992). Zero-inflated Poisson regression, with an application to defects in manufacturing. *Technometrics*, 34(1), 1-14.
-- Mullahy, J. (1986). Specification and testing of some modified count data models. *Journal of Econometrics*, 33(3), 341-365.
+- Zeileis, Kleiber, and Jackman provide the practical R reference for count-data models, including Poisson, negative binomial, hurdle, and zero-inflated specifications [@zeileis2008].
+- Lambert's paper is the classic zero-inflated Poisson reference [@lambert1992].
+- Mullahy's paper is the foundational reference on modified count-data models, including hurdle-style thinking [@mullahy1986].
 
 ---
 
 *This tutorial provides a comprehensive foundation for zero-inflated modeling. Remember that the choice of model should always be guided by both statistical evidence and theoretical understanding of your data generating process.*
+
+## References
+
+::: {#refs}
+:::

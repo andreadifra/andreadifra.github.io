@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 430" role="img" aria-labelledby="title desc">
+  <title id="title">Two-stage zero-inflated model process</title>
+  <desc id="desc">A hand-drawn two-stage model diagram in which a patient either belongs to the structural-zero process or passes to a count process.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10" fill="none" stroke="#263238" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .box { fill: #fffdf7; stroke: #263238; stroke-width: 2.4; rx: 14; }
+      .decision { fill: #f4e7ff; stroke: #5b4b70; stroke-width: 2.4; }
+      .struct { fill: #ffe3e0; stroke: #b23a33; }
+      .sample { fill: #dff6f8; stroke: #168491; }
+      .pos { fill: #e4f6df; stroke: #357a38; }
+      .line { fill: none; stroke: #263238; stroke-width: 2.2; stroke-linecap: round; marker-end: url(#arrow); }
+      text { font-family: "Segoe Print", "Bradley Hand ITC", "Comic Sans MS", sans-serif; fill: #202124; }
+      .h { font-size: 21px; font-weight: 700; }
+      .t { font-size: 16px; }
+      .label { font-size: 15px; font-weight: 700; }
+    </style>
+  </defs>
+  <rect x="40" y="174" width="150" height="70" class="box"/>
+  <text x="115" y="205" text-anchor="middle" class="h">New patient</text>
+  <text x="115" y="228" text-anchor="middle" class="t">count record</text>
+  <path d="M194 209 C230 205, 248 205, 284 209" class="line"/>
+  <rect x="288" y="134" width="260" height="150" class="decision"/>
+  <text x="418" y="174" text-anchor="middle" class="h">Stage 1</text>
+  <text x="418" y="202" text-anchor="middle" class="t">Zero-inflation process</text>
+  <text x="418" y="228" text-anchor="middle" class="t">Will this person ever</text>
+  <text x="418" y="252" text-anchor="middle" class="t">access healthcare?</text>
+  <path d="M418 286 C400 320, 360 340, 306 356" class="line"/>
+  <text x="366" y="328" text-anchor="middle" class="label">No, pi</text>
+  <rect x="116" y="334" width="204" height="72" class="box struct"/>
+  <text x="218" y="363" text-anchor="middle" class="h">Structural zero</text>
+  <text x="218" y="388" text-anchor="middle" class="t">guaranteed 0 visits</text>
+  <path d="M552 209 C592 205, 614 205, 654 209" class="line"/>
+  <text x="604" y="194" text-anchor="middle" class="label">Yes, 1 - pi</text>
+  <rect x="658" y="134" width="270" height="150" class="decision"/>
+  <text x="793" y="174" text-anchor="middle" class="h">Stage 2</text>
+  <text x="793" y="202" text-anchor="middle" class="t">Count process</text>
+  <text x="793" y="228" text-anchor="middle" class="t">How many visits</text>
+  <text x="793" y="252" text-anchor="middle" class="t">will they have?</text>
+  <path d="M740 286 C706 318, 672 334, 626 356" class="line"/>
+  <path d="M842 286 C876 318, 910 334, 956 356" class="line"/>
+  <rect x="508" y="334" width="196" height="72" class="box sample"/>
+  <text x="606" y="363" text-anchor="middle" class="h">Sampling zero</text>
+  <text x="606" y="388" text-anchor="middle" class="t">could visit, did not</text>
+  <rect x="820" y="334" width="176" height="72" class="box pos"/>
+  <text x="908" y="363" text-anchor="middle" class="h">1+ visits</text>
+  <text x="908" y="388" text-anchor="middle" class="t">standard count model</text>
+</svg>
