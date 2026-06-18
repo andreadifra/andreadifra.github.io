@@ -1,5 +1,5 @@
 ---
-title: "Zero-Inflated Models: A Comprehensive Tutorial"
+title: "Zero-Inflated Models: A Practical Tutorial"
 description: "A practical guide to understanding and implementing zero-inflated models for count data analysis"
 author: "Andrea Di Francia"
 date: "2026-06-15"
@@ -20,22 +20,20 @@ format:
     tbl-cap-location: top
 ---
 
-# Core Topics
-
-## Introduction
+# Introduction
 
 Count data often looks simple until the zeros start piling up. A standard Poisson or negative binomial model assumes that every observation comes from the same count-generating process. In many applied settings, that assumption is too tidy: some people, places, or systems are never really at risk of the event, while others are at risk but happen to record zero during the observation window.
 
 Zero-inflated models give us a way to represent that distinction explicitly. This tutorial builds up from generalized linear models to zero-inflated Poisson and zero-inflated negative binomial models, using healthcare utilization as the running example.
 
-### What Are Zero-Inflation Models?
+## What Are Zero-Inflation Models?
 
 In regression analysis, zero-inflated models are a family of statistical methods used to analyze count data when there are more zeros than simple count models (like Poisson) expect. In plain terms: when you're counting events (visits to a clinic, number of fish caught, defects on a product) and a lot of observations are zero, standard models can give misleading results. Zero-inflated models help by explicitly accounting for two ways a zero can occur:
 
 - one "structural" (the event cannot happen for some units)
 - one "sampling" (the event could happen but didn't in that observation).
 
-### When Do We Need Zero-Inflated Models?
+## When Do We Need Zero-Inflated Models?
 
 Zero-inflated models address a fundamental challenge in count data analysis: **excess zeros**. Consider these real-world scenarios:
 
@@ -45,9 +43,9 @@ Zero-inflated models address a fundamental challenge in count data analysis: **e
 
 ![In healthcare data, zeros can come from fundamentally different processes: policy or access barriers create structural zeros, while ordinary non-use during the observation window creates sampling zeros.](zero-sources.svg){#fig-zero-sources fig-alt="A hand-drawn flow diagram splitting healthcare count zeros into structural zeros from access or eligibility barriers and sampling zeros from no care needed or non-attendance."}
 
-## Theoretical Foundation: Generalized Linear Models
+# Theoretical Foundation: Generalized Linear Models
 
-### Why GLMs Matter for Zero-Inflated Models
+## Why GLMs Matter for Zero-Inflated Models
 
 Before diving into zero-inflated models, we need to understand **Generalized Linear Models (GLMs)** — the statistical framework that makes these advanced models possible. Think of GLMs as a powerful extension of ordinary linear regression that can handle different types of data: counts, yes/no responses, continuous positive values, and more.
 
@@ -55,7 +53,7 @@ Before diving into zero-inflated models, we need to understand **Generalized Lin
 
 Zero-inflated models are sophisticated GLMs that combine two simpler GLM components. The original zero-inflated Poisson regression paper framed this as a practical way to model excess zeros in manufacturing defects [@lambert1992]; the same idea now appears across health, ecology, insurance, and many other count-data settings.
 
-### The Exponential Family: The Mathematical Foundation
+## The Exponential Family: The Mathematical Foundation
 
 The **exponential family** is a collection of probability distributions that share a common mathematical structure. This might sound abstract, but it includes most distributions you encounter in practice: normal, Poisson, binomial, gamma, and many others.
 
@@ -75,7 +73,7 @@ $$f(y|\theta, \phi) = \exp\left\{\frac{y\theta - b(\theta)}{\phi} + c(y, \phi)\r
 - $\phi$ is the **dispersion parameter** (relates to the variance)
 - $b(\cdot)$ and $c(\cdot)$ are specific functions that define each distribution type
 
-#### Key Examples with Real-World Context
+### Key Examples with Real-World Context
 
 **Bernoulli Distribution** (for yes/no outcomes):
 $$f(y|\mu) = \mu^y(1-\mu)^{1-y} = \exp\left\{y \log\left(\frac{\mu}{1-\mu}\right) + \log(1-\mu)\right\}$$
@@ -117,7 +115,7 @@ The Poisson gives us:
 - **Key assumption**: $E[Y] = \text{Var}(Y) = \lambda$ (equidispersion)
 - **When this breaks down**: If you see many more zeros than Poisson predicts, or if the variance is much larger than the mean, you need zero-inflated or overdispersed models.
 
-### Generalized Linear Models (GLMs): Putting It Together
+## Generalized Linear Models (GLMs): Putting It Together
 
 Think of a GLM as having three essential ingredients, like a recipe:
 
@@ -129,9 +127,9 @@ Think of a GLM as having three essential ingredients, like a recipe:
 
 **The beauty of this system**: You can mix and match different link functions and distributions to model different types of data appropriately.
 
-## Practical Implementation: Foundation Models
+# Practical Implementation: Foundation Models
 
-### Package Installation
+## Package Installation
 
 Before starting, install the required packages:
 
@@ -142,7 +140,7 @@ install.packages(c("glmmTMB", "DHARMa", "performance", "parameters", "MASS",
                    "ggplot2", "dplyr", "gridExtra", "knitr", "caret", "catdata"))
 ```
 
-### Loading Healthcare Data
+## Loading Healthcare Data
 
 We'll use a real healthcare dataset to demonstrate zero-inflated models. The `medcare` dataset from the `catdata` package contains information about healthcare utilization among Medicare beneficiaries.
 
@@ -181,7 +179,7 @@ glimpse(medcare)
 - `married`: Marital status (married = 1, else = 0)
 - `school`: Years of education
 
-### Understanding the Data: Why Zero-Inflation Matters
+## Understanding the Data: Why Zero-Inflation Matters
 
 Let's explore the key characteristics that suggest we need zero-inflated models:
 
@@ -223,7 +221,7 @@ knitr::kable(head(freqs, 10))
 - **Overdispersion**: Variance much larger than mean (typical of real healthcare data)
 - **Right-skewed distribution**: Most people have few visits, but some have many
 
-### Visualizing Zero-Inflation
+## Visualizing Zero-Inflation
 
 ```{r}
 #| echo: false
@@ -291,7 +289,7 @@ print(p3)
 - Those with more chronic conditions rarely have zero visits
 - This suggests **two distinct processes** generating zeros
 
-### Foundation Models: Step-by-Step Analysis
+## Foundation Models: Step-by-Step Analysis
 
 Now let's build our understanding by starting with simpler models before moving to zero-inflated approaches. This step-by-step approach helps us understand:
 
@@ -301,7 +299,7 @@ Now let's build our understanding by starting with simpler models before moving 
 
 This methodical approach mirrors the actual components of zero-inflated models, making the final models more interpretable.
 
-#### Step 1: Logistic Regression for Zero vs Non-Zero
+### Step 1: Logistic Regression for Zero vs Non-Zero
 
 First, let's model the probability of having **any** doctor visits versus none. This analysis mirrors the zero-inflation component of ZIP/ZINB models.
 
@@ -353,7 +351,7 @@ print(interpretation_df, row.names = FALSE)
 - **Chronic conditions**: Dramatically reduce odds of zero visits
 - **Age**: Older patients less likely to have zero visits
 
-#### Step 2: Poisson Regression for Count Data
+### Step 2: Poisson Regression for Count Data
 
 Now let's model the count of visits using standard Poisson regression. This analysis mirrors the count component of ZIP/ZINB models.
 
@@ -403,7 +401,7 @@ print(poisson_params)
 
 **Why overdispersion matters**: In Poisson regression, we assume the variance equals the mean. When the variance is much larger (overdispersion), our standard errors are too small, leading to overconfident statistical tests and potentially incorrect conclusions about which variables are significant.
 
-#### Step 3: Comparing Observed vs Expected Zeros
+### Step 3: Comparing Observed vs Expected Zeros
 
 Let's see how many zeros each model predicts compared to what we actually observe. This is the crucial diagnostic that tells us whether we need zero-inflated models.
 
@@ -454,9 +452,9 @@ knitr::kable(zero_comparison)
 
 **The smoking gun**: We observe 683 zero-visit records, while the Poisson model expects only about 37. That gap is the practical evidence that a one-process count model is missing something important.
 
-## Zero-Inflated Models: Theory and Implementation
+# Zero-Inflated Models: Theory and Implementation
 
-### The Core Concept: Two-Process Thinking
+## The Core Concept: Two-Process Thinking
 
 Now that we've established the need for zero-inflated models, let's understand exactly **how** they work. The key insight is deceptively simple: **not all zeros are created equal**.
 
@@ -466,7 +464,7 @@ Think of zero-inflated models as having two interconnected parts working togethe
 
 **The beauty of this approach**: We can model the factors that influence each stage separately, giving us much richer insights than simple count models.
 
-### Real-World Healthcare Example: Breaking Down the Process
+## Real-World Healthcare Example: Breaking Down the Process
 
 Let's apply this two-stage thinking to our medical care data. Imagine we're trying to understand doctor visit patterns:
 
@@ -482,11 +480,11 @@ Let's apply this two-stage thinking to our medical care data. Imagine we're tryi
 
 This separation allows us to identify, for example, that **excellent health** primarily affects whether someone visits doctors at all (Stage 1), while **chronic conditions** primarily affect how often they visit (Stage 2).
 
-### Mathematical Formulation: Making the Intuition Concrete
+## Mathematical Formulation: Making the Intuition Concrete
 
 Don't let the mathematics intimidate you — they're just formalizing the two-stage process we described above.
 
-#### Zero-Inflated Poisson (ZIP) Model
+### Zero-Inflated Poisson (ZIP) Model
 
 The ZIP model mathematically expresses our two-stage process:
 
@@ -514,7 +512,7 @@ Let's say we estimate $\pi = 0.15$ and $\lambda = 3.2$ for a typical patient pro
 - Among potential users, $e^{-3.2} = 4.1\%$ happen to have zero visits by chance
 - **Total zero probability** = 15% + 85% × 4.1% = 18.5%
 
-#### Understanding Mean and Variance
+### Understanding Mean and Variance
 
 **Expected visits:** $E[Y] = (1-\pi)\lambda$
 - Only the $(1-\pi)$ proportion who are potential users contribute to the mean
@@ -526,7 +524,7 @@ Let's say we estimate $\pi = 0.15$ and $\lambda = 3.2$ for a typical patient pro
 
 **Why this matters**: The built-in overdispersion (variance > mean) helps explain the extra variability we see in real healthcare data that simple Poisson models miss.
 
-#### Zero-Inflated Negative Binomial (ZINB) Model
+### Zero-Inflated Negative Binomial (ZINB) Model
 
 The ZINB model adds another layer of flexibility for handling even more overdispersion:
 
@@ -547,11 +545,11 @@ $$P(Y = k) = (1-\pi)\frac{\Gamma(k+r)}{k!\Gamma(r)}\left(\frac{r}{r+\mu}\right)^
 - When you have **excess zeros AND** heavy overdispersion in the count component
 - Healthcare data often shows both patterns: some people never use services (excess zeros) and among users, visit patterns are highly variable (overdispersion)
 
-### Building Intuition: A Step-by-Step Example
+## Building Intuition: A Step-by-Step Example
 
 Let's walk through fitting our first zero-inflated model using the healthcare data, building intuition at each step.
 
-#### Step 1: Choosing Variables for Each Component
+### Step 1: Choosing Variables for Each Component
 
 **Key decision**: Which variables should influence the zero-inflation process vs the count process?
 
@@ -569,11 +567,11 @@ Let's walk through fitting our first zero-inflated model using the healthcare da
 
 **In practice**: You can use the same variables in both components or different sets, depending on your theoretical understanding and empirical evidence.
 
-### Practical Implementation: From Theory to Code
+## Practical Implementation: From Theory to Code
 
 Now let's implement zero-inflated models using our healthcare data, building step-by-step understanding.
 
-#### Setting Up the Healthcare Models
+### Setting Up the Healthcare Models
 
 ```{r healthcare_zero_inflated}
 #| code-fold: true
@@ -617,7 +615,7 @@ summary(zinb_model)
 - **Age and gender** affect both participation and intensity differently  
 - **Chronic conditions** primarily affect intensity (people with more conditions visit more), not whether they participate
 
-### Interpreting Zero-Inflated Model Results
+## Interpreting Zero-Inflated Model Results
 
 Understanding zero-inflated model output requires interpreting **two separate sets of coefficients**. Let's break this down systematically.
 
@@ -674,7 +672,7 @@ knitr::kable(
 )
 ```
 
-#### Key Healthcare Insights from the Model
+### Key Healthcare Insights from the Model
 
 **From the Count Component** (visit rates among users):
 
@@ -691,7 +689,7 @@ knitr::kable(
 
 **The complete picture**: These models reveal that excellent health status **primarily** operates by affecting whether people participate in healthcare at all, while chronic conditions **primarily** affect how intensively people use healthcare once they're in the system.
 
-### Comparing Model Performance: Why ZINB Usually Wins
+## Comparing Model Performance: Why ZINB Usually Wins
 
 Let's systematically compare our models to understand which performs best and why.
 
@@ -754,11 +752,11 @@ print(zi_check_zinb)
 3. **Better fit**: Lower AIC/BIC values indicate superior model fit
 4. **Robust diagnostics**: Usually passes zero-inflation and overdispersion tests
 
-### Practical Model Building Strategy
+## Practical Model Building Strategy
 
 Here's a systematic approach to building zero-inflated models:
 
-#### Step 1: Start with Theory
+### Step 1: Start with Theory
 
 **Before touching the data**, think about:
 
@@ -766,7 +764,7 @@ Here's a systematic approach to building zero-inflated models:
 - What factors affect intensity among participants?
 - Should you use the same or different variables in each component?
 
-#### Step 2: Build Progressively
+### Step 2: Build Progressively
 
 ```{r progressive_building}
 #| eval: false
@@ -792,18 +790,18 @@ model4 <- glmmTMB(ofp ~ healthpoor + healthexcellent + numchron + age,  # ZINB f
 compare_performance(model1, model2, model3, model4)
 ```
 
-#### Step 3: Validate Your Choices
+### Step 3: Validate Your Choices
 
 **Ask these questions:**
 
 - Do the coefficient signs make theoretical sense?
 - Does the model pass diagnostic tests?
 - Are standard errors reasonable (not too large)?
-- Does cross-validation support your model choice?
+- Do residual and performance checks support your model choice?
 
 **Next section**: We'll cover comprehensive model diagnostics to ensure our zero-inflated models are trustworthy.
 
-## Model Diagnostics with DHARMa and Performance
+# Model Diagnostics with DHARMa and Performance
 
 Proper diagnostics are crucial for zero-inflated models due to their complex structure.
 
@@ -847,7 +845,7 @@ zi_check <- check_zeroinflation(zinb_model)
 print(zi_check)
 ```
 
-### Model Comparison
+## Model Comparison
 
 ```{r model_comparison}
 #| eval: false
@@ -877,257 +875,19 @@ print(paste("ZINB vs ZIP: p-value =", round(lrt_zinb$`Pr(>Chisq)`[2], 4)))
 
 The ZINB model wins on all criteria, confirming our need for both zero-inflation and overdispersion modeling.
 
-# Advanced topics
+The next layer of model choice is deciding when a hurdle model, alternative count distribution, or prediction workflow is a better fit. That material is better handled as a separate advanced tutorial so this article can stay focused on the core zero-inflated modeling workflow.
 
-This section covers advanced model choices and extensions beyond the core material (hurdle models, alternative count distributions, model selection strategies, prediction and validation techniques).
+# Summary and Best Practices
 
-## Advanced Topics: Hurdle Models
+## Key Takeaways
 
-### Conceptual Difference from Zero-Inflated Models
+1. **Zero-inflated models are useful** when excess zeros plausibly come from two distinct processes.
+2. **ZINB often outperforms ZIP** when the data have both excess zeros and overdispersion.
+3. **The zero-inflation and count components answer different questions**, so interpret them separately.
+4. **Model diagnostics are crucial**; use checks for overdispersion, zero inflation, and residual behavior.
+5. **Model choice should combine fit statistics and subject-matter reasoning**, not just the lowest AIC.
 
-**Zero-Inflated Models**: Zeros arise from a **mixture** of two processes
-- Some zeros are "structural" (never could have non-zero)  
-- Some zeros are "sampling" (could have been non-zero but weren't)
-
-**Hurdle Models**: **All** zeros arise from one process, positive values from another
-- First process: Will there be any events? (Binary)
-- Second process: How many events? (Truncated count)
-
-![Zero-inflated models treat observed zeros as a mixture of structural and sampling zeros, while hurdle models put all zeros on one side of a participation hurdle and positive counts on the other.](hurdle-vs-zi.svg){#fig-hurdle-vs-zi fig-alt="A hand-drawn comparison diagram showing observed zeros and positive counts split differently by zero-inflated and hurdle models."}
-
-### Mathematical Formulation
-
-**Hurdle Model:**
-$$P(Y = 0) = \theta$$
-$$P(Y = k) = (1-\theta) \times \frac{f_{\text{truncated}}(k|\lambda)}{1-P_{\text{count}}(0)}, \quad k = 1, 2, 3, ...$$
-
-**Key difference**: Hurdle models can handle **zero deflation** (fewer zeros than expected), while zero-inflated models cannot.
-
-### Implementation
-
-```{r hurdle_models}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show hurdle model implementation"
-# Hurdle Poisson model
-hurdle_pois <- glmmTMB(fish_caught ~ group_size + hours_fishing + experience + 
-                       bait_quality + weather_good,
-                       ziformula = ~ experience + weather_good,
-                       data = fishing_data,
-                       family = truncated_poisson())
-
-# Hurdle Negative Binomial model
-hurdle_nb <- glmmTMB(fish_caught ~ group_size + hours_fishing + experience + 
-                     bait_quality + weather_good,
-                     ziformula = ~ experience + weather_good,
-                     data = fishing_data,
-                     family = truncated_nbinom2())
-
-# Compare all models
-all_models <- list(
-  "Poisson" = poisson_model,
-  "ZIP" = zip_model,
-  "ZINB" = zinb_model, 
-  "Hurdle_Poisson" = hurdle_pois,
-  "Hurdle_NB" = hurdle_nb
-)
-
-comparison_all <- compare_performance(all_models, metrics = c("AIC", "BIC"))
-print(comparison_all)
-```
-
-## When to Choose Hurdle vs Zero-Inflated?
-
-**Choose Zero-Inflated when:**
-- Strong theoretical justification for two distinct zero-generating processes
-- Zeros are genuinely "extra" beyond what the count distribution predicts
-- You want to model factors affecting structural vs sampling zeros differently
-
-**Choose Hurdle when:**
-- All zeros conceptually arise from the same process  
-- You need flexibility to handle zero deflation
-- You want to model "participation" vs "intensity" separately
-
-## Advanced Count Distributions
-
-### Alternative Distributions for Count Data
-
-#### Negative Binomial Parameterizations
-
-```{r nb_parameterizations}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show negative binomial parameterization options"
-# NB1: Variance = μ(1 + α) [linear variance]
-zinb1_model <- glmmTMB(fish_caught ~ group_size + hours_fishing + experience + 
-                       bait_quality + weather_good,
-                       ziformula = ~ experience + weather_good,
-                       data = fishing_data,
-                       family = nbinom1())
-
-# NB2: Variance = μ(1 + μ/k) [quadratic variance] 
-zinb2_model <- zinb_model  # This is our original model
-
-print("NB1 vs NB2 comparison:")
-nb_comparison <- compare_performance(zinb1_model, zinb2_model)
-print(nb_comparison)
-```
-
-**When to use NB1 vs NB2:**
-- **NB1**: When variance increases linearly with mean
-- **NB2**: When variance increases quadratically with mean (more common)
-
-#### Generalized Poisson for Under/Overdispersion
-
-```{r generalized_poisson}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show generalized Poisson model"
-# Generalized Poisson can handle both under and overdispersion
-zigp_model <- glmmTMB(fish_caught ~ group_size + hours_fishing + experience + 
-                      bait_quality + weather_good,
-                      ziformula = ~ experience + weather_good,
-                      data = fishing_data,
-                      family = genpois())
-
-summary(zigp_model)
-```
-
-#### Conway-Maxwell-Poisson for Flexible Dispersion
-
-```{r conway_maxwell}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show Conway-Maxwell-Poisson model"
-# Conway-Maxwell-Poisson provides very flexible dispersion modeling
-# Note: Requires additional computational resources
-zicomp_model <- glmmTMB(fish_caught ~ group_size + hours_fishing + experience + 
-                        bait_quality + weather_good,
-                        ziformula = ~ experience + weather_good,
-                        data = fishing_data,
-                        family = compois())
-```
-
-#### Zero-Altered Models for Continuous Data
-
-For continuous data with zeros (e.g., biomass, rainfall):
-
-```{r zero_altered_gamma}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show zero-altered gamma model for continuous data"
-# Example: Zero-Altered Gamma for biomass data
-# Create example biomass data
-biomass_data <- data.frame(
-  treatment = factor(rep(c("control", "fertilized"), each = 200)),
-  soil_moisture = rnorm(400, 50, 15),
-  temperature = rnorm(400, 25, 5)
-)
-
-# Generate zero-altered gamma data
-prob_zero <- plogis(-2 + 0.5 * (biomass_data$treatment == "control"))
-has_biomass <- rbinom(400, 1, 1 - prob_zero)
-gamma_rate <- exp(-1 + 0.3 * (biomass_data$treatment == "fertilized"))
-biomass_data$biomass <- ifelse(has_biomass == 0, 0, 
-                              rgamma(400, shape = 2, rate = gamma_rate))
-
-# Zero-Altered Gamma model
-zag_model <- glmmTMB(biomass ~ treatment + soil_moisture + temperature,
-                     ziformula = ~ treatment + soil_moisture,
-                     data = biomass_data,
-                     family = Gamma(link = "log"))
-```
-
-
-## Predictions and Interpretation
-
-### Making Predictions from Zero-Inflated Models
-
-```{r predictions}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show prediction examples"
-# Create prediction scenarios
-new_scenarios <- data.frame(
-  group_size = c(2, 4, 2, 4),
-  hours_fishing = c(2, 6, 2, 6),
-  experience = factor(c("novice", "novice", "expert", "expert"), 
-                     levels = c("novice", "intermediate", "expert")),
-  bait_quality = c(0, 0, 1, 1),
-  weather_good = c(1, 1, 1, 1)
-)
-
-# Get our best model (ZINB)
-final_model <- zinb_model
-
-# Different types of predictions
-predictions <- data.frame(
-  new_scenarios,
-  expected_catch = predict(final_model, newdata = new_scenarios, type = "response"),
-  prob_zero_inflation = predict(final_model, newdata = new_scenarios, type = "zprob"),
-  conditional_catch = predict(final_model, newdata = new_scenarios, type = "conditional")
-)
-
-predictions$prob_any_fish <- 1 - predictions$prob_zero_inflation
-
-print(predictions)
-```
-
-**Interpretation:**
-- `expected_catch`: Overall expected number of fish (includes zero-inflation)
-- `prob_zero_inflation`: Probability of being a "structural zero" (non-fisher)
-- `conditional_catch`: Expected catch IF the person fishes
-- `prob_any_fish`: Probability of catching at least one fish
-
-### Marginal Effects Visualization
-
-```{r marginal_effects}
-#| eval: false
-#| code-fold: true
-#| code-summary: "Show marginal effects visualization"
-# Create effect data for hours fishing
-effect_data <- expand.grid(
-  group_size = 3,  # Average group size
-  hours_fishing = seq(0, 8, 0.5),
-  experience = "intermediate",
-  bait_quality = 0,
-  weather_good = 1
-)
-
-# Calculate predictions with confidence intervals
-effect_predictions <- predict(final_model, newdata = effect_data, 
-                             type = "response", se.fit = TRUE)
-
-effect_plot_data <- data.frame(
-  effect_data,
-  predicted = effect_predictions$fit,
-  lower = effect_predictions$fit - 1.96 * effect_predictions$se.fit,
-  upper = effect_predictions$fit + 1.96 * effect_predictions$se.fit
-)
-
-# Plot marginal effect
-ggplot(effect_plot_data, aes(x = hours_fishing, y = predicted)) +
-  geom_line(color = "blue", size = 1.2) +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "blue") +
-  labs(title = "Expected Fish Catch by Hours Fishing",
-       subtitle = "For intermediate angler, group size 3, good weather",
-       x = "Hours Fishing", 
-       y = "Expected Fish Count") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 14, face = "bold"))
-```
-
-## Summary and Best Practices
-
-### Key Takeaways
-
-1. **Zero-inflated models are essential** when you have excess zeros from two distinct processes
-2. **ZINB often outperforms ZIP** due to its ability to handle additional overdispersion  
-3. **Hurdle models offer more flexibility** and can handle zero deflation
-4. **Model diagnostics are crucial** - use DHARMa and performance packages
-5. **Cross-validation provides robust model selection** beyond just AIC/BIC
-
-### Best Practices Checklist
+## Best Practices Checklist
 
 ✅ **Before modeling:**
 - Explore your data for excess zeros
@@ -1135,16 +895,16 @@ ggplot(effect_plot_data, aes(x = hours_fishing, y = predicted)) +
 - Check for overdispersion in standard Poisson models
 
 ✅ **During modeling:**
-- Compare multiple model types (ZIP, ZINB, Hurdle)
+- Compare Poisson, negative binomial, ZIP, and ZINB models
 - Use different covariates for count and zero-inflation components when justified
 - Check convergence and model diagnostics
 
 ✅ **After modeling:**
-- Validate with cross-validation or holdout data
+- Validate the chosen specification against residual and performance checks
 - Interpret both components of the model
 - Make predictions appropriate to your research questions
 
-### When to Use Each Model Type
+## When to Use Each Model Type
 
 | Model Type | Best When | Avoid When |
 |------------|-----------|------------|
@@ -1152,11 +912,10 @@ ggplot(effect_plot_data, aes(x = hours_fishing, y = predicted)) +
 | **Negative Binomial** | Overdispersed but no excess zeros | Clear zero-inflation |
 | **Zero-Inflated Poisson** | Excess zeros, minimal overdispersion | Heavy overdispersion |
 | **Zero-Inflated NB** | Excess zeros AND overdispersion | Zero deflation |
-| **Hurdle Models** | Want flexibility, possible zero deflation | Strong theory for mixture processes |
 
 : Practical guide for choosing among common count-data model families. {#tbl-model-choice}
 
-### Further Reading
+## Further Reading
 
 - Zeileis, Kleiber, and Jackman provide the practical R reference for count-data models, including Poisson, negative binomial, hurdle, and zero-inflated specifications [@zeileis2008].
 - Lambert's paper is the classic zero-inflated Poisson reference [@lambert1992].
@@ -1164,9 +923,9 @@ ggplot(effect_plot_data, aes(x = hours_fishing, y = predicted)) +
 
 ---
 
-*This tutorial provides a comprehensive foundation for zero-inflated modeling. Remember that the choice of model should always be guided by both statistical evidence and theoretical understanding of your data generating process.*
+*This tutorial provides a practical foundation for zero-inflated modeling. The choice of model should always be guided by both statistical evidence and theoretical understanding of your data generating process.*
 
-## References
+# References
 
 ::: {#refs}
 :::

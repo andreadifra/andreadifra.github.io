@@ -7,7 +7,7 @@ This checklist tracks the publication-readiness items identified during the revi
 - [x] Clean up copied stand-alone YAML and let the post inherit website settings where appropriate.
 - [x] Make the post render reproducibly in the project environment.
 - [x] Replace placeholders and non-final claims.
-- [ ] Decide how to handle the advanced section.
+- [x] Decide how to handle the advanced section.
 - [ ] Improve output presentation for a blog audience.
 - [x] Add figure and table labels, captions, and alt text where needed.
 - [x] Add proper citations and bibliography support.
@@ -34,9 +34,9 @@ This checklist tracks the publication-readiness items identified during the revi
 - [x] Replace placeholders and non-final claims
   - [x] Remove placeholder wording such as `~X%`.
   - [x] Replace any hand-wavy claims with computed values or tighter prose.
-- [ ] Decide what to do with the advanced section
-  - [ ] Review the later examples that switch from `medcare` to `fish_caught` / `fishing_data`.
-  - [ ] Either rewrite them to stay in the same tutorial context or split them into a later post.
+- [x] Decide what to do with the advanced section
+  - [x] Review the later examples that switch from `medcare` to `fish_caught` / `fishing_data`.
+  - [x] Split them into a later draft post.
 - [ ] Improve output presentation
   - [x] Reduce raw `print()`-heavy output where a table or short interpretation would read better.
   - [ ] Keep detailed output folded only where it genuinely helps the reader.
@@ -57,6 +57,7 @@ This checklist tracks the publication-readiness items identified during the revi
 
 - The active source file for the post is `posts/zero-inflated-models-tutorial/index.qmd`.
 - Keep this checklist focused on getting the current tutorial ready for publication on the website.
+- Advanced material has been split into `posts/zero-inflated-models-advanced/index.qmd` with `draft: true`; it needs a consistent dataset and publication cleanup before release.
 - Added `references.bib` and kept citation metadata local to the post with a single top-level `bibliography: references.bib`. Explicit citeproc and `format.html` bibliography overrides were tested and removed; Quarto's default HTML citation processing now renders author-year citations and the bibliography correctly.
 - The standalone render hang was traced to `renv_load_sandbox`, not to Quarto, the post content, or R version discovery. `.Rprofile` now disables only `renv.config.sandbox.enabled` before sourcing `renv/activate.R`, keeping the project `renv` library active.
 - Final check on 2026-06-17: `quarto check knitr` passes with R 4.6.0, and `quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute` completes from the website project.

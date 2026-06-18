@@ -361,7 +361,7 @@
       "type": "rectangle",
       "x": 650.2684674941528,
       "y": 100.92262534682737,
-      "width": 231.157418485169,
+      "width": 245.15741848516893,
       "height": 72.5553068206442,
       "angle": 0,
       "strokeColor": "#263238",
@@ -377,8 +377,8 @@
         "type": 3
       },
       "seed": 315667057,
-      "version": 514,
-      "versionNonce": 809171214,
+      "version": 522,
+      "versionNonce": 1166544229,
       "isDeleted": false,
       "boundElements": [
         {
@@ -390,7 +390,7 @@
           "id": "h-ZrqQ8Li2svOfnrPIU3e"
         }
       ],
-      "updated": 1781724168734,
+      "updated": 1781786107445,
       "link": null,
       "locked": false,
       "index": "aD"
@@ -398,7 +398,7 @@
     {
       "id": "h-ZrqQ8Li2svOfnrPIU3e",
       "type": "text",
-      "x": 706.1192333163272,
+      "x": 713.1192333163272,
       "y": 117.20027875714948,
       "width": 119.45588684082031,
       "height": 40,
@@ -415,30 +415,30 @@
       "index": "aE",
       "roundness": null,
       "seed": 381042907,
-      "version": 83,
-      "versionNonce": 1490331470,
+      "version": 106,
+      "versionNonce": 1092288044,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1781724168734,
+      "updated": 1781786189193,
       "link": null,
       "locked": false,
-      "text": "Outcome model:\n",
+      "text": "Outcome model:\n ",
       "fontSize": 16,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "oEITivGdog0ZyR5OhoghM",
-      "originalText": "Outcome model:\n",
+      "originalText": "Outcome model:\n ",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "4nD3TtIEtp_S5mKnM-ma7",
       "type": "arrow",
-      "x": 631.4270135793761,
-      "y": 136.61527052912032,
-      "width": 17.87430706027078,
-      "height": 0.7021980976635689,
+      "x": 631.3884380251758,
+      "y": 136.1217029573039,
+      "width": 14.153847436087744,
+      "height": 0.030587230573360102,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "#ffec99",
@@ -454,11 +454,11 @@
         "type": 2
       },
       "seed": 1128461855,
-      "version": 226,
-      "versionNonce": 11036754,
+      "version": 248,
+      "versionNonce": 304316939,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1781724170792,
+      "updated": 1781786107445,
       "link": null,
       "locked": false,
       "points": [
@@ -467,20 +467,20 @@
           0
         ],
         [
-          17.87430706027078,
-          -0.7021980976635689
+          14.153847436087744,
+          -0.030587230573360102
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
         "elementId": "glm-d",
-        "focus": 0.15002026974892868,
+        "focus": 0.0695729891456094,
         "gap": 1
       },
       "endBinding": {
-        "elementId": "7vkkl8zvto8b5zdnon2drv",
-        "focus": 0.908421618195111,
-        "gap": 4.835196228602058
+        "elementId": "oEITivGdog0ZyR5OhoghM",
+        "focus": 0.03788120130160775,
+        "gap": 4.967146854505927
       },
       "startArrowhead": null,
       "endArrowhead": "arrow",
@@ -731,10 +731,10 @@
     {
       "id": "7vkkl8zvto8b5zdnon2drv",
       "type": "image",
-      "x": 654.1365168682489,
-      "y": 134.01011115782202,
-      "width": 221.16206874051983,
-      "height": 28.722346589677898,
+      "x": 671.4095506192718,
+      "y": 135.32708703552052,
+      "width": 202.84320829182593,
+      "height": 26.343273804133233,
       "angle": 0,
       "strokeColor": "transparent",
       "backgroundColor": "transparent",
@@ -748,8 +748,8 @@
       "index": "aN",
       "roundness": null,
       "seed": 20284,
-      "version": 114,
-      "versionNonce": 1188146126,
+      "version": 158,
+      "versionNonce": 100962708,
       "isDeleted": false,
       "boundElements": [
         {
@@ -757,7 +757,7 @@
           "type": "arrow"
         }
       ],
-      "updated": 1781724168734,
+      "updated": 1781786220324,
       "link": null,
       "locked": false,
       "status": "saved",
