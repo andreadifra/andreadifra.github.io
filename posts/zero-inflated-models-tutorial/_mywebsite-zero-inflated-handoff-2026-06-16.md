@@ -93,7 +93,13 @@ format:
       - --citeproc
 ```
 
-This is more explicit than ideal, but it was required to get the running preview to process citations. A later cleanup can test whether some of these duplicate settings can be removed safely.
+This was more explicit than ideal and was later retested after the render path stabilized. On 2026-06-17, the citation metadata was simplified to the Quarto-native form:
+
+``` yaml
+bibliography: references.bib
+```
+
+`quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute` now renders the citations and bibliography correctly without explicit `citeproc`, `cite-method`, duplicated `format.html.bibliography`, or `pandoc-args: --citeproc`.
 
 ### Quarto/R reproducibility
 
@@ -173,7 +179,7 @@ The checklist now marks the reproducible render task complete, with `_freeze/` v
 
 Initial citation rendering showed literal citekeys despite parsed citation spans in HTML. A tiny same-folder test file proved Quarto/Pandoc citeproc and `references.bib` were valid. The long post only rendered citations correctly after adding explicit citeproc settings under `format.html` and forcing `--citeproc` via `pandoc-args`.
 
-This warrants later cleanup once the render path is stable.
+This has now been retested after the render path stabilized. The active post only needs top-level `bibliography: references.bib`; the explicit citeproc workaround is no longer required.
 
 ### Freeze output changed
 
@@ -185,22 +191,15 @@ Some git commands work, but `git status` and `git ls-files --others` can fail wi
 
 ## Suggested Next Work
 
-1.  Decide what to do with the advanced section.
+1. Decide what to do with the advanced section.
     - Checklist still notes later examples that switch from `medcare` to `fish_caught` / `fishing_data`.
     - Either rewrite to stay with the healthcare tutorial context or split into another post.
-2.  Continue output presentation cleanup.
+2. Continue output presentation cleanup.
     - There are still long code/output sequences.
     - Tighten blog readability without removing useful reproducibility.
-3.  Simplify citation metadata if possible.
-    - After the render path is reliable, test whether top-level `bibliography`, top-level `cite-method`, and `format.html.pandoc-args: --citeproc` are all needed.
-    - Keep only the minimal working Quarto config.
-4.  Confirm publication/listing behavior.
+3. Confirm publication/listing behavior.
     - Check date, title, description, and categories in blog listing/social preview context.
-5.  Verify and commit `_freeze/`.
-    - Include freeze JSON if the project policy remains to commit `_freeze/`.
-6.  Remove the stale Machine-scope `QUARTO_R` when running an elevated/admin PowerShell is available.
-7.  Commit new assets with the post.
-    - Ensure the `.svg`, `.excalidraw`, and `references.bib` files are included.
+4. Remove the stale Machine-scope `QUARTO_R` when running an elevated/admin PowerShell is available.
 
 ## Suggested Skills
 

@@ -841,7 +841,7 @@
       "strokeColor": "transparent",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 0,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -855,7 +855,7 @@
       "version": 293,
       "versionNonce": 1383984978,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1781697538499,
       "link": null,
       "locked": false,
@@ -869,7 +869,8 @@
         "excalimath_type": "equation",
         "excalimath_source": "equation-panel",
         "excalimath_latex": "\\pi"
-      }
+      },
+      "crop": null
     },
     {
       "id": "qYaCD4pqnnrWx9pySSxNT",
@@ -896,7 +897,7 @@
       "version": 117,
       "versionNonce": 1198011666,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1781697538499,
       "link": null,
       "locked": false,
@@ -913,15 +914,15 @@
     {
       "id": "j5pyhs6upu9r3fvakolg9",
       "type": "image",
-      "x": 832.7109364832821,
-      "y": 184.99241347425726,
-      "width": 41.00000000000007,
-      "height": 29.818181818181873,
+      "x": 831.7109364832821,
+      "y": 180.71968620153,
+      "width": 51.000000000000064,
+      "height": 37.090909090909136,
       "angle": 0,
       "strokeColor": "transparent",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 0,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -932,11 +933,11 @@
       "index": "aX",
       "roundness": null,
       "seed": 73724,
-      "version": 253,
-      "versionNonce": 868344974,
+      "version": 263,
+      "versionNonce": 304758847,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1781697522738,
+      "boundElements": [],
+      "updated": 1781723228436,
       "link": null,
       "locked": false,
       "status": "saved",
@@ -949,7 +950,8 @@
         "excalimath_type": "equation",
         "excalimath_source": "equation-panel",
         "excalimath_latex": "1 - \\pi "
-      }
+      },
+      "crop": null
     },
     {
       "id": "LjyEJkbUU94IRjWRFX96j",
