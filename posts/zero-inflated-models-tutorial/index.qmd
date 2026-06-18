@@ -20,6 +20,12 @@ format:
     tbl-cap-location: top
 ---
 
+```{r profile-setup}
+#| include: false
+source(file.path(Sys.getenv("QUARTO_PROJECT_DIR"), "scripts", "knitr-profile.R"))
+enable_knitr_chunk_profile()
+```
+
 # Introduction
 
 Count data often looks simple until the zeros start piling up. A standard Poisson or negative binomial model assumes that every observation comes from the same count-generating process. In many applied settings, that assumption is too tidy: some people, places, or systems are never really at risk of the event, while others are at risk but happen to record zero during the observation window. recompile 2 test

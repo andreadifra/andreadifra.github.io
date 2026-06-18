@@ -56,7 +56,10 @@ quarto publish gh-pages
 |-- theme-light.scss
 |-- theme-dark.scss
 |-- docs/
+|   |-- chunk-profiling.md
 |   `-- scss-reference.md
+|-- scripts/
+|   `-- knitr-profile.R
 |-- downloads/
 `-- AGENTS.md
 ```
@@ -85,3 +88,5 @@ overrides where needed.
 ## Repository notes
 
 - See `docs/scss-reference.md` for the current theme reference.
+- See `docs/chunk-profiling.md` for the reusable knitr chunk profiler used to
+  time expensive Quarto post chunks before adding cache options.
