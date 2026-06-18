@@ -30,6 +30,8 @@ desktop.ini
 *.swp
 *~
 
-# Keep Quarto execution cache committed for reproducible website builds
+# Keep _freeze/ committed for reproducible website builds.
+# Ignore local knitr chunk caches created by #| cache: true.
+**/index_*/
 
 **/*.quarto_ipynb

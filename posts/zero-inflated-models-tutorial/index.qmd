@@ -22,7 +22,7 @@ format:
 
 # Introduction
 
-Count data often looks simple until the zeros start piling up. A standard Poisson or negative binomial model assumes that every observation comes from the same count-generating process. In many applied settings, that assumption is too tidy: some people, places, or systems are never really at risk of the event, while others are at risk but happen to record zero during the observation window.
+Count data often looks simple until the zeros start piling up. A standard Poisson or negative binomial model assumes that every observation comes from the same count-generating process. In many applied settings, that assumption is too tidy: some people, places, or systems are never really at risk of the event, while others are at risk but happen to record zero during the observation window. recompile 2 test
 
 Zero-inflated models give us a way to represent that distinction explicitly. This tutorial builds up from generalized linear models to zero-inflated Poisson and zero-inflated negative binomial models, using healthcare utilization as the running example.
 
@@ -144,7 +144,7 @@ install.packages(c("glmmTMB", "DHARMa", "performance", "parameters", "MASS",
 
 We'll use a real healthcare dataset to demonstrate zero-inflated models. The `medcare` dataset from the `catdata` package contains information about healthcare utilization among Medicare beneficiaries.
 
-```{r load_data}
+```{r load_libraries}
 #| message: false
 #| warning: false
 # Load required packages
@@ -158,7 +158,11 @@ library(dplyr)
 library(gridExtra)
 library(knitr)
 library(catdata)
+```
 
+```{r load_data}
+#| message: false
+#| cache: true
 # Load the medical care dataset
 data(medcare)
 
@@ -306,6 +310,7 @@ First, let's model the probability of having **any** doctor visits versus none. 
 **Why this matters**: Understanding what predicts zero visits helps us identify "structural zeros" - people who systematically don't use healthcare due to access barriers, excellent health, or philosophical reasons, rather than random chance.
 
 ```{r logistic_analysis}
+#| cache: true
 #| code-fold: true
 #| code-summary: "Show logistic regression analysis"
 # Create binary indicator: 1 = zero visits, 0 = any visits
@@ -370,6 +375,7 @@ Now let's model the count of visits using standard Poisson regression. This anal
 When these assumptions are violated (especially #2), we need more sophisticated models.
 
 ```{r poisson_analysis}
+#| cache: true
 #| code-fold: true
 #| code-summary: "Show Poisson regression analysis"
 # Fit Poisson model
@@ -574,6 +580,7 @@ Now let's implement zero-inflated models using our healthcare data, building ste
 ### Setting Up the Healthcare Models
 
 ```{r healthcare_zero_inflated}
+#| cache: true
 #| code-fold: true
 #| code-summary: "Show zero-inflated model implementation"
 # We'll fit both ZIP and ZINB models to our healthcare data
@@ -770,6 +777,7 @@ Here's a systematic approach to building zero-inflated models:
 #| eval: false
 #| code-fold: true
 #| code-summary: "Show progressive model building strategy"
+#| cache: true
 # Start simple, build complexity
 model1 <- glmmTMB(ofp ~ healthexcellent + numchron,  # Basic count model
                   data = medcare, family = poisson())
