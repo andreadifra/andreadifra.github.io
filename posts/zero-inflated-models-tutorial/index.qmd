@@ -5,19 +5,12 @@ author: "Andrea Di Francia"
 date: "2026-06-15"
 categories: [statistics, modeling, R, tutorial]
 bibliography: references.bib
-cite-method: citeproc
-citeproc: true
 execute:
   echo: true
   warning: false
   message: false
 format:
   html:
-    bibliography: references.bib
-    cite-method: citeproc
-    citeproc: true
-    pandoc-args:
-      - --citeproc
     toc-depth: 3
     number-sections: true
     code-copy: true
