@@ -17,9 +17,10 @@ The profiler records one row per evaluated chunk:
 
 - `render_id`: one identifier for a render run
 - `timestamp`: time when the chunk finished
+- `document`: source document being rendered
 - `label`: chunk label used in the source document
+- `engine`: chunk engine reported by knitr
 - `elapsed`, `user`, `system`: values from `proc.time()`
-- `cache_option`: whether the chunk had `cache: true` enabled
 
 ## Usage
 
@@ -33,11 +34,23 @@ enable_knitr_chunk_profile()
 ```
 ````
 
-Run a real execution pass:
+Run a fresh execution pass when deciding what should be cached:
 
 ```powershell
 quarto render posts/<slug>/index.qmd --no-cache
 ```
+
+This forces chunks to run, so the CSV shows their real execution cost.
+
+After adding `#| cache: true` to slow deterministic chunks, run a plain render:
+
+```powershell
+quarto render posts/<slug>/index.qmd
+```
+
+On a warm plain render, cached chunks may be absent from the CSV because knitr
+returned their cached output before the timing hook ran. That absence is the
+cache-hit signal.
 
 The report will be written to:
 
@@ -50,6 +63,9 @@ report name. Repeat the render two or three times if you want median timings
 rather than one noisy run.
 
 Remove the profiling setup chunk before publishing the post.
+
+If an existing report uses an older column layout, the next profiling run
+overwrites it instead of appending incompatible rows.
 
 ## How to use the results
 
@@ -73,15 +89,25 @@ If one large chunk dominates the report, split it into smaller labelled chunks
 before deciding what to cache. For example, a chunk that fits several models may
 need separate chunks for each model so the report can show which fit is slow.
 
+## How to read the CSV
+
+The CSV contains observed chunk executions, not a complete list of chunks in the
+document.
+
+- A row means the chunk ran and was timed.
+- A cached chunk missing from a warm plain render usually means knitr reused its
+  cached output before this profiler hook ran.
+- If a chunk appears in a warm plain render, it ran during that render. Cache it
+  only if it is slow enough and deterministic.
+
 ## Weak points
 
 - The hook measures chunk wall time, not line-level time. Use `system.time()` or
   split the chunk when you need finer detail.
-- A profiling render with `--no-cache` forces fresh execution. In that mode, the
-  report can still show `cache_option` as `TRUE`, but that column is only the
-  chunk setting, not proof that a cached result was reused.
-- Cached chunks may not run their hooks during normal cached renders. Use
-  `--no-cache` or `--cache-refresh` when profiling.
+- A profiling render with `--no-cache` measures fresh execution, not warm-cache
+  speed.
+- Cached chunks may not run their hooks during normal cached renders. Compare a
+  fresh render with a plain render when you want to confirm warm-cache behaviour.
 - Timings include setup and printing costs inside the chunk. They are useful for
   cache decisions, not microbenchmarking.
 - The helper is for R/knitr documents. It is not a Python/Jupyter profiler.
