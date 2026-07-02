@@ -22,19 +22,28 @@ format:
 
 ```{r profile-setup}
 #| include: false
+#| eval: false
 source(file.path(Sys.getenv("QUARTO_PROJECT_DIR"), "scripts", "knitr-profile.R"))
 enable_knitr_chunk_profile()
 ```
 
 # Introduction
 
-Count data often looks simple until the zeros start piling up. A standard Poisson or negative binomial model assumes that every observation comes from the same count-generating process. In many applied settings, that assumption is too tidy: some people, places, or systems are never really at risk of the event, while others are at risk but happen to record zero during the observation window. recompile 2 test
+In the past couple of years, I have been working with a lot of healthcare datasets and databases and, whilst not a unique problem of this field, I often found myself with a lot of observations in which the predicted value ended up being zero, which made standard modelling techniques tricky to apply. In these cases, zero-inflated models come very handy, and are generally quite extensible to fit a wide variety of scenarios. But because of this extensibility, It can sometimes be difficult to understand how to correctly implement and interpret the results, and since this set of techniques does't  really fall under the "hot" machine learning umbrella of techniques, finding high quality learning resources can be a bit challenging, or at least it was for me (although they do exist)!
 
-Zero-inflated models give us a way to represent that distinction explicitly. This tutorial builds up from generalized linear models to zero-inflated Poisson and zero-inflated negative binomial models, using healthcare utilization as the running example.
+This tutorial was borne out of the notes that I made when applying zero-inflated models in industry, and the internal training sessions that I ran on the topic. The goal is to provide a practical, hands-on guide to understanding and implementing zero-inflated models. No background on this topic is necessary, and I will try to explain concepts in a clear and accessible manner, in the way it first helped me understand the topic!
+
+This initial tutorial will set to cover the basic theoretical foundations, practical implementation, and interpretation of results for this class of models. In a follow-up tutorial, I might go into more depth into slightly more advanced topics, such as different distributions and generalizations that can be used, along with model selection and validation techniques.
+
+In terms of tooling, I strongly recommend using the `glmmTMB` package in R, which is very flexible, widely adopted and considered industry-standard at the time of writing this article for fitting generalized linear models, which zero-inflated models fall under. The Python ecosystem for this task is not quite as mature yet, although for standard applications the `statsmodels` library is a good starting point - in fact, anything in this tutorial should be easily translatable if you decide to take that approach!
 
 ## What Are Zero-Inflation Models?
 
-In regression analysis, zero-inflated models are a family of statistical methods used to analyze count data when there are more zeros than simple count models (like Poisson) expect. In plain terms: when you're counting events (visits to a clinic, number of fish caught, defects on a product) and a lot of observations are zero, standard models can give misleading results. Zero-inflated models help by explicitly accounting for two ways a zero can occur:
+In regression analysis, zero-inflated models are a family of statistical methods used to analyze count data when there are more zeros than simple count models (like Poisson) expect. 
+
+What does this actually mean? In plain terms: when you're counting events such as visits to a clinic, number of fish caught, defects on a product, and a lot of observations are zero, standard models can give misleading results.
+
+Zero-inflated models help by explicitly accounting for two ways a zero can occur:
 
 - one "structural" (the event cannot happen for some units)
 - one "sampling" (the event could happen but didn't in that observation).
@@ -168,7 +177,6 @@ library(catdata)
 
 ```{r load_data}
 #| message: false
-#| cache: true
 # Load the medical care dataset
 data(medcare)
 
@@ -708,6 +716,7 @@ Let's systematically compare our models to understand which performs best and wh
 
 ```{r healthcare_model_comparison}
 #| code-fold: true
+#| cache: true
 #| code-summary: "Show model comparison analysis"
 # Compare all our healthcare models
 models <- list(
@@ -783,7 +792,6 @@ Here's a systematic approach to building zero-inflated models:
 #| eval: false
 #| code-fold: true
 #| code-summary: "Show progressive model building strategy"
-#| cache: true
 # Start simple, build complexity
 model1 <- glmmTMB(ofp ~ healthexcellent + numchron,  # Basic count model
                   data = medcare, family = poisson())
