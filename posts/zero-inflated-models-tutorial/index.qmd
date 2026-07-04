@@ -21,7 +21,8 @@ format:
     tbl-cap-location: top
 ---
 
-```{r profile-setup}
+```{r}
+#| label: profile-setup
 #| include: false
 #| eval: false
 source(file.path(Sys.getenv("QUARTO_PROJECT_DIR"), "scripts", "knitr-profile.R"))
@@ -161,7 +162,8 @@ Once this structure is clear, zero-inflated models become less mysterious: they 
 
 Before starting, install the required packages:
 
-```{r install}
+```{r}
+#| label: install-packages
 #| eval: false
 # Install packages if not already available
 install.packages(c("glmmTMB", "DHARMa", "performance", "parameters", "MASS", 
@@ -170,13 +172,14 @@ install.packages(c("glmmTMB", "DHARMa", "performance", "parameters", "MASS",
 
 ## Loading The Dataset
 
-We'll use a real healthcare dataset to demonstrate zero-inflated models. The `medcare` dataset from the `catdata` package contains information about healthcare utilization among Medicare beneficiaries.
+We'll use the `medcare` dataset from the `catdata` package. It records healthcare use for 4,406 people aged 66 and over who were covered by Medicare. Our outcome, `ofp`, is each person's number of physician office visits during the observation period.
 
-What I specifically like about this dataset, is that it is not painfully obvious that a zero-inflated model is needed, compared to a "textbook" example sometimes used in other tutorials where you see a historgram with a huge spike at 0. There are nuances here which I think resemble what you see in the real world, which we will explore in the following sections.
+I like this example because the case for a zero-inflated model is not obvious from one dramatic spike at zero. The data instead make us work through the same questions that arise in practice: how variable are the counts, which patients have no visits, and can a standard count model reproduce the observed zeros?
 
-First, we load up the data and do a cursory examination of its structure:
+First, we load the packages and inspect the data:
 
-```{r load_libraries}
+```{r}
+#| label: load-libraries
 #| message: false
 #| warning: false
 # Load required packages
@@ -192,8 +195,11 @@ library(knitr)
 library(catdata)
 ```
 
-```{r load_data}
+```{r}
+#| label: load-data
 #| message: false
+#| code-fold: true
+#| code-summary: "Show data-loading code"
 # Load the medical care dataset
 data(medcare)
 
@@ -202,132 +208,157 @@ head(medcare)
 glimpse(medcare)
 ```
 
-**What this dataset contains:**
+The variables used in this section are:
 
 - `ofp`: Number of physician office visits (our count outcome)
-- `hosp`: Number of hospital stays
 - `healthpoor`: Individual has poor health (reference: average health)
-- `healthexcellent`: Individual has excellent health  
+- `healthexcellent`: Individual has excellent health
 - `numchron`: Number of chronic conditions
 - `male`: Gender (female = 0, male = 1)
-- `age`: Age (centered around 60)
+- `age`: Age in decades (`6.6` represents 66 years)
 - `married`: Marital status (married = 1, else = 0)
-- `school`: Years of education
 
 ## Understanding the Data
 
-Now, we can explore the key characteristics that suggest we need zero-inflated models with some quick tables:
+As is standard practice before choosing a model, we should establish what the outcome actually looks like. The table below keeps the sample size, centre, spread, and frequency of zeros in one place; the code is folded so that the results do not interrupt the discussion.
 
-<!-- TODO: Improve the tables & plots, give options to show code? -->
-
-```{r tbl-doctor-visit-summary}
-#| echo: false
+```{r}
+#| label: tbl-doctor-visit-summary
 #| code-fold: true
 #| code-summary: "Show summary table code"
-#| tbl-cap: "Doctor visits (`ofp`) summary."
-library(dplyr)
-library(knitr)
+#| tbl-cap: "Distribution of physician office visits (`ofp`)."
 
 stats_tbl <- tibble::tibble(
-  Metric = c("Proportion of zeros", "Mean visits", "Variance", "Variance-to-mean ratio"),
+  Metric = c(
+    "Participants",
+    "Zero-visit records",
+    "Proportion with zero visits",
+    "Median visits",
+    "Mean visits",
+    "Variance",
+    "Variance-to-mean ratio",
+    "Maximum visits"
+  ),
   Value = c(
-    round(mean(medcare$ofp == 0), 3),
-    round(mean(medcare$ofp), 2),
-    round(var(medcare$ofp), 2),
-    round(var(medcare$ofp)/mean(medcare$ofp), 2)
+    format(nrow(medcare), big.mark = ","),
+    format(sum(medcare$ofp == 0), big.mark = ","),
+    sprintf("%.1f%%", 100 * mean(medcare$ofp == 0)),
+    sprintf("%.0f", median(medcare$ofp)),
+    sprintf("%.2f", mean(medcare$ofp)),
+    sprintf("%.2f", var(medcare$ofp)),
+    sprintf("%.2f", var(medcare$ofp) / mean(medcare$ofp)),
+    sprintf("%.0f", max(medcare$ofp))
   )
 )
 
 knitr::kable(stats_tbl)
 ```
 
-```{r tbl-doctor-visit-counts}
-#| echo: false
-#| code-fold: true
-#| code-summary: "Show visit count table code"
-#| tbl-cap: "Frequency of the first ten observed visit counts."
-# First 10 frequency counts
-freqs <- as.data.frame(table(medcare$ofp))
-names(freqs) <- c("visits", "count")
-knitr::kable(head(freqs, 10))
-```
+There are three key insights we can draw from @tbl-doctor-visit-summary:
 
-**What key observations can we draw from this?**
+- 683 people (15.5%) have no recorded visits, and zero is the most frequent single count. That is a noticeable concentration, but its size alone does not establish zero-inflation. A Poisson or negative binomial distribution can also generate zeros.
 
-- **Proportion of zeros**: There is a relatively high proportion (~15%) of people who didn't visit a doctor at all. 0 is the most common number of visits. 
-- **Overdispersion**: The variance is much larger than mean - this is typical of real healthcare data, and a good indication that a standard Poisson regression count model will not be able to handle this very well!
-- **Right-skewed distribution**: Most people have few visits, but some have a lot more.
+- The outcome is considerably right-skewed: the median is four visits, the mean is 5.77, and the maximum is 89 visits.
+
+- The variance is 7.91 times the mean. This **marginal** variance-to-mean ratio warns us that a Poisson model may be too restrictive, although the relevant assumption is conditional equidispersion after accounting for the predictors. We will test that on the fitted model rather than declaring overdispersion from the raw outcome alone.
 
 ## Visualizing Zero-Inflation
 
-Let's now take a look at some of the visual patterns in the data:
+Let's now explore some of the visual patterns in the data. By exploring the distribution of zero-visit records, we notice that they are not distributed uniformly across the observed patient characteristics.
 
 ```{r}
-#| echo: false
+#| label: fig-zero-inflation-eda
 #| code-fold: true
 #| code-summary: "Show visualization code"
-#| label: fig-zero-inflation-eda
-#| fig-cap:
-#|   - "Distribution of physician office visits, zoomed to the most common range."
-#|   - "Zero-visit proportions vary across self-reported health status."
-#|   - "Zero-visit proportions fall as the number of chronic conditions rises."
-#| fig-alt:
-#|   - "Histogram of doctor visits with a tall bar at zero and a right-skewed distribution of low visit counts."
-#|   - "Bar chart comparing the proportion of zero visits for poor, average, and excellent health status."
-#|   - "Bar chart showing lower proportions of zero visits among patients with more chronic conditions."
+#| fig-cap: "Physician office visits and the distribution of zero-visit records across patient characteristics. The histogram is zoomed to 0–20 visits; 3.0% of observations lie above this range."
+#| fig-alt: "A three-panel figure. The top panel shows a right-skewed histogram of office visits with zero as the most common count. The lower panels show that zero visits are most common among people reporting excellent health and become less common as the number of chronic conditions increases."
+#| fig-width: 10
+#| fig-height: 8
 
-# Create comprehensive visualization
 p1 <- ggplot(medcare, aes(x = ofp)) +
-  geom_histogram(binwidth = 1, fill = "lightblue", alpha = 0.7, color = "black") +
-  labs(title = "Distribution of Doctor Visits", 
-       x = "Number of Office Visits", y = "Frequency") +
+  geom_histogram(
+    binwidth = 1,
+    boundary = -0.5,
+    fill = "#4C78A8",
+    color = "white"
+  ) +
+  coord_cartesian(xlim = c(-0.5, 20.5)) +
+  labs(
+    title = "Most participants recorded relatively few visits",
+    x = "Physician office visits",
+    y = "Participants"
+  ) +
   theme_minimal() +
-  xlim(0, 20)  # Focus on reasonable range
+  theme(plot.title = element_text(face = "bold"))
 
-# Zero inflation by health status  
-p2 <- medcare %>%
+health_zeros <- medcare %>%
   mutate(health_status = case_when(
     healthpoor == 1 ~ "Poor",
-    healthexcellent == 1 ~ "Excellent", 
+    healthexcellent == 1 ~ "Excellent",
     TRUE ~ "Average"
   )) %>%
-  # ensure desired order for plotting
-  mutate(health_status = factor(health_status, levels = c("Poor", "Average", "Excellent"))) %>%
+  mutate(
+    health_status = factor(
+      health_status,
+      levels = c("Poor", "Average", "Excellent")
+    )
+  ) %>%
   group_by(health_status) %>%
-  summarise(prop_zeros = mean(ofp == 0),
-            mean_visits = mean(ofp), 
-            .groups = 'drop') %>%
+  summarise(prop_zeros = mean(ofp == 0), .groups = "drop")
+
+p2 <- health_zeros %>%
   ggplot(aes(x = health_status, y = prop_zeros)) +
-  geom_col(fill = "coral", alpha = 0.7, color = "black") +
-  labs(title = "Proportion of Zero Visits by Health Status", 
-       x = "Health Status", y = "Proportion of Zeros") +
-  theme_minimal()
+  geom_col(fill = "#F58518", width = 0.7) +
+  scale_y_continuous(
+    labels = function(x) paste0(round(100 * x), "%"),
+    limits = c(0, 0.27)
+  ) +
+  labs(
+    title = "Zeros vary by reported health",
+    x = "Self-reported health",
+    y = "Zero-visit records"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
 
-# Zero inflation by chronic conditions
-p3 <- medcare %>%
+chronic_zeros <- medcare %>%
   group_by(numchron) %>%
-  summarise(prop_zeros = mean(ofp == 0),
-            count = n(),
-            .groups = 'drop') %>%
-  filter(count >= 20) %>%  # Only groups with sufficient data
-  ggplot(aes(x = factor(numchron), y = prop_zeros)) +
-  geom_col(fill = "lightgreen", alpha = 0.7, color = "black") +
-  labs(title = "Proportion of Zero Visits by Chronic Conditions", 
-       x = "Number of Chronic Conditions", y = "Proportion of Zeros") +
-  theme_minimal()
+  summarise(
+    prop_zeros = mean(ofp == 0),
+    participants = n(),
+    .groups = "drop"
+  ) %>%
+  filter(participants >= 20)
 
-# Combine plots
-print(p1)
-print(p2)
-print(p3)
+p3 <- chronic_zeros %>%
+  ggplot(aes(x = numchron, y = prop_zeros)) +
+  geom_col(fill = "#54A24B", width = 0.75) +
+  scale_x_continuous(breaks = chronic_zeros$numchron) +
+  scale_y_continuous(
+    labels = function(x) paste0(round(100 * x), "%"),
+    limits = c(0, 0.32)
+  ) +
+  labs(
+    title = "Zeros fall as chronic conditions increase",
+    x = "Chronic conditions",
+    y = "Zero-visit records"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+gridExtra::grid.arrange(
+  p1,
+  p2,
+  p3,
+  layout_matrix = rbind(c(1, 1), c(2, 3))
+)
 ```
 
-Actually, the distribution of values doesn't look for office visits doesn't look too bad, however digging a little deeper we notice the following:
+The descriptive pattern is clearest for chronic conditions. About 29% of people with no chronic conditions recorded zero visits, compared with 9% of those with two conditions and 6% of those with three. The final bars are based on smaller groups, so the overall decline matters more than every local change.
 
-- People in excellent health seem to have many more zero visits.
-- People with more chronic conditions rarely have zero visits.
+Self-reported health shows a less linear pattern. The zero proportion is highest for people reporting excellent health (24%), followed by average health (15%) and poor health (11%). These are unadjusted comparisons: age, sex, marital status, and chronic conditions differ between the groups. We therefore cannot read the bars as isolated health-status effects, still less as evidence that any particular zero is structural.
 
-From this, we can see that the zeros do not look evenly scattered across the population. This is what makes the problem interesting: if the zeros were just random low counts, a flexible count model might be enough. Here, the zeros seem tied to patient characteristics, which is exactly the situation where a zero-inflated model becomes plausible.
+What the plots do establish is heterogeneity. The probability of a zero changes with observed patient characteristics, which makes a separate zero process plausible enough to investigate. It does not yet tell us whether a zero-inflated model will outperform an overdispersed one-process model.
 
 ## Foundation Models: Step-by-Step Analysis
 
@@ -337,156 +368,166 @@ I think zero-inflated models are much easier to interpret once you understand th
 2. Model visit counts with a standard Poisson regression
 3. Compare how many zeros the Poisson model expects with how many we actually observe
 
-This is deliberately a little slow, and you would never do this in practice. However, the payoff is that the final model no longer feels like a "black box" with two sets of coefficients, but rather a combination of interpretable components!
+This is deliberately slower than a final analysis. The payoff is that the eventual model no longer feels like a "black box" with two sets of coefficients: we will have already examined each component and the assumptions it is meant to address.
 
 ### Step 1: Logistic Regression for Zero vs Non-Zero
 
-First, we model whether a person has **no** doctor visits. Bare in mind that this is not yet a zero-inflated model, but it lets us ask a useful question: which variables predict being in the zero group?
+First, we collapse the outcome to **zero versus one or more visits** and fit a logistic regression. This is not the zero component of a fitted zero-inflated model, and it cannot identify which observed zeros are structural. It simply asks whether the adjusted probability of recording no visits varies with the available predictors.
 
-This will help us identify the "structural zeros" - people who systematically don't use healthcare due to factors outside of random chance.
+In applied work, I would use this step to start a conversation with domain experts. A coefficient can show that a group has more or fewer zero records after adjustment, but it cannot tell us whether those zeros arise from good health, poor access, avoidance, eligibility rules, or an omitted variable for example. 
+<!-- TODO: Maybe add & showcase code result for logistic regression rather than only showcasing the final coefficient table -->
 
-In applied work, this is where I would start talking to domain experts to try and formulate hypothesis as to what factors would help explain this process. A coefficient by itself can tell us that a group has more zeros; it cannot, by itself, tell us whether those zeros come from good health, poor access, avoidance, eligibility rules, or something else.
-
-Let's fit a simple logistic regression model and see what the outputs are:
-
-```{r logistic_analysis}
+```{r}
+#| label: tbl-logistic-analysis
 #| cache: true
 #| code-fold: true
-#| code-summary: "Show logistic regression analysis"
+#| code-summary: "Show logistic model code"
+#| tbl-cap: "Adjusted associations with recording zero physician office visits."
 # Create binary indicator: 1 = zero visits, 0 = any visits
 medcare$no_visits <- ifelse(medcare$ofp == 0, 1, 0)
 
 # Fit logistic regression
-logistic_model <- glm(no_visits ~ healthpoor + healthexcellent + numchron + age + male + married, 
-                     data = medcare, family = binomial())
-
-summary(logistic_model)
-
-# Interpret key coefficients using easystats
-library(parameters)
-
-# Get model parameters with confidence intervals and interpretation
-model_params <- model_parameters(logistic_model, exponentiate = TRUE)
-print(model_params)
-
-# Create interpretation summary
-coefs <- coef(logistic_model)
-or_values <- exp(coefs)
-
-interpretation_df <- data.frame(
-  Variable = c("Health (excellent vs average)", "Health (poor vs average)", 
-               "Each chronic condition", "Age (per year)"),
-  OR = round(c(or_values["healthexcellent"], or_values["healthpoor"], 
-               or_values["numchron"], or_values["age"]), 2),
-  Interpretation = c(
-    paste0(round((or_values["healthexcellent"] - 1) * 100, 1), "% higher odds of zero visits"),
-    paste0(round((or_values["healthpoor"] - 1) * 100, 1), "% higher odds of zero visits"),
-    paste0(round((1 - or_values["numchron"]) * 100, 1), "% lower odds per condition"),
-    paste0(round((1 - or_values["age"]) * 100, 1), "% lower odds per year")
-  )
+logistic_model <- glm(
+  no_visits ~ healthpoor + healthexcellent + numchron + age + male + married,
+  data = medcare,
+  family = binomial()
 )
 
-print(interpretation_df, row.names = FALSE)
+logistic_table <- model_parameters(
+  logistic_model,
+  exponentiate = TRUE
+) %>%
+  filter(Parameter != "(Intercept)") %>%
+  transmute(
+    Predictor = recode(
+      Parameter,
+      healthpoor = "Poor vs average health",
+      healthexcellent = "Excellent vs average health",
+      numchron = "Chronic conditions (per condition)",
+      age = "Age (per decade)",
+      male = "Male vs female",
+      married = "Married vs not married"
+    ),
+    `Odds ratio` = sprintf("%.2f", Coefficient),
+    `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high),
+    `p-value` = format.pval(p, digits = 2, eps = 0.001)
+  )
+
+knitr::kable(logistic_table, align = c("l", "r", "c", "r"))
 ```
 
-<!--
-TODO: expand/rework this paragraph, very basic at the moment. Also:
-- coefficient not significant for health excellent & poor
+The model results are showcased in @tbl-logistic-analysis. Each additional chronic condition is associated with 42% lower odds of recording zero visits (odds ratio 0.58, 95% CI 0.53–0.63). Men have 70% higher odds of a zero than women, while married participants have 36% lower odds than those who are not married. These are interesting findings, but these estimates only describe associations conditional on the other variables; they do not establish causal effects.
 
--->
-What does this tell us?
+The health-status coefficients point towards higher adjusted odds of a zero for both poor and excellent health, but the confidence intervals include 1 and the p-values are not. The data therefore do not support a clear adjusted health-status association in this specification. Likewise, the age estimate suggests that older cohorts have slightly lower odds of a zero, but again the effect is not very significant.
 
-- People in excellent health have much higher odds of zero visits.
-- People in poor health also have higher odds of zero visits, which is a reminder that a zero is not automatically "good news" in healthcare data.
-- Chronic conditions strongly reduce the odds of zero visits.
-- Older patients are less likely to have zero visits.
+This difference between the descriptive plot and the adjusted model is useful rather than contradictory. The plot compares health groups as observed; the regression compares people with the same included covariates. Neither analysis identifies structural zeros. 
 
-This does not prove structural zero-inflation, but it gives us a concrete reason to model the zero process separately.
+<!-- TODO: Maybe rework this sentence? -->
+Together with the descriptive plots, we start to see that the zero outcome has structure worth modelling and that its interpretation depends on adjustment choices.
 
 ### Step 2: Poisson Regression for Count Data
 
-Next, we fit the standard starting point for count data: a Poisson regression.
-
-In general, its a good idea to start here regardless, despite the fact that the results will demonstrate probably not a good fit, because it gives us a baseline:
+Next, we fit the standard starting point for count data: a Poisson regression. Even when we expect it to fail, this model gives us a useful baseline:
 
 - What relationships would a one-process count model estimate?
 - How badly does the variance assumption break?
 - How many zeros would this simpler model expect?
 
-**Key Poisson assumptions:**
+For this application, the important Poisson assumptions are:
 
-1. **Independence**: Each visit is independent of one another
-2. **Equidispersion**: Variance equals the mean ($\text{Var}(Y) = E[Y]$)
-3. **Non-negative integers**: Counts are 0, 1, 2, 3, etc.
+1. **Conditional distribution**: Given the predictors, each person's count follows a Poisson distribution.
+2. **Conditional equidispersion**: The conditional variance equals the conditional mean, $\text{Var}(Y_i \mid X_i) = E(Y_i \mid X_i)$.
+3. **Independent records**: Participants are independent after conditioning on the modelled predictors.
+4. **Comparable exposure**: Each count covers the same observation window; otherwise the model needs an exposure offset.
 
-The equidispersion assumption is usually the more fragile one here. Healthcare utilisation data usually has far more variation than a Poisson model wants to allow. Lets fit a new model:
+We will first interpret the conditional-mean estimates, then check whether the Poisson variance and zero probabilities fit the data.
 
-<!-- TODO: improve the flow of this section: print statement break
-the flow of the paragraph in the article body. The discussion should first cover the Poisson regression coefficients, then go into the overdispersion check and model performance. Similar complaints to the above body 
--->
-
-```{r poisson_analysis}
+```{r}
+#| label: tbl-poisson-analysis
 #| cache: true
 #| code-fold: true
-#| code-summary: "Show Poisson regression analysis"
+#| code-summary: "Show Poisson model code"
+#| tbl-cap: "Poisson regression estimates for physician office visits."
 # Fit Poisson model
-poisson_model <- glm(ofp ~ healthpoor + healthexcellent + numchron + age + male + married, 
-                    data = medcare, family = poisson())
+poisson_model <- glm(
+  ofp ~ healthpoor + healthexcellent + numchron + age + male + married,
+  data = medcare,
+  family = poisson()
+)
 
-summary(poisson_model)
+poisson_table <- model_parameters(
+  poisson_model,
+  exponentiate = TRUE
+) %>%
+  filter(Parameter != "(Intercept)") %>%
+  transmute(
+    Predictor = recode(
+      Parameter,
+      healthpoor = "Poor vs average health",
+      healthexcellent = "Excellent vs average health",
+      numchron = "Chronic conditions (per condition)",
+      age = "Age (per decade)",
+      male = "Male vs female",
+      married = "Married vs not married"
+    ),
+    `Rate ratio` = sprintf("%.2f", Coefficient),
+    `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high),
+    `p-value` = format.pval(p, digits = 2, eps = 0.001)
+  )
 
-# Check for overdispersion using performance package
-overdispersion_check <- check_overdispersion(poisson_model)
-print("=== OVERDISPERSION CHECK ===")
-print(overdispersion_check)
-
-# Additional performance diagnostics
-model_performance_metrics <- model_performance(poisson_model)
-print(model_performance_metrics)
-
-# Interpret key coefficients using easystats
-poisson_params <- model_parameters(poisson_model, exponentiate = TRUE)
-print("=== KEY INTERPRETATIONS (Multiplicative Effects) ===")
-print(poisson_params)
+knitr::kable(poisson_table, align = c("l", "r", "c", "r"))
 ```
 
-The overdispersion result is the first serious warning sign:
+As we can see from @tbl-poisson-analysis, under the Poisson mean model, poor health is associated with a 29% higher expected visit count than average health, while excellent health is associated with a 30% lower count. Each additional chronic condition is associated with an 18% increase. Men have an expected count about 10% lower than women, and a decade of age is associated with a 5% reduction. The estimate for marital status is essentially null.
 
-- A standard Poisson model is too rigid for this data.
-- Uncertainty from the Poisson model will be too optimistic: we need a model that account for both **excess zeros** and **overdispersion**.
-- A negative binomial count component is likely to be more appropriate than a Poisson count component.
+Those rate ratios are easy to read, but the model must fit before we trust its standard errors and tests. We now check conditional dispersion using the Pearson residuals.
 
-<!-- TODO probably put this into an insight box? -->
-**Why overdispersion matters**: In Poisson regression, we assume the variance equals the mean. When the variance is much larger (overdispersion), our standard errors are too small, leading to overconfident statistical tests and potentially incorrect conclusions about which variables are significant.
+```{r}
+#| label: tbl-poisson-overdispersion
+#| code-fold: true
+#| code-summary: "Show overdispersion diagnostic code"
+#| tbl-cap: "Pearson overdispersion diagnostic for the Poisson model."
+
+overdispersion_check <- check_overdispersion(poisson_model)
+
+overdispersion_table <- tibble::tibble(
+  Metric = c(
+    "Pearson chi-squared",
+    "Residual degrees of freedom",
+    "Dispersion ratio",
+    "p-value"
+  ),
+  Value = c(
+    format(round(overdispersion_check$chisq_statistic), big.mark = ","),
+    format(overdispersion_check$residual_df, big.mark = ","),
+    sprintf("%.2f", overdispersion_check$dispersion_ratio),
+    "< 0.001"
+  )
+)
+
+knitr::kable(overdispersion_table)
+```
+
+::: {.callout-important}
+## Why this matters
+
+The dispersion ratio is 7.20 rather than approximately 1, so the fitted counts vary far more than the Poisson model allows. Under this misspecification, the model-based standard errors are generally too small and the p-values too confident. The point estimates above remain a useful description of the fitted mean, but their narrow Poisson confidence intervals should not drive substantive conclusions.
+
+This diagnostic rejects the simple Poisson specification; it does not tell us which replacement is correct. A negative binomial model could absorb unobserved count heterogeneity, a zero-inflated model could add a separate zero process, and a zero-inflated negative binomial model could address both.
+:::
 
 ### Step 3: Comparing Observed vs Expected Zeros
 
-Let's see how many zeros each model predicts compared to what we actually observe. This is the crucial diagnostic that tells us whether we need zero-inflated models.
+Now we check the part of the problem we actually care about: zeros. If the Poisson regression is a reasonable description of the data-generating process, it should predict roughly the right number of zero-visit records. If it predicts only a small fraction of the observed zeros, then the model is missing something systematic.
 
-**The logic**: If Poisson regression adequately captures the data-generating process, it should predict approximately the right number of zeros. If we observe many more zeros than Poisson predicts, this suggests "excess zeros" that require zero-inflated modeling.
-
-**Mathematical background**: For a Poisson distribution with parameter $\lambda$, the probability of observing zero is $P(Y=0) = e^{-\lambda}$. We can use this to calculate expected zeros from our fitted model.
+For a Poisson distribution with parameter $\lambda$, the probability of observing zero is $P(Y=0) = e^{-\lambda}$. Applying that formula to each fitted mean gives the total number of zeros implied by the model.
 
 ```{r}
+#| label: tbl-zero-comparison
 #| code-fold: true
 #| code-summary: "Show zero-inflation comparison analysis"
-#| label: tbl-zero-comparison
 #| tbl-cap: "Observed zero visits compared with the zeros expected from the fitted Poisson model."
 # Observed zeros
-observed_zeros <- sum(medcare$ofp == 0)
-total_obs <- nrow(medcare)
-
-# Predicted zeros from Poisson model
-poisson_pred <- predict(poisson_model, type = "response")
-poisson_zero_prob <- exp(-poisson_pred)  # P(Y=0) for Poisson
-expected_zeros_poisson <- sum(poisson_zero_prob)
-
-# Use performance package to check zero-inflation. Folded output is useful
-# for readers who want the diagnostic object.
-zero_inflation_check <- check_zeroinflation(poisson_model)
-print(zero_inflation_check)
-
-# Manual comparison for educational purposes
 observed_zeros <- sum(medcare$ofp == 0)
 total_obs <- nrow(medcare)
 
@@ -508,13 +549,13 @@ zero_comparison <- data.frame(
 knitr::kable(zero_comparison)
 ```
 
-**The smoking gun**: We observe 683 zero-visit records, while the Poisson model expects only about 37. That gap is the practical evidence that a one-process count model is missing something important.
+We observe 683 zero-visit records, while the Poisson model expects only about 37. In other words, the model accounts for roughly 5% of the observed zeros. This is decisive evidence against this Poisson specification, but not automatic proof of a latent structural-zero class: a negative binomial model or a richer mean specification may also predict more zeros. The gap justifies comparing those alternatives with zero-inflated models in the next section.
 
 # Zero-Inflated Models: Theory and Implementation
 
 ## The Core Concept: Two-Process Thinking
 
-Now that we've established the need for zero-inflated models, let's understand exactly **how** they work. The key insight is deceptively simple: **not all zeros are created equal**.
+Now that we've established why a zero-inflated model is a serious candidate, let's understand exactly **how** it works. The key insight is deceptively simple: **not all zeros are created equal**.
 
 Think of zero-inflated models as having two interconnected parts working together, like a two-stage screening process:
 
@@ -631,7 +672,8 @@ Now let's implement zero-inflated models using our healthcare data, building ste
 
 ### Setting Up the Healthcare Models
 
-```{r healthcare_zero_inflated}
+```{r}
+#| label: fit-zero-inflated-models
 #| cache: true
 #| code-fold: true
 #| code-summary: "Show zero-inflated model implementation"
@@ -678,18 +720,14 @@ summary(zinb_model)
 
 Understanding zero-inflated model output requires interpreting **two separate sets of coefficients**. Let's break this down systematically.
 
-```{r zi_interpretation}
+```{r}
+#| label: tbl-zinb-count-effects
 #| code-fold: true
-#| code-summary: "Show interpretation of zero-inflated model results"
-# Extract and interpret results from ZINB model using easystats
-zinb_params <- model_parameters(zinb_model)
-print(zinb_params)
+#| code-summary: "Show count-component interpretation code"
+#| tbl-cap: "Count component: multiplicative effects on expected visit rates."
 
-# Separate the two components for clearer interpretation
+# Extract and interpret the count-component coefficients.
 count_coefs <- fixef(zinb_model)$cond
-zi_coefs <- fixef(zinb_model)$zi
-
-# Convert to interpretable scales
 count_effects <- exp(count_coefs)
 count_df <- data.frame(
   Variable = names(count_effects),
@@ -707,10 +745,18 @@ count_df <- data.frame(
 )
 knitr::kable(
   count_df[, c("Variable", "Rate_Ratio", "Percent_Change", "Interpretation")],
-  caption = "Count component: multiplicative effects on expected visit rates.",
   row.names = FALSE
 )
+```
 
+```{r}
+#| label: tbl-zinb-zero-effects
+#| code-fold: true
+#| code-summary: "Show zero-inflation-component interpretation code"
+#| tbl-cap: "Zero-inflation component: odds ratios for belonging to the structural-zero group."
+
+# Extract and interpret the zero-inflation-component coefficients.
+zi_coefs <- fixef(zinb_model)$zi
 zi_probs <- plogis(zi_coefs)
 zi_odds <- exp(zi_coefs)
 zi_df <- data.frame(
@@ -726,7 +772,6 @@ zi_df <- data.frame(
 )
 knitr::kable(
   zi_df[, c("Variable", "Odds_Ratio", "Interpretation")],
-  caption = "Zero-inflation component: odds ratios for belonging to the structural-zero group.",
   row.names = FALSE
 )
 ```
@@ -752,7 +797,8 @@ knitr::kable(
 
 Let's systematically compare our models to understand which performs best and why.
 
-```{r healthcare_model_comparison}
+```{r}
+#| label: model-performance-comparison
 #| code-fold: true
 #| cache: true
 #| code-summary: "Show model comparison analysis"
@@ -826,7 +872,8 @@ Here's a systematic approach to building zero-inflated models:
 
 ### Step 2: Build Progressively
 
-```{r progressive_building}
+```{r}
+#| label: progressive-model-building
 #| eval: false
 #| code-fold: true
 #| code-summary: "Show progressive model building strategy"
@@ -865,7 +912,8 @@ compare_performance(model1, model2, model3, model4)
 
 Proper diagnostics are crucial for zero-inflated models due to their complex structure.
 
-```{r diagnostics}
+```{r}
+#| label: model-diagnostics
 #| eval: false
 #| fig-height: 8
 #| code-fold: true
@@ -886,7 +934,8 @@ outlier_test <- testOutliers(residuals_sim)
 print(paste("Outliers test p-value:", round(outlier_test$p.value, 4)))
 ```
 
-```{r performance_checks}
+```{r}
+#| label: performance-checks
 #| eval: false
 #| code-fold: true
 #| code-summary: "Show performance package diagnostics"
@@ -907,7 +956,8 @@ print(zi_check)
 
 ## Model Comparison
 
-```{r model_comparison}
+```{r}
+#| label: model-comparison-example
 #| eval: false
 #| code-fold: true
 #| code-summary: "Show complete model comparison"
