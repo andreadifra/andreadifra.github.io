@@ -1,12 +1,14 @@
 # Handoff: Zero-Inflated Models Tutorial Publication Cleanup
 
-Date: 2026-06-16 Repository: `f:\Documenti\Andrea\Projects\Mywebsite` Focus file: `posts/zero-inflated-models-tutorial/index.qmd` Checklist: `posts/zero-inflated-models-tutorial/_publication-checklist.md` Preview URL used: `http://localhost:7921/posts/zero-inflated-models-tutorial/index.html`
+Date: 2026-06-16; updated 2026-06-22. Repository: `f:\Documenti\Andrea\Projects\Mywebsite` Focus file: `posts/zero-inflated-models-tutorial/index.qmd` Checklist: `posts/zero-inflated-models-tutorial/_publication-checklist.md` Preview URL used: `http://localhost:7921/posts/zero-inflated-models-tutorial/`
 
 ## Summary
 
 The prior session actioned the first publication-readiness items for the zero-inflated models tutorial: placeholders/non-final prose, output presentation, figure/table structure, Mermaid replacement, and proper citations. Changes were verified against the running Quarto preview with `agent-browser`.
 
 Follow-up diagnostics on 2026-06-17 resolved the standalone render path. `quarto check knitr` now passes, and `quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute` completes from the website project.
+
+On 2026-06-22, the article received a first voice-and-reader-experience pass after the author rewrote the introduction in a more personal and informal style. The pass kept the tutorial's healthcare framing and changed the surrounding sections so the article reads more like an applied blog post than a generic tutorial/report.
 
 ## Files Changed Or Added
 
@@ -41,6 +43,13 @@ New post assets created:
 
 Note: `git ls-files --others` was blocked by the repository's dubious ownership warning, even when attempted with `-c safe.directory=...`. Direct filesystem listing confirmed the new assets above.
 
+2026-06-22 voice-pass diff for the post source only:
+
+``` text
+posts/zero-inflated-models-tutorial/index.qmd | 292 ++++++++++++++------------
+1 file changed, 157 insertions(+), 135 deletions(-)
+```
+
 ## Completed Work
 
 ### Placeholders and prose
@@ -48,6 +57,26 @@ Note: `git ls-files --others` was blocked by the repository's dubious ownership 
 - Replaced the initial placeholder-style introduction with a clearer tutorial opening.
 - Replaced hand-wavy placeholder claims such as `~X%` with concrete wording.
 - Added a citation-backed statement around Lambert's zero-inflated Poisson paper.
+- Reworked the intro-adjacent conceptual sections so they preserve the author's personal applied framing:
+  - `What Are Zero-Inflated Models?`
+  - `When Do We Need Zero-Inflated Models?`
+  - `Why GLMs Matter for Zero-Inflated Models`
+  - `The Exponential Family: The Mathematical Foundation`
+  - `Generalized Linear Models (GLMs): Putting It Together`
+- Removed several generic tutorial phrases such as "the beauty of this system", "critical insight", and "smoking gun", replacing them with first-person or applied guidance.
+
+### 2026-06-22 voice and reader-experience pass
+
+- Reframed zero-inflated models around the practical distinction between structural zeros and sampling zeros.
+- Made the GLM section a short bridge into the model rather than a broad standalone mini-lecture.
+- Rewrote the foundation-model sequence as a guided route:
+  1. model zero versus non-zero visits
+  2. fit a standard Poisson model
+  3. compare observed zeros with Poisson-expected zeros
+- Reworked the ZIP/ZINB explanation so the equations support the two-process story instead of interrupting it.
+- Rewrote model interpretation around reading the fitted ZINB model in two passes: count component first, zero-inflation component second.
+- Changed the model-comparison framing from "ZINB usually wins" to "ZINB wins here" because it matches the diagnosed data problem.
+- Replaced the emoji-style best-practices checklist with `A Checklist I Would Use`, matching the article's applied voice.
 
 ### Output presentation
 
@@ -78,7 +107,7 @@ Note: `git ls-files --others` was blocked by the repository's dubious ownership 
   - Mullahy 1986
 - Converted further-reading references into Pandoc/Quarto citation syntax.
 - Citation rendering initially failed until citeproc was made explicit in the HTML format metadata.
-- Current relevant YAML in `index.qmd` includes:
+- The earlier workaround YAML in `index.qmd` included:
 
 ``` yaml
 bibliography: references.bib
@@ -141,6 +170,21 @@ R detected by Quarto: 4.6.0
 R library path: project renv library, then base R library
 ```
 
+2026-06-22 voice-pass verification:
+
+``` text
+Preview URL: http://localhost:7921/posts/zero-inflated-models-tutorial/
+agent-browser title: Zero-Inflated Models: A Practical Tutorial - Andrea Di Francia
+main.content count: 1
+Rendered rewritten intro text found: yes
+Rendered rewritten model-comparison text found: yes
+Rendered final checklist/body text found: yes
+Full-page screenshot captured without obvious layout breakage
+git diff --check posts/zero-inflated-models-tutorial/index.qmd: OK
+```
+
+No `quarto render`, `quarto preview`, or other Quarto process was started during the 2026-06-22 pass; the existing user-provided preview was used.
+
 ## Hiccups And Issues Found
 
 ### Stale `QUARTO_R`
@@ -191,15 +235,19 @@ Some git commands work, but `git status` and `git ls-files --others` can fail wi
 
 ## Suggested Next Work
 
-1. Decide what to do with the advanced section.
-    - Checklist still notes later examples that switch from `medcare` to `fish_caught` / `fishing_data`.
-    - Either rewrite to stay with the healthcare tutorial context or split into another post.
-2. Continue output presentation cleanup.
+1. Continue output presentation cleanup.
     - There are still long code/output sequences.
-    - Tighten blog readability without removing useful reproducibility.
+    - `logistic_analysis`, `poisson_analysis`, `healthcare_zero_inflated`, and `healthcare_model_comparison` still print substantial raw model output.
+    - Decide whether to keep the detailed output folded, replace more of it with `knitr::kable()` summaries, or move some details into optional expandable sections.
+2. Decide what to do with the diagnostics section.
+    - The current DHARMa/performance diagnostic chunks are `eval: false`.
+    - Either make a compact diagnostic example executable with clean output, or explicitly frame diagnostics as optional follow-up code for readers to run locally.
 3. Confirm publication/listing behavior.
     - Check date, title, description, and categories in blog listing/social preview context.
-4. Remove the stale Machine-scope `QUARTO_R` when running an elevated/admin PowerShell is available.
+    - The description was rewritten on 2026-06-22 but the blog listing/social preview still needs a final check.
+4. Refresh and verify `_freeze/` output before publication.
+    - This should be done only when ready for a full publication verification pass.
+5. Remove the stale Machine-scope `QUARTO_R` when running an elevated/admin PowerShell is available.
 
 ## Suggested Skills
 
