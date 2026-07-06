@@ -555,7 +555,9 @@ zero_comparison <- data.frame(
 knitr::kable(zero_comparison)
 ```
 
-We observe 683 zero-visit records, whereas the fitted Poisson model expects approximately 37—only about 5% as many zeros as were observed. This large discrepancy identifies zero prediction as an important part of the model’s lack of fit. It does not, however, demonstrate that the data contain a distinct class of structural zeros. Unmodelled heterogeneity, an inadequate mean specification, or overdispersion in the count process could also produce more zeros than a Poisson model predicts. We therefore compare negative binomial and zero-inflated models in the next section.
+We observe 683 zero-visit records, whereas the fitted Poisson model expects approximately 37 -- only about 5% as many zeros as were observed. This large discrepancy identifies zero prediction as an important part of the model’s lack of fit. It does not, however, demonstrate that the data contain a distinct class of structural zeros. 
+
+Unmodelled heterogeneity, an inadequate mean specification, or overdispersion in the count process could also produce more zeros than a Poisson model predicts. We therefore compare negative binomial and zero-inflated models in the next section.
 
 # Zero-Inflated Models: Theory and Implementation
 
