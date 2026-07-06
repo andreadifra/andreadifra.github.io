@@ -440,7 +440,7 @@ For this application, the important Poisson assumptions are:
 3. **Independent records**: Participants are independent after conditioning on the modelled predictors.
 4. **Comparable exposure**: Each count covers the same observation window; otherwise the model needs an exposure offset.
 
-We will first interpret the conditional-mean estimates, then check whether the Poisson variance and zero probabilities fit the data.
+We will first interpret the conditional-mean estimates, then check whether the Poisson variance and zero probabilities fit the data. Unlike the logistic model, which asked whether a person recorded no visits, the Poisson model uses the entire count and asks how the average number of visits changes with the predictors. It therefore provides a baseline model for the count process.
 
 ```{r}
 #| label: tbl-poisson-analysis
@@ -478,9 +478,11 @@ poisson_table <- model_parameters(
 knitr::kable(poisson_table, align = c("l", "r", "c", "r"))
 ```
 
-As we can see from @tbl-poisson-analysis, under the Poisson mean model, poor health is associated with a 29% higher expected visit count than average health, while excellent health is associated with a 30% lower count. Each additional chronic condition is associated with an 18% increase. Men have an expected count about 10% lower than women, and a decade of age is associated with a 5% reduction. The estimate for marital status is essentially null.
+@tbl-poisson-analysis presents the results of the Poisson regression. As a quick reminder, a Poisson rate ratio describes a proportional difference in the expected count: the average number of visits predicted for people with the same included characteristics.
 
-Those rate ratios are easy to read, but the model must fit before we trust its standard errors and tests. We now check conditional dispersion using the Pearson residuals.
+Here, under the Poisson mean model, poor health is associated with a 29% higher expected visit count than average health, while excellent health is associated with a 30% lower count. Each additional chronic condition is associated with an 18% increase. Men have an expected count about 10% lower than women, and a decade of age is associated with a 5% reduction. The estimate for marital status is essentially null.
+
+We next assess conditional dispersion using the Pearson residuals.
 
 ```{r}
 #| label: tbl-poisson-overdispersion
@@ -508,13 +510,9 @@ overdispersion_table <- tibble::tibble(
 knitr::kable(overdispersion_table)
 ```
 
-::: {.callout-important}
-## Why this matters
+The dispersion ratio is 7.20, well above the value of 1 expected under a Poisson model. The observed visit counts therefore vary much more than the model permits under the Poisson assumption. This overdispersion makes the model-based standard errors too small and the corresponding confidence intervals and p-values too optimistic. The rate ratios still summarize the fitted mean structure, but this means that the Poisson model does not provide reliable inference for these data.
 
-The dispersion ratio is 7.20 rather than approximately 1, so the fitted counts vary far more than the Poisson model allows. Under this misspecification, the model-based standard errors are generally too small and the p-values too confident. The point estimates above remain a useful description of the fitted mean, but their narrow Poisson confidence intervals should not drive substantive conclusions.
-
-This diagnostic rejects the simple Poisson specification; it does not tell us which replacement is correct. A negative binomial model could absorb unobserved count heterogeneity, a zero-inflated model could add a separate zero process, and a zero-inflated negative binomial model could address both.
-:::
+Overdispersion tells us that the Poisson model is inadequate, but it does not identify the source of the extra variation. A negative binomial model can accommodate heterogeneity in the counts, whereas a zero-inflated model introduces a separate process for excess zeros. A zero-inflated negative binomial model combines both features. Before choosing among them, we examine whether the fitted Poisson model reproduces the observed number of zero visits.
 
 ### Step 3: Comparing Observed vs Expected Zeros
 
