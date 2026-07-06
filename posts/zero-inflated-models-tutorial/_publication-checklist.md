@@ -20,6 +20,8 @@ This checklist tracks the publication-readiness items identified during the revi
 - [ ] Improve output presentation
 - [x] Add figure and table structure
 - [x] Add citations properly
+- [ ] Confirm listing/social preview behavior
+- [ ] Refresh and verify `_freeze/` when ready for publication
 
 ## Publication Tasks
 
@@ -39,8 +41,11 @@ This checklist tracks the publication-readiness items identified during the revi
   - [x] Split them into a later draft post.
 - [ ] Improve output presentation
   - [x] Reduce raw `print()`-heavy output where a table or short interpretation would read better.
+  - [x] Rewrite the main tutorial path so the article keeps the author's personal, applied voice.
+  - [x] Reframe the GLM, foundation-model, ZIP/ZINB, interpretation, and checklist sections as guided blog prose rather than generic tutorial copy.
   - [ ] Keep detailed output folded only where it genuinely helps the reader.
   - [ ] Tighten long code/output sequences so the post reads like a blog article rather than a report dump.
+  - [ ] Decide whether the `eval: false` diagnostics section should become a compact executable example or stay as optional follow-up code.
 - [x] Add figure and table structure
   - [x] Add Quarto labels for key figures and tables where cross-reference would help.
   - [x] Add clearer captions to important plots and diagrams.
@@ -51,6 +56,7 @@ This checklist tracks the publication-readiness items identified during the revi
   - [x] Simplify citation metadata to the minimal Quarto configuration.
 - [ ] Confirm date and listing behavior
   - [x] Check that the post date is intentional for publication ordering.
+  - [x] Rewrite the post description to better match the article's healthcare-focused voice.
   - [ ] Confirm the title, description, and categories read well in blog listings and previews.
 
 ## Notes
@@ -61,4 +67,6 @@ This checklist tracks the publication-readiness items identified during the revi
 - Added `references.bib` and kept citation metadata local to the post with a single top-level `bibliography: references.bib`. Explicit citeproc and `format.html` bibliography overrides were tested and removed; Quarto's default HTML citation processing now renders author-year citations and the bibliography correctly.
 - The standalone render hang was traced to `renv_load_sandbox`, not to Quarto, the post content, or R version discovery. `.Rprofile` now disables only `renv.config.sandbox.enabled` before sourcing `renv/activate.R`, keeping the project `renv` library active.
 - Final check on 2026-06-17: `quarto check knitr` passes with R 4.6.0, and `quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute` completes from the website project.
+- Voice/readability pass on 2026-06-22: `index.qmd` was rewritten to preserve the author's personal healthcare framing across the early conceptual sections, the foundation-model walkthrough, the ZIP/ZINB explanation, model interpretation, model comparison, diagnostics setup, and final checklist. Verification used the existing running preview at `http://localhost:7921/posts/zero-inflated-models-tutorial/`; no Quarto render or preview process was started.
+- Remaining output-presentation work is mostly about code/output density: several chunks still print substantial raw model output (`logistic_analysis`, `poisson_analysis`, `healthcare_zero_inflated`, `healthcare_model_comparison`), and the diagnostics section still uses `eval: false`.
 - A stale Machine-scope `QUARTO_R` still points at `E:\Program Files\R\R-4.5.0\bin\R.exe`. The current User-scope value is empty, which lets Quarto auto-discover R 4.6.0; remove the Machine-scope value from an elevated PowerShell when convenient.
