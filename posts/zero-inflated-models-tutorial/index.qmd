@@ -510,15 +510,23 @@ overdispersion_table <- tibble::tibble(
 knitr::kable(overdispersion_table)
 ```
 
+::: {.callout-tip}
+## What is overdispersion?
+
+Overdispersion occurs when the conditional variance of the observed counts exceeds the variance allowed by the model. For a Poisson model, the conditional mean and variance must be equal. A dispersion ratio substantially above 1 indicates that this assumption is inadequate.
+:::
+
 The dispersion ratio is 7.20, well above the value of 1 expected under a Poisson model. The observed visit counts therefore vary much more than the model permits under the Poisson assumption. This overdispersion makes the model-based standard errors too small and the corresponding confidence intervals and p-values too optimistic. The rate ratios still summarize the fitted mean structure, but this means that the Poisson model does not provide reliable inference for these data.
 
 Overdispersion tells us that the Poisson model is inadequate, but it does not identify the source of the extra variation. A negative binomial model can accommodate heterogeneity in the counts, whereas a zero-inflated model introduces a separate process for excess zeros. A zero-inflated negative binomial model combines both features. Before choosing among them, we examine whether the fitted Poisson model reproduces the observed number of zero visits.
 
 ### Step 3: Comparing Observed vs Expected Zeros
 
-Now we check the part of the problem we actually care about: zeros. If the Poisson regression is a reasonable description of the data-generating process, it should predict roughly the right number of zero-visit records. If it predicts only a small fraction of the observed zeros, then the model is missing something systematic.
+The dispersion diagnostic shows that the Poisson model does not capture the overall variation in visit counts. Because our main interest is the frequency of zero visits, we now examine one specific aspect of that lack of fit: whether the model predicts approximately the observed number of zeros.
 
-For a Poisson distribution with parameter $\lambda$, the probability of observing zero is $P(Y=0) = e^{-\lambda}$. Applying that formula to each fitted mean gives the total number of zeros implied by the model.
+For participant $i$, the fitted Poisson model provides an expected visit count $\hat{\lambda}_i$. Under the Poisson distribution, the corresponding probability of zero visits is
+$$P(Y_i = 0) = e^{-\hat{\lambda}_i}.$$
+Summing these probabilities across participants gives the number of zero-visit records expected under the fitted model.
 
 ```{r}
 #| label: tbl-zero-comparison
@@ -536,7 +544,7 @@ expected_zeros_poisson <- sum(poisson_zero_prob)
 
 # Create comparison table for the article body.
 zero_comparison <- data.frame(
-  Metric = c("Observed zeros", "Expected zeros (Poisson)", "Excess zeros"),
+  Metric = c("Observed zeros", "Expected zeros (Poisson)", "Observed minus expected"),
   Count = c(observed_zeros, round(expected_zeros_poisson), 
             observed_zeros - round(expected_zeros_poisson)),
   Percentage = c(round(100*observed_zeros/total_obs, 1),
@@ -547,7 +555,7 @@ zero_comparison <- data.frame(
 knitr::kable(zero_comparison)
 ```
 
-We observe 683 zero-visit records, while the Poisson model expects only about 37. In other words, the model accounts for roughly 5% of the observed zeros. This is decisive evidence against this Poisson specification, but not automatic proof of a latent structural-zero class: a negative binomial model or a richer mean specification may also predict more zeros. The gap justifies comparing those alternatives with zero-inflated models in the next section.
+We observe 683 zero-visit records, whereas the fitted Poisson model expects approximately 37—only about 5% as many zeros as were observed. This large discrepancy identifies zero prediction as an important part of the model’s lack of fit. It does not, however, demonstrate that the data contain a distinct class of structural zeros. Unmodelled heterogeneity, an inadequate mean specification, or overdispersion in the count process could also produce more zeros than a Poisson model predicts. We therefore compare negative binomial and zero-inflated models in the next section.
 
 # Zero-Inflated Models: Theory and Implementation
 
