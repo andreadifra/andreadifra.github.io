@@ -94,11 +94,13 @@ Formally, a distribution belongs to the exponential family if its probability de
 
 $$f(y|\theta, \phi) = \exp\left\{\frac{y\theta - b(\theta)}{\phi} + c(y, \phi)\right\}$$
 
-**You don't need to memorize this!** The important part to keep in mind is that this format essentially *standardises* how we work with different distributions. The components are:
+Even though the formula looks daunting, the important part to keep in mind is that this format essentially *standardises* how we work with different distributions. The components are:
 
 - $\theta$ is the **natural parameter** (relates to the mean)
 - $\phi$ is the **dispersion parameter** (relates to the variance)
 - $b(\cdot)$ and $c(\cdot)$ are specific functions that define each distribution type
+
+We'll apply this to two common distributions that we'll use throughout this tutorial: the Bernoulli distribution (for yes/no outcomes) and the Poisson distribution (for counts).
 
 ### Two GLM Examples
 
@@ -106,9 +108,9 @@ $$f(y|\theta, \phi) = \exp\left\{\frac{y\theta - b(\theta)}{\phi} + c(y, \phi)\r
 
 $$f(y|\mu) = \mu^y(1-\mu)^{1-y} = \exp\left\{y \log\left(\frac{\mu}{1-\mu}\right) + \log(1-\mu)\right\}$$
 
-Use this when the outcome is yes/no: did the patient develop diabetes, did the treatment work, did the customer purchase?
+This is simply a re-formulation of the usual logistic regression function, to showcase that the distribution is part of the exponential family. We tipically use this when the outcome is binary, such as whether a patient develops diabetes, whether a treatment works, or whether a customer makes a purchase.
 
-This gives us:
+This formulation gives us:
 
 - Natural parameter: $\theta = \log\left(\frac{\mu}{1-\mu}\right)$ (logit transformation)
 - Canonical link: logit link
@@ -117,18 +119,18 @@ The logit link matters because probabilities must stay between 0 and 1, while a 
 
 In a healthcare setting, this could mean predicting whether a patient develops type 2 diabetes from BMI, age, and family history.
 
-- **The setup**: Bernoulli distribution with logit link $\log\left(\frac{\pi}{1-\pi}\right) = X\beta$
+- **Setup**: Bernoulli distribution with logit link $\log\left(\frac{\pi}{1-\pi}\right) = X\beta$
 - **Interpretation**: $\exp(\beta_j)$ = odds ratio for a unit change in predictor $x_j$
 - If BMI has coefficient 0.1, then each unit increase in BMI multiplies the odds of diabetes by $e^{0.1} = 1.105$ (about 10.5% higher odds)
-- **Key benefit**: The logit link ensures our predicted probabilities stay between 0 and 1
+- **Benefit**: The logit link ensures our predicted probabilities stay between 0 and 1
 
 #### **Poisson Distribution** (for counting rare events):
 
 $$f(y|\mu) = \frac{\mu^y e^{-\mu}}{y!} = \exp\{y \log \mu - \mu - \log y!\}$$
 
-Use this when the outcome is a count: hospital admissions per month, accidents per day, or doctor visits per year.
+The Poisson distribution is, as the name suggests, the distribution underlying Poisson regression. We tipically use this when the outcome is a count: hospital admissions per month, accidents per day, or doctor visits per year.
 
-The Poisson gives us:
+This gives us:
 
 - Natural parameter: $\theta = \log \mu$ (working on the log scale)
 - Cumulant function: $b(\theta) = e^\theta = \mu$ 
@@ -138,7 +140,7 @@ The log link matters because counts cannot be negative. We model the count on th
 
 In the healthcare example, we might model emergency department visits per patient per year from age, chronic conditions, and socioeconomic status.
 
-- **The setup**: Poisson distribution with log link $\log(\lambda) = X\beta$  
+- **Setup**: Poisson distribution with log link $\log(\lambda) = X\beta$  
 - **Interpretation**: $\exp(\beta_j)$ = multiplicative effect on the rate for a unit change in $x_j$
 - If having diabetes has coefficient 0.5, then diabetic patients have $e^{0.5} = 1.65$ times the visit rate (65% more visits)
 - **Key assumption**: $E[Y] = \text{Var}(Y) = \lambda$ (equidispersion)
@@ -148,9 +150,9 @@ In the healthcare example, we might model emergency department visits per patien
 
 For the rest of the post, the GLM structure we need is simple:
 
-1. **Linear predictor** ($\eta = X\beta$): This is the familiar part — a linear combination of your predictors
-2. **Link function** ($g(\mu) = \eta$): This connects your linear predictor to the expected value of your outcome
-3. **Response distribution**: From the exponential family (Poisson, binomial, etc.)
+1. **Linear predictor** ($\eta = X\beta$): i.e: a linear combination of your predictors
+2. **Link function** ($g(\mu) = \eta$): The "link" which connects your linear predictor to the expected value of your outcome
+3. **Response distribution**: A distribution from the exponential family (Poisson, binomial, etc.)
 
 ![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](glm-pipeline.png){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
 
@@ -220,7 +222,7 @@ The variables used in this section are:
 
 ## Understanding the Data
 
-As is standard practice before choosing a model, we should establish what the outcome actually looks like. The table below keeps the sample size, centre, spread, and frequency of zeros in one place; the code is folded so that the results do not interrupt the discussion.
+As is standard practice before choosing a model, we should establish what the outcome actually looks like. The table below keeps the sample size, centre, spread, and frequency of zeros in one place.
 
 ```{r}
 #| label: tbl-doctor-visit-summary
@@ -436,7 +438,7 @@ Next, we fit the standard starting point for count data: a Poisson regression. E
 For this application, the important Poisson assumptions are:
 
 1. **Conditional distribution**: Given the predictors, each person's count follows a Poisson distribution.
-2. **Conditional equidispersion**: The conditional variance equals the conditional mean, $\text{Var}(Y_i \mid X_i) = E(Y_i \mid X_i)$.
+2. **Conditional equidispersion**: The conditional variance equals the conditional mean, $$\text{Var}(Y_i \mid X_i) = E(Y_i \mid X_i)$$
 3. **Independent records**: Participants are independent after conditioning on the modelled predictors.
 4. **Comparable exposure**: Each count covers the same observation window; otherwise the model needs an exposure offset.
 
@@ -525,7 +527,7 @@ Overdispersion tells us that the Poisson model is inadequate, but it does not id
 The dispersion diagnostic shows that the Poisson model does not capture the overall variation in visit counts. Because our main interest is the frequency of zero visits, we now examine one specific aspect of that lack of fit: whether the model predicts approximately the observed number of zeros.
 
 For participant $i$, the fitted Poisson model provides an expected visit count $\hat{\lambda}_i$. Under the Poisson distribution, the corresponding probability of zero visits is
-$$P(Y_i = 0) = e^{-\hat{\lambda}_i}.$$
+$$P(Y_i = 0) = e^{-\hat{\lambda}_i}$$
 Summing these probabilities across participants gives the number of zero-visit records expected under the fitted model.
 
 ```{r}
@@ -563,37 +565,37 @@ Unmodelled heterogeneity, an inadequate mean specification, or overdispersion in
 
 ## The Core Concept: Two-Process Thinking
 
-Now that we've established why a zero-inflated model is a serious candidate, let's understand exactly **how** it works. The key insight is deceptively simple: **not all zeros are created equal**.
+Now that we've established why a zero-inflated model is a serious candidate, let's understand exactly **how** it works. As we touched on briefly before, the key idea is that the data are generated by two connected processes: one that produces structural zeros, and another that produces counts (including sampling zeros).
 
-Think of zero-inflated models as having two interconnected parts working together, like a two-stage screening process:
+The following diagram helps elucidate this process:
 
 ![A zero-inflated model first estimates whether an observation belongs to a structural-zero group, then uses a count process for observations that can produce events.](zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a new patient enters a zero-inflation process, which either produces a structural zero or passes the patient to a count process that can produce a sampling zero or one or more visits."}
 
-**The beauty of this approach**: We can model the factors that influence each stage separately, giving us much richer insights than simple count models.
+That separation of stages is the key idea underpinning this model. We can ask one set of questions about who is likely to be in the extra-zero group, and another set about how many visits we expect among people who can generate visits. Here, the parameter $\pi$ represents the probability of being a structural zero.
 
-## Real-World Healthcare Example: Breaking Down the Process
+## Breaking Down the Healthcare Process
 
-Let's apply this two-stage thinking to our medical care data. Imagine we're trying to understand doctor visit patterns:
+We are ready to apply this two-stage process to our medicare dataset. The two stages can be interpreted as follows:
 
-**Stage 1 - Zero-Inflation Process** ("Will this person access healthcare at all?")
+**Stage 1 - zero-inflation process**: is this person able to access healthcare at all?
 
-- **Factors pushing toward structural zeros**: Excellent health status, young age, male gender, geographic barriers, insurance issues
-- **Question**: What's the probability this person belongs to the "never visits doctors" group?
+- Possible predictors: excellent health status, age, gender, geographic barriers, insurance issues
+- Interpretation: what changes the odds of belonging to the group that generates only zeros?
 
-**Stage 2 - Count Process** ("Given they do access healthcare, how often?")
+**Stage 2 - count process**: among people who can generate visits, how many visits do we expect?
 
-- **Factors affecting visit frequency**: Number of chronic conditions, poor health status, age, social support
-- **Question**: For people who do use healthcare, what drives the number of visits?
+- Possible predictors: chronic conditions, poor health status, age, social support
+- Interpretation: what changes the expected visit rate?
 
-This separation allows us to identify, for example, that **excellent health** primarily affects whether someone visits doctors at all (Stage 1), while **chronic conditions** primarily affect how often they visit (Stage 2).
+This separation allows us to identify, for example, that **excellent health** primarily affects whether someone visits doctors at all (Stage 1), while **chronic conditions** primarily affect how often they visit (Stage 2). A variable can reduce the chance of being an extra zero, increase the expected count among users, or do both.
 
 ## Mathematical Formulation: Making the Intuition Concrete
 
-Don't let the mathematics intimidate you — they're just formalizing the two-stage process we described above.
+We can formalize the two-process story with a simple set of equations.
 
 ### Zero-Inflated Poisson (ZIP) Model
 
-The ZIP model mathematically expresses our two-stage process:
+The ZIP model combines a structural-zero probability with a Poisson count model:
 
 **For zeros (no doctor visits):**
 $$P(Y = 0) = \pi + (1-\pi)e^{-\lambda}$$
@@ -601,25 +603,25 @@ $$P(Y = 0) = \pi + (1-\pi)e^{-\lambda}$$
 **For positive counts (1, 2, 3, ... visits):**
 $$P(Y = k) = (1-\pi)\frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 1, 2, 3, ...$$
 
-**Breaking this down in plain English:**
+Read the terms like this:
 
 - $\pi$ = probability of being a "structural zero" (never visits doctors)
 - $(1-\pi)$ = probability of being a "potential healthcare user"  
 - $\lambda$ = expected visit rate for potential users
 - $e^{-\lambda}$ = probability a potential user happens to have zero visits (sampling zero)
 
-**The key insight**: Total probability of zero visits = structural zeros + sampling zeros from potential users.
+So the total probability of zero visits is the sum of two routes to zero: structural zeros plus sampling zeros from potential users.
 
-**Practical Healthcare Interpretation:**
+For non zero-visits, the probability is simply the Poisson probability scaled by the chance of being a potential user.
 
-Let's say we estimate $\pi = 0.15$ and $\lambda = 3.2$ for a typical patient profile:
+For a concrete healthcare interpretation, suppose we estimate $\pi = 0.15$ and $\lambda = 3.2$ for a typical patient profile:
 
-- **15%** of patients are structural zeros (never visit doctors)
+- **15%** of patients are structural zeros
 - **85%** are potential healthcare users with average rate 3.2 visits/year
 - Among potential users, $e^{-3.2} = 4.1\%$ happen to have zero visits by chance
 - **Total zero probability** = 15% + 85% × 4.1% = 18.5%
 
-### Understanding Mean and Variance
+#### Understanding Mean and Variance
 
 **Expected visits:** $E[Y] = (1-\pi)\lambda$
 - Only the $(1-\pi)$ proportion who are potential users contribute to the mean
@@ -629,11 +631,11 @@ Let's say we estimate $\pi = 0.15$ and $\lambda = 3.2$ for a typical patient pro
 - Always larger than the mean: $\text{Var}(Y) > E[Y]$ (natural overdispersion)
 - In our example: $\text{Var}(Y) = 3.2 \times 0.85 \times (1 + 0.15 \times 3.2) = 4.04$
 
-**Why this matters**: The built-in overdispersion (variance > mean) helps explain the extra variability we see in real healthcare data that simple Poisson models miss.
+This is one reason zero-inflated models can handle more variability than a plain Poisson model. They do not only add zeros; they also change the mean-variance relationship.
 
 ### Zero-Inflated Negative Binomial (ZINB) Model
 
-The ZINB model adds another layer of flexibility for handling even more overdispersion:
+The ZINB model keeps the same zero-inflation idea but replaces the Poisson count component with a negative binomial count component:
 
 **For zeros:**
 $$P(Y = 0) = \pi + (1-\pi)\left(\frac{r}{r+\mu}\right)^r$$
@@ -641,26 +643,28 @@ $$P(Y = 0) = \pi + (1-\pi)\left(\frac{r}{r+\mu}\right)^r$$
 **For positive counts:**
 $$P(Y = k) = (1-\pi)\frac{\Gamma(k+r)}{k!\Gamma(r)}\left(\frac{r}{r+\mu}\right)^r\left(\frac{\mu}{r+\mu}\right)^k$$
 
-**What's different from ZIP:**
+The difference from ZIP is practical:
 
 - Uses negative binomial instead of Poisson for the count component
 - Parameter $r$ controls additional overdispersion within the potential user group
 - When $r \to \infty$, ZINB reduces to ZIP (nested models)
 
-**When to use ZINB over ZIP:**
+I would reach for ZINB over ZIP when:
 
-- When you have **excess zeros AND** heavy overdispersion in the count component
-- Healthcare data often shows both patterns: some people never use services (excess zeros) and among users, visit patterns are highly variable (overdispersion)
+- the data have excess zeros
+- the positive counts are still more variable than a Poisson model can handle
+
+Healthcare utilisation often has both: some people never use services in the window, and among users the number of visits varies a lot.
 
 ## Building Intuition: A Step-by-Step Example
 
-Let's walk through fitting our first zero-inflated model using the healthcare data, building intuition at each step.
+Now we can fit the model with a clearer idea of what each component is meant to do.
 
 ### Step 1: Choosing Variables for Each Component
 
-**Key decision**: Which variables should influence the zero-inflation process vs the count process?
+The key modelling decision is which variables belong in each component.
 
-**Theoretical guidance for healthcare data:**
+For healthcare data, my starting point would be:
 
 - **Zero-inflation predictors**: Factors affecting healthcare access/utilization barriers
   - Health status (excellent health → less likely to need care)
@@ -672,11 +676,11 @@ Let's walk through fitting our first zero-inflated model using the healthcare da
   - Poor health status (sicker people visit more often)
   - Age (older patients typically have more complex needs)
 
-**In practice**: You can use the same variables in both components or different sets, depending on your theoretical understanding and empirical evidence.
+You can use the same variables in both components, but this should be a deliberate choice. As we saw previously, each model answers two different questions.
 
 ## Practical Implementation: From Theory to Code
 
-Now let's implement zero-inflated models using our healthcare data, building step-by-step understanding.
+Now we fit ZIP and ZINB versions of the healthcare model.
 
 ### Setting Up the Healthcare Models
 
@@ -708,7 +712,7 @@ print("=== Zero-Inflated Negative Binomial Model ===")
 summary(zinb_model)
 ```
 
-**Understanding the Model Syntax:**
+The `glmmTMB` syntax mirrors the two-process idea:
 
 - **Main formula**: `ofp ~ healthpoor + healthexcellent + numchron + age + male + married`  
   - Predicts visit **counts** for people who do use healthcare
@@ -718,7 +722,7 @@ summary(zinb_model)
   - Predicts probability of being a "structural zero" (never visits)
   - Focuses on factors affecting access/participation
 
-**Why this variable selection makes sense:**
+This specification is not the only defensible one, but it is a sensible first pass:
 
 - **Excellent health** appears in zero-inflation (affects whether you visit at all) but count model captures this through both excellent and poor health
 - **Age and gender** affect both participation and intensity differently  
@@ -726,7 +730,7 @@ summary(zinb_model)
 
 ## Interpreting Zero-Inflated Model Results
 
-Understanding zero-inflated model output requires interpreting **two separate sets of coefficients**. Let's break this down systematically.
+This is where zero-inflated model output can look more intimidating than it is. The main mistake is to read the coefficient table as one block. Instead, read it as two related models: one for the count process and one for the zero-inflation process.
 
 ```{r}
 #| label: tbl-zinb-count-effects
@@ -786,24 +790,26 @@ knitr::kable(
 
 ### Key Healthcare Insights from the Model
 
-**From the Count Component** (visit rates among users):
+I read the fitted ZINB model in two passes.
+
+**First, the count component**: among people who can generate visits, what changes the expected visit rate?
 
 - **Chronic conditions**: Each additional condition increases the visit rate by about 20% among healthcare users.
 - **Poor health**: Poor health is associated with about 32% more visits among healthcare users.
 - **Age**: In this fitted model, age is associated with slightly fewer visits in the count component, while also affecting the zero-inflation component.
 - **Excellent health**: Even among healthcare users, excellent health is associated with a lower visit rate.
 
-**From the Zero-Inflation Component** (probability of never visiting):
+**Then, the zero-inflation component**: what changes the odds of being in the extra-zero group?
 
 - **Excellent health**: Much higher odds of being a "never visitor"
 - **Age**: Older people less likely to be "never visitors" (more health needs emerge)
 - **Gender**: Males more likely to be "never visitors" (avoidance of preventive care)
 
-**The complete picture**: These models reveal that excellent health status **primarily** operates by affecting whether people participate in healthcare at all, while chronic conditions **primarily** affect how intensively people use healthcare once they're in the system.
+This is the interpretation benefit of the model. Excellent health mainly helps explain whether someone shows up in the visit process at all. Chronic conditions mainly explain intensity among people who do use care. A single-process model would blur those two stories together.
 
-## Comparing Model Performance: Why ZINB Usually Wins
+## Comparing Model Performance.
 
-Let's systematically compare our models to understand which performs best and why.
+Now we compare the fitted models. I do not treat model comparison as a leaderboard where the lowest AIC automatically ends the discussion, but it is still useful evidence.
 
 ```{r}
 #| label: model-performance-comparison
@@ -859,20 +865,21 @@ print("ZINB model zero-inflation check:")
 print(zi_check_zinb)
 ```
 
-**Why ZINB typically wins in healthcare data:**
+For this dataset, the ZINB model is the most convincing option because it addresses both problems we found earlier:
 
-1. **Addresses both problems**: Excess zeros AND overdispersion in the count component
-2. **More flexible**: Can handle the high variability typical in healthcare utilization
-3. **Better fit**: Lower AIC/BIC values indicate superior model fit
-4. **Robust diagnostics**: Usually passes zero-inflation and overdispersion tests
+1. it has a zero-inflation component for the extra zeros
+2. it has a negative binomial count component for overdispersed visit counts
+3. it improves fit relative to the simpler alternatives, given the AIC/BIC values and the zero-inflation checks.
+
+That combination matters more than the acronym. The model choice follows from the data problem we diagnosed, not from a blanket rule that ZINB is always best.
 
 ## Practical Model Building Strategy
 
-Here's a systematic approach to building zero-inflated models:
+The workflow I would recommend is:
 
 ### Step 1: Start with Theory
 
-**Before touching the data**, think about:
+Before touching the data, write down:
 
 - What factors might create "structural zeros"?
 - What factors affect intensity among participants?
@@ -907,18 +914,24 @@ compare_performance(model1, model2, model3, model4)
 
 ### Step 3: Validate Your Choices
 
-**Ask these questions:**
+Then check the model against both statistics and subject-matter sense:
 
 - Do the coefficient signs make theoretical sense?
 - Does the model pass diagnostic tests?
 - Are standard errors reasonable (not too large)?
 - Do residual and performance checks support your model choice?
 
-**Next section**: We'll cover comprehensive model diagnostics to ensure our zero-inflated models are trustworthy.
+The diagnostics below are the checks I would run before trusting the fitted model.
 
 # Model Diagnostics with DHARMa and Performance
 
-Proper diagnostics are crucial for zero-inflated models due to their complex structure.
+Zero-inflated models have more moving parts than a standard GLM, so diagnostics matter. In practice, I want to know three things:
+
+1. Is there still unmodelled zero-inflation?
+2. Is there still unmodelled overdispersion?
+3. Do the residuals show an obvious pattern the model missed?
+
+The code below uses `DHARMa` and `performance` for those checks.
 
 ```{r}
 #| label: model-diagnostics
@@ -964,6 +977,8 @@ print(zi_check)
 
 ## Model Comparison
 
+The model comparison code below repeats the comparison in one place. In a production analysis I would keep this close to the diagnostics, because a model that wins on AIC but fails basic residual checks is not really a win.
+
 ```{r}
 #| label: model-comparison-example
 #| eval: false
@@ -991,7 +1006,7 @@ lrt_zinb <- anova(zinb_model, zip_model)
 print(paste("ZINB vs ZIP: p-value =", round(lrt_zinb$`Pr(>Chisq)`[2], 4)))
 ```
 
-The ZINB model wins on all criteria, confirming our need for both zero-inflation and overdispersion modeling.
+In this case, the ZINB model wins on the comparison metrics and matches the story from the exploratory checks: we need both a zero-inflation component and an overdispersed count component.
 
 The next layer of model choice is deciding when a hurdle model, alternative count distribution, or prediction workflow is a better fit. That material is better handled as a separate advanced tutorial so this article can stay focused on the core zero-inflated modeling workflow.
 
@@ -999,28 +1014,31 @@ The next layer of model choice is deciding when a hurdle model, alternative coun
 
 ## Key Takeaways
 
-1. **Zero-inflated models are useful** when excess zeros plausibly come from two distinct processes.
-2. **ZINB often outperforms ZIP** when the data have both excess zeros and overdispersion.
-3. **The zero-inflation and count components answer different questions**, so interpret them separately.
-4. **Model diagnostics are crucial**; use checks for overdispersion, zero inflation, and residual behavior.
-5. **Model choice should combine fit statistics and subject-matter reasoning**, not just the lowest AIC.
+1. Use a zero-inflated model when the zeros plausibly come from two processes, not just because the dataset contains many zeros.
+2. Separate the interpretation of the zero-inflation component from the count component.
+3. Reach for ZINB when you have both extra zeros and overdispersion in the count process.
+4. Treat diagnostics as part of the modelling workflow: use checks for overdispersion, zero inflation, and residual behavior to guide model choice and specification.
+5. Combine fit statistics with subject-matter reasoning; the lowest AIC only provides evidence, .
 
-## Best Practices Checklist
+## A Checklist I Would Use
 
-✅ **Before modeling:**
-- Explore your data for excess zeros
-- Consider the data generating process theoretically
-- Check for overdispersion in standard Poisson models
+**Before modeling:**
 
-✅ **During modeling:**
-- Compare Poisson, negative binomial, ZIP, and ZINB models
-- Use different covariates for count and zero-inflation components when justified
-- Check convergence and model diagnostics
+- Explore the count distribution and the proportion of zeros.
+- Ask what kinds of zeros are plausible in the domain.
+- Fit a standard Poisson model and check overdispersion.
 
-✅ **After modeling:**
-- Validate the chosen specification against residual and performance checks
-- Interpret both components of the model
-- Make predictions appropriate to your research questions
+**During modeling:**
+
+- Compare Poisson, negative binomial, ZIP, and ZINB models.
+- Put covariates in the zero-inflation and count components deliberately.
+- Check convergence, standard errors, and diagnostics.
+
+**After modeling:**
+
+- Validate the chosen specification against residual and performance checks.
+- Interpret the two model components separately.
+- Make predictions that match the question you actually care about.
 
 ## When to Use Each Model Type
 
