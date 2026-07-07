@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Architecture review — zero-inflated models tutorial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+  </script>
+  <style>
+    .seam { border-style: dashed; }
+    .deep { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; }
+    .leak { color: #b91c1c; }
+    .arrow { color: #64748b; font-size: 1.4rem; line-height: 1; }
+  </style>
+</head>
+<body class="bg-stone-50 text-slate-900 font-sans">
+<main class="max-w-6xl mx-auto px-5 py-12 space-y-12">
+  <header class="border-b border-slate-300 pb-6">
+    <p class="text-xs uppercase tracking-[0.2em] text-indigo-700">Branch 7-zero-inflated-models-blog</p>
+    <h1 class="mt-2 text-4xl font-serif font-semibold">Architecture review — zero-inflated models tutorial</h1>
+    <p class="mt-3 text-sm text-slate-600">7 July 2026 · solid box = module · dashed line = seam · red = leakage · dark box = deep module</p>
+  </header>
+
+  <section id="candidates" class="space-y-10">
+    <article id="publication-contract" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-2xl font-serif font-semibold mr-auto">Deepen the publication contract</h2>
+        <span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-semibold">Strong</span>
+        <span class="rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs">in-process</span>
+      </div>
+      <p class="font-mono text-sm text-slate-600">posts/zero-inflated-models-tutorial/index.qmd · blog.qmd · index.qmd</p>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-5 min-h-72">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-5">Before · shallow interface</p>
+          <div class="mx-auto max-w-sm space-y-3">
+            <div class="border border-slate-400 bg-white rounded p-3 text-center text-xs uppercase tracking-wider">Post metadata<br><span class="normal-case tracking-normal text-slate-500">title · date · description</span></div>
+            <div class="text-center arrow">↓ inference</div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div class="border border-slate-300 bg-white rounded p-3">first image?</div>
+              <div class="border border-slate-300 bg-white rounded p-3">listing?</div>
+              <div class="border border-slate-300 bg-white rounded p-3">social?</div>
+            </div>
+            <p class="leak text-center text-sm">Issue #7 requirements leak into manual checks.</p>
+          </div>
+        </div>
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-5 min-h-72">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-5">After · deep post module</p>
+          <div class="deep rounded-xl border-4 border-slate-800 p-6 max-w-sm mx-auto text-center">
+            <p class="text-xs uppercase tracking-wider text-slate-300">Publication contract</p>
+            <p class="mt-3 text-lg">One intentional interface</p>
+            <div class="mt-5 grid grid-cols-3 gap-2 text-xs text-slate-900">
+              <div class="rounded bg-white p-2">Article</div>
+              <div class="rounded bg-white p-2">Listings</div>
+              <div class="rounded bg-white p-2">Social</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5 text-sm">
+        <p><strong>Problem.</strong> The post interface does not explicitly own the required hero and preview behavior, so publication depends on Quarto inference and manual memory.</p>
+        <p><strong>Solution.</strong> Make the post module own its publication-facing metadata and validate the rendered listing and shared-link surfaces through that interface.</p>
+        <div><strong>Wins.</strong><ul class="mt-2 space-y-1 text-slate-700"><li>locality: contract beside content</li><li>leverage: one interface, three surfaces</li><li>tests target reader behavior</li></ul></div>
+      </div>
+    </article>
+
+    <article id="figure-ownership" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-2xl font-serif font-semibold mr-auto">Give each article ownership of its figures</h2>
+        <span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-semibold">Strong</span>
+        <span class="rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs">local-substitutable</span>
+      </div>
+      <p class="font-mono text-sm text-slate-600">posts/zero-inflated-models-tutorial/*.{svg,png,excalidraw} · posts/zero-inflated-models-advanced/index.qmd</p>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-4 min-h-80">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">Before · cross-post leakage</p>
+          <pre class="mermaid">
+flowchart TD
+  T[Tutorial post module] --> TF[3 used figure pairs]
+  T --> H[hurdle-vs-zi pair]
+  A[Advanced post module] -. reaches across seam .-> H
+  H:::leak
+  classDef leak stroke:#dc2626,stroke-width:3px,color:#991b1b;
+          </pre>
+        </div>
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-4 min-h-80">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">After · article-owned modules</p>
+          <pre class="mermaid">
+flowchart TD
+  T[Tutorial post module] --> TD[figures / tutorial-owned pairs]
+  A[Advanced post module] --> AD[figures / advanced-owned pair]
+  TD --- S1[editable source + rendered asset]
+  AD --- S2[editable source + rendered asset]
+  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a,stroke-width:3px;
+  class T,A deep;
+          </pre>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5 text-sm">
+        <p><strong>Problem.</strong> File count is not the real friction: the advanced article imports a figure owned by the tutorial module, and editable/rendered pairs are mixed with prose and work notes.</p>
+        <p><strong>Solution.</strong> Put figure pairs behind a post-local figures seam and transfer the hurdle comparison to the article that actually consumes it.</p>
+        <div><strong>Wins.</strong><ul class="mt-2 space-y-1 text-slate-700"><li>locality: asset beside owner</li><li>seam matches publication module</li><li>deletion test becomes obvious</li></ul></div>
+      </div>
+    </article>
+
+    <article id="tracking-interface" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-2xl font-serif font-semibold mr-auto">Collapse publication tracking into one interface</h2>
+        <span class="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-semibold">Strong</span>
+        <span class="rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs">in-process</span>
+      </div>
+      <p class="font-mono text-sm text-slate-600">GitHub issue #7 · _publication-checklist.md · _extensions.md · _mywebsite-zero-inflated-handoff-2026-06-16.md</p>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-5 min-h-72">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-5">Before · four shallow status modules</p>
+          <div class="grid grid-cols-2 gap-3 text-sm text-center">
+            <div class="border border-slate-400 rounded bg-white p-5">Issue #7<br><span class="text-emerald-700">source of truth</span></div>
+            <div class="border border-red-300 rounded bg-red-50 p-5">Checklist<br><span class="text-red-700">partly stale</span></div>
+            <div class="border border-red-300 rounded bg-red-50 p-5">Extensions<br><span class="text-red-700">contradicts status</span></div>
+            <div class="border border-slate-400 rounded bg-white p-5">Handoff<br><span class="text-slate-500">dated snapshot</span></div>
+          </div>
+        </div>
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-5 min-h-72 flex items-center">
+          <div class="deep rounded-xl border-4 border-slate-800 p-7 w-full text-center">
+            <p class="text-xs uppercase tracking-wider text-slate-300">Publication tracking module</p>
+            <p class="text-xl mt-3">One canonical interface</p>
+            <p class="text-sm text-slate-300 mt-3">Durable decisions stay in repo docs; transient status stays in the issue.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5 text-sm">
+        <p><strong>Problem.</strong> The repository declares GitHub Issues authoritative, yet three local documents expose overlapping status; one says presentation is complete while another says it is next up.</p>
+        <p><strong>Solution.</strong> Keep active publication status behind issue #7 and retain only durable knowledge that belongs to the repository's domain documentation.</p>
+        <div><strong>Wins.</strong><ul class="mt-2 space-y-1 text-slate-700"><li>interface shrinks from four to one</li><li>locality: status in tracker</li><li>leverage: no status reconciliation</li></ul></div>
+      </div>
+    </article>
+
+    <article id="presentation-module" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-2xl font-serif font-semibold mr-auto">Move post presentation out of the manuscript</h2>
+        <span class="rounded-full bg-amber-100 text-amber-900 px-3 py-1 text-xs font-semibold">Worth exploring</span>
+        <span class="rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs">local-substitutable</span>
+      </div>
+      <p class="font-mono text-sm text-slate-600">posts/zero-inflated-models-tutorial/index.qmd:32 · .model-moments fenced divs · post-local stylesheet</p>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-5 min-h-72">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">Before · implementation in interface</p>
+          <div class="space-y-2 max-w-sm mx-auto">
+            <div class="h-9 border-l-4 border-indigo-500 bg-white px-3 flex items-center text-xs uppercase tracking-wider">Front matter</div>
+            <div class="h-28 border-l-4 border-red-500 bg-red-50 px-3 flex items-center text-sm leak">40-line raw HTML style block</div>
+            <div class="h-20 border-l-4 border-indigo-500 bg-white px-3 flex items-center text-xs uppercase tracking-wider">Narrative + executable examples</div>
+          </div>
+        </div>
+        <div class="rounded-xl bg-stone-50 border border-stone-200 p-5 min-h-72">
+          <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">After · narrow presentation seam</p>
+          <div class="flex items-center justify-center gap-4 h-48">
+            <div class="deep rounded-lg p-5 text-center w-44"><span class="text-xs uppercase tracking-wider">Manuscript</span><br><span class="text-sm text-slate-300">semantic fenced divs</span></div>
+            <span class="arrow">→</span>
+            <div class="seam border-2 border-slate-400 rounded-lg p-5 text-center w-44 bg-white"><span class="text-xs uppercase tracking-wider">Presentation module</span><br><span class="text-sm text-slate-500">post-local CSS</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5 text-sm">
+        <p><strong>Problem.</strong> The manuscript's interface includes a format-specific style implementation before the first sentence, reducing locality for both editorial and presentation changes.</p>
+        <p><strong>Solution.</strong> Keep Quarto fenced divs as semantic markup and place the one-post visual implementation behind a post-local stylesheet seam; promote it globally only after a second consumer appears.</p>
+        <div><strong>Wins.</strong><ul class="mt-2 space-y-1 text-slate-700"><li>locality: prose stays prose</li><li>interface becomes format-neutral</li><li>one adapter; seam stays local</li></ul></div>
+      </div>
+    </article>
+  </section>
+
+  <section id="top-recommendation" class="rounded-2xl bg-indigo-950 text-white p-8">
+    <p class="text-xs uppercase tracking-[0.2em] text-indigo-200">Top recommendation</p>
+    <h2 class="mt-2 text-3xl font-serif"><a class="underline decoration-indigo-400" href="#publication-contract">Deepen the publication contract</a></h2>
+    <p class="mt-3 text-indigo-100">It closes the largest gap between branch intent and implementation: one post-owned interface should drive the article, listings, hero image, and social preview.</p>
+  </section>
+</main>
+</body>
+</html>
+
+
