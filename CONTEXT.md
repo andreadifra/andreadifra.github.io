@@ -2,6 +2,20 @@
 
 ## Domain Language
 
+### Publication image
+
+A publication image is the single canonical visual identity of a post across
+the article hero, post listings, and social previews.
+
+_Avoid_: hero image, thumbnail, social image
+
+### Publication review
+
+A publication review is the final manual acceptance check that a post appears
+consistently across its article, listing, and social-preview surfaces.
+
+_Avoid_: manual enforcement
+
 ### Private recruiter page
 
 The `hire-me` page is a private recruiter page: it may be rendered and shared by
