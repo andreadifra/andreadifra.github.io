@@ -1,6 +1,12 @@
 ---
 title: "Zero-Inflated Models: A Practical Tutorial"
 description: "A practical guide to understanding and implementing zero-inflated models in R."
+image: publication-image.png
+image-alt: "Two paths converge into observed count data: one produces structural zeros, while the other produces counts that can also include zeros."
+title-block-banner: publication-image.png
+open-graph: true
+twitter-card:
+  card-style: summary_large_image
 author: "Andrea Di Francia"
 date: "2026-06-15"
 categories: [statistics, modeling, R, tutorial]
@@ -27,6 +33,17 @@ format:
 #| eval: false
 source(file.path(Sys.getenv("QUARTO_PROJECT_DIR"), "scripts", "knitr-profile.R"))
 enable_knitr_chunk_profile()
+```
+
+```{=html}
+<style>
+.quarto-title-banner {
+  background-color: rgba(6, 18, 34, 0.62);
+  background-blend-mode: multiply;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+</style>
 ```
 
 # Introduction
