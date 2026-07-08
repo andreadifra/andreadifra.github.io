@@ -43,6 +43,44 @@ enable_knitr_chunk_profile()
   background-position: center;
   background-repeat: no-repeat;
 }
+
+.model-moments {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.model-moment {
+  background: rgba(var(--bs-body-color-rgb), 0.045);
+  border: 1px solid var(--bs-border-color);
+  border-top: 3px solid var(--bs-primary);
+  border-radius: var(--bs-border-radius-lg, 0.75rem);
+  box-shadow: 0 0.5rem 1.5rem rgba(var(--bs-body-color-rgb), 0.08);
+  padding: 1.2rem 1.25rem;
+}
+
+.model-moment > :last-child {
+  margin-bottom: 0;
+}
+
+.model-moment .math.display {
+  margin: 0.85rem 0;
+}
+
+.model-moment-result {
+  border-top: 1px solid var(--bs-border-color);
+  color: var(--bs-secondary-color);
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+
+@media (min-width: 768px) {
+  .model-moments {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 </style>
 ```
 
@@ -638,17 +676,43 @@ For a concrete healthcare interpretation, suppose we estimate $\pi = 0.15$ and $
 - Among potential users, $e^{-3.2} = 4.1\%$ happen to have zero visits by chance
 - **Total zero probability** = 15% + 85% × 4.1% = 18.5%
 
-#### Understanding Mean and Variance
+#### What Happens to the Mean and Variance?
 
-**Expected visits:** $E[Y] = (1-\pi)\lambda$
-- Only the $(1-\pi)$ proportion who are potential users contribute to the mean
-- In our example: $E[Y] = 0.85 \times 3.2 = 2.72$ visits on average
+The parameter $\lambda$ is the mean **inside the Poisson count process**. It is not the mean across the whole population, because the structural-zero group always contributes zero. Mixing the two groups therefore changes both the centre and the spread of the observed outcome.
 
-**Variance:** $\text{Var}(Y) = \lambda(1-\pi)(1 + \pi\lambda)$
-- Always larger than the mean: $\text{Var}(Y) > E[Y]$ (natural overdispersion)
-- In our example: $\text{Var}(Y) = 3.2 \times 0.85 \times (1 + 0.15 \times 3.2) = 4.04$
+:::: {.model-moments}
+::: {.model-moment}
+**Population mean**
 
-This is one reason zero-inflated models can handle more variability than a plain Poisson model. They do not only add zeros; they also change the mean-variance relationship.
+$$E[Y] = (1-\pi)\lambda$$
+
+Only the count-generating group contributes visits.
+
+[In the example: $0.85 \times 3.2 = 2.72$ visits]{.model-moment-result}
+:::
+
+::: {.model-moment}
+**Population variance**
+
+$$\operatorname{Var}(Y) = \lambda(1-\pi)(1+\pi\lambda)$$
+
+Variation comes from the Poisson counts and from mixing a zero-only group with a count-generating group.
+
+[In the example: $3.2 \times 0.85 \times 1.48 = 4.03$]{.model-moment-result}
+:::
+::::
+
+The variance formula becomes easier to read when we split it into its two sources:
+
+$$
+\begin{aligned}
+\operatorname{Var}(Y)
+  &= \underbrace{(1-\pi)\lambda}_{\text{variation within the count process}} \\
+  &\quad + \underbrace{\pi(1-\pi)\lambda^2}_{\text{variation between the two groups}}.
+\end{aligned}
+$$
+
+In our example, those terms are $2.72$ and $1.31$, giving a total variance of $4.03$. The second term is the important addition: even if the count process is perfectly Poisson, mixing it with a structural-zero group makes the marginal variance exceed the marginal mean whenever $0 < \pi < 1$ and $\lambda > 0$.
 
 ### Zero-Inflated Negative Binomial (ZINB) Model
 
