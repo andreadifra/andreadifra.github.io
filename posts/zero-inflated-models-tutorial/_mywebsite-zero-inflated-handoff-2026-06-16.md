@@ -1,264 +1,171 @@
-# Handoff: Zero-Inflated Models Tutorial Publication Cleanup
+# Handoff: Zero-Inflated Models Tutorial
 
-Date: 2026-06-16; updated 2026-06-22. Repository: `f:\Documenti\Andrea\Projects\Mywebsite` Focus file: `posts/zero-inflated-models-tutorial/index.qmd` Checklist: `posts/zero-inflated-models-tutorial/_publication-checklist.md` Preview URL used: `http://localhost:7921/posts/zero-inflated-models-tutorial/`
+- Updated: 2026-07-08
+- Repository: `F:\Documenti\Andrea\Projects\Mywebsite`
+- Primary source: `posts/zero-inflated-models-tutorial/index.qmd`
+- Checklist: `posts/zero-inflated-models-tutorial/_publication-checklist.md`
+- Preview: `http://localhost:7921/posts/zero-inflated-models-tutorial/index.html`
 
-## Summary
+## Current State
 
-The prior session actioned the first publication-readiness items for the zero-inflated models tutorial: placeholders/non-final prose, output presentation, figure/table structure, Mermaid replacement, and proper citations. Changes were verified against the running Quarto preview with `agent-browser`.
+The article's theory-to-diagnostics section has received a substantive prose, presentation, and statistical-review pass. The main tutorial path now reads as an applied researcher blog rather than a report dump. Code remains available behind purposeful folds, while the article body presents compact tables and interpretation.
 
-Follow-up diagnostics on 2026-06-17 resolved the standalone render path. `quarto check knitr` now passes, and `quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute` completes from the website project.
+The current source and frozen output contain the latest changes. Use the publication checklist for the broader project history and remaining publication tasks; this handoff records only the current implementation state and the points most likely to matter in the next session.
 
-On 2026-06-22, the article received a first voice-and-reader-experience pass after the author rewrote the introduction in a more personal and informal style. The pass kept the tutorial's healthcare framing and changed the surrounding sections so the article reads more like an applied blog post than a generic tutorial/report.
+On 2026-07-08, the fitting workflow was reordered to compare model performance and assess candidate fit before interpreting coefficients. ZINB is now presented as an adequate working model for this tutorial, not as a uniquely correct model.
 
-## Files Changed Or Added
+## Changes Completed on 2026-07-08
 
-Tracked files changed:
+- Added the ZINB marginal mean and variance, including the separate within-count and between-group variance terms.
+- Fitted Poisson, negative binomial, ZIP, and ZINB together in one visible chunk and removed the duplicate non-executable fitting example.
+- Moved model comparison and residual assessment before coefficient interpretation.
+- Applied the same 1,000-simulation DHARMa checks to the negative binomial and ZINB candidates.
+- Chose ZINB as the tutorial's working model because it has the lower AIC and resolves the NB model's remaining zero-frequency mismatch; retained BIC and residual-uniformity caveats.
+- Removed intercepts from both ZINB coefficient tables.
+- Tightened the introduction and corrected incomplete or stale prose.
+- Updated and verified the listing description, social metadata, freeze output, and publication checklist.
 
-- `.Rprofile`
-- `posts/zero-inflated-models-tutorial/index.qmd`
-- `posts/zero-inflated-models-tutorial/_publication-checklist.md`
-- `posts/zero-inflated-models-tutorial/_mywebsite-zero-inflated-handoff-2026-06-16.md`
-- `_freeze/posts/zero-inflated-models-tutorial/index/execute-results/html.json`
+## Changes Completed on 2026-07-06
 
-New post assets created:
+### Mean and variance explanation
 
-- `posts/zero-inflated-models-tutorial/references.bib`
-- `posts/zero-inflated-models-tutorial/zero-sources.svg`
-- `posts/zero-inflated-models-tutorial/zero-sources.excalidraw`
-- `posts/zero-inflated-models-tutorial/glm-pipeline.svg`
-- `posts/zero-inflated-models-tutorial/glm-pipeline.excalidraw`
-- `posts/zero-inflated-models-tutorial/zero-inflated-process.svg`
-- `posts/zero-inflated-models-tutorial/zero-inflated-process.excalidraw`
-- `posts/zero-inflated-models-tutorial/hurdle-vs-zi.svg`
-- `posts/zero-inflated-models-tutorial/hurdle-vs-zi.excalidraw`
+- Replaced the terse ZIP mean/variance bullets with a worked explanation of the conditional Poisson mean versus the marginal population mean.
+- Added two responsive, theme-aware cards for the population mean and variance.
+- Decomposed the variance into within-count-process and between-group terms.
+- Corrected the worked variance to `4.03` after rounding.
+- Changed the decomposition to a two-line aligned equation so it fits a 390 px viewport.
+- Kept the component styling inline in `index.qmd`. There is no post-local `styles.css`; the IDE tab for that path is stale. `_base-components.scss` has no final change from this pass.
 
-`git diff --stat` at handoff time showed:
+### Statistical framing and interpretation
 
-``` text
- .../index/execute-results/html.json                |   4 +-
- .../_publication-checklist.md                      |  38 ++---
- posts/zero-inflated-models-tutorial/index.qmd      | 161 +++++++++------------
- 3 files changed, 92 insertions(+), 111 deletions(-)
-```
+- Replaced causal-sounding descriptions of the zero-inflation component with cautious language about membership in a latent extra-zero group.
+- Clarified that the model cannot identify which observed zeros are structural or prove an access-barrier explanation.
+- Corrected age interpretations to use decades, matching the `medcare` data scale.
+- Removed unsupported explanations such as men avoiding preventive care.
+- Reframed coefficient interpretation as descriptive rather than causal.
 
-Note: `git ls-files --others` was blocked by the repository's dubious ownership warning, even when attempted with `-c safe.directory=...`. Direct filesystem listing confirmed the new assets above.
+### Model fitting and output presentation
 
-2026-06-22 voice-pass diff for the post source only:
+- Added an ordinary negative binomial model as a necessary comparator to ZIP and ZINB.
+- Removed raw `summary()` dumps from the main path.
+- Kept model specifications folded and suppressed their raw output.
+- Rendered the count and zero-inflation coefficients as separate compact tables.
+- Used `tibble::tibble()` for display names containing spaces; base `data.frame()` had converted those names and caused an executable-render failure.
+- Replaced duplicate model-comparison sections with one four-model table containing AIC, BIC, RMSE, and delta AIC.
+- Removed the likelihood-ratio-test ladder. The zero-inflation boundary and changing count distributions make that presentation too easy to misinterpret.
 
-``` text
-posts/zero-inflated-models-tutorial/index.qmd | 292 ++++++++++++++------------
-1 file changed, 157 insertions(+), 135 deletions(-)
-```
+The rendered comparison is:
 
-## Completed Work
+| Model | AIC | BIC | RMSE | Delta AIC |
+| --- | ---: | ---: | ---: | ---: |
+| Poisson | 37093.4 | 37138.1 | 6.505 | 12536.8 |
+| Negative binomial | 24576.1 | 24627.2 | 6.529 | 19.5 |
+| ZIP | 33318.2 | 33388.5 | 6.507 | 8761.6 |
+| ZINB | 24556.6 | 24633.3 | 6.524 | 0.0 |
 
-### Placeholders and prose
+The article now reports mixed evidence: ZINB has the lowest AIC, the ordinary negative binomial has the lowest BIC, and their in-sample RMSE values are nearly identical. It carries both models forward conceptually instead of declaring an automatic ZINB win.
 
-- Replaced the initial placeholder-style introduction with a clearer tutorial opening.
-- Replaced hand-wavy placeholder claims such as `~X%` with concrete wording.
-- Added a citation-backed statement around Lambert's zero-inflated Poisson paper.
-- Reworked the intro-adjacent conceptual sections so they preserve the author's personal applied framing:
-  - `What Are Zero-Inflated Models?`
-  - `When Do We Need Zero-Inflated Models?`
-  - `Why GLMs Matter for Zero-Inflated Models`
-  - `The Exponential Family: The Mathematical Foundation`
-  - `Generalized Linear Models (GLMs): Putting It Together`
-- Removed several generic tutorial phrases such as "the beauty of this system", "critical insight", and "smoking gun", replacing them with first-person or applied guidance.
+### Executable DHARMa diagnostics
 
-### 2026-06-22 voice and reader-experience pass
+- Replaced the two `eval: false` diagnostic examples with an executable DHARMa workflow.
+- Simulated 1,000 residual sets with `seed = 123`.
+- Added a rendered two-panel DHARMa diagnostic figure.
+- Added a compact table for zero frequency, dispersion, and overall uniformity.
+- Added a collapsed note explaining the plot's significant outlier annotation and why an integer-response bootstrap should confirm it before interpretation.
 
-- Reframed zero-inflated models around the practical distinction between structural zeros and sampling zeros.
-- Made the GLM section a short bridge into the model rather than a broad standalone mini-lecture.
-- Rewrote the foundation-model sequence as a guided route:
-  1. model zero versus non-zero visits
-  2. fit a standard Poisson model
-  3. compare observed zeros with Poisson-expected zeros
-- Reworked the ZIP/ZINB explanation so the equations support the two-process story instead of interrupting it.
-- Rewrote model interpretation around reading the fitted ZINB model in two passes: count component first, zero-inflation component second.
-- Changed the model-comparison framing from "ZINB usually wins" to "ZINB wins here" because it matches the diagnosed data problem.
-- Replaced the emoji-style best-practices checklist with `A Checklist I Would Use`, matching the article's applied voice.
+Current rendered diagnostic results:
 
-### Output presentation
+| Model | Check | Statistic | p-value |
+| --- | --- | --- | ---: |
+| Negative binomial | Zero frequency | observed/simulated = 1.10 | 0.008 |
+| Negative binomial | Dispersion | ratio = 1.06 | 0.304 |
+| Negative binomial | Overall uniformity | KS D = 0.024 | 0.014 |
+| ZINB | Zero frequency | observed/simulated = 1.04 | 0.274 |
+| ZINB | Dispersion | ratio = 1.10 | 0.062 |
+| ZINB | Overall uniformity | KS D = 0.024 | 0.012 |
 
-- Converted selected raw outputs into cleaner tables via `knitr::kable()`.
-- Added or retained folded code where the details are useful but should not dominate the article body.
-- Reduced some row-name noise in interpretation tables.
-
-### Figure and table structure
-
-- Added Quarto figure/table labels, captions, and alt text for key outputs.
-- Added SVG diagram references with Quarto cross-reference labels:
-  - `#fig-zero-sources`
-  - `#fig-glm-pipeline`
-  - `#fig-zero-inflated-process`
-  - `#fig-hurdle-vs-zi`
-- Added structured table labels/captions including doctor visit summary/count tables and model choice table.
-
-### Mermaid to Excalidraw/SVG
-
-- Replaced Mermaid diagram blocks with SVG assets generated in Excalidraw style.
-- Kept `.excalidraw` source files next to each `.svg` so diagrams remain editable.
-
-### Citations
-
-- Added `references.bib` with entries for:
-  - Zeileis, Kleiber, and Jackman 2008
-  - Lambert 1992
-  - Mullahy 1986
-- Converted further-reading references into Pandoc/Quarto citation syntax.
-- Citation rendering initially failed until citeproc was made explicit in the HTML format metadata.
-- The earlier workaround YAML in `index.qmd` included:
-
-``` yaml
-bibliography: references.bib
-cite-method: citeproc
-citeproc: true
-format:
-  html:
-    bibliography: references.bib
-    cite-method: citeproc
-    citeproc: true
-    pandoc-args:
-      - --citeproc
-```
-
-This was more explicit than ideal and was later retested after the render path stabilized. On 2026-06-17, the citation metadata was simplified to the Quarto-native form:
-
-``` yaml
-bibliography: references.bib
-```
-
-`quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute` now renders the citations and bibliography correctly without explicit `citeproc`, `cite-method`, duplicated `format.html.bibliography`, or `pandoc-args: --citeproc`.
-
-### Quarto/R reproducibility
-
-- Confirmed that R 4.6.0 is the rig-managed active release.
-- Traced the standalone render hang to `renv::load()`, specifically `renv_load_sandbox`.
-- Updated `.Rprofile` to keep `renv` active while disabling only the sandbox layer:
-
-``` r
-options(renv.config.sandbox.enabled = FALSE)
-
-source("renv/activate.R")
-```
-
-- This is narrower than setting `RENV_CONFIG_AUTOLOADER_ENABLED=false`, which bypasses `renv` entirely.
-- Found a stale Machine-scope `QUARTO_R` pointing to `E:\Program Files\R\R-4.5.0\bin\R.exe`. The session could not remove it without elevated registry permissions, so a User-scope empty value was added to let Quarto auto-discover R 4.6.0.
+The article's interpretation is intentionally qualified: NB leaves a zero-frequency mismatch; ZINB reproduces zero frequency more closely but has borderline residual dispersion; and both uniformity tests detect a small overall mismatch. With 4,406 observations, the discussion emphasizes effect size and plots rather than a pass/fail reading of p-values.
 
 ## Verification Performed
 
-Using `agent-browser` against the running preview:
+The running preview was checked with `agent-browser` after refreshing the frozen output.
 
-``` text
-SVG diagrams: 4
-tables: 6
-output errors: 0
-bibliography entries: 3
-literal citekeys in rendered text: false
+Final live-page checks:
+
+```text
+page title: Zero-Inflated Models: A Practical Tutorial – Andrea Di Francia
+main.content: 1
+R cell errors: 0
+mean/variance cards: 2, plus a responsive ZINB decomposition
+model-comparison rows: 4
+diagnostic-test rows: 6
+ZINB count-effect rows: 6 (intercept omitted)
+ZINB zero-effect rows: 3 (intercept omitted)
+browser console errors: none reported
 ```
 
-The final browser-side check confirmed no rendered `@lambert1992`, `@zeileis2008`, or `@mullahy1986` text remained.
+Visual checks covered the ZIP cards, ZINB moment equation, model-comparison table, DHARMa figure, candidate-diagnostic table, desktop layout, a 390 px mobile viewport, and both site colour schemes. Listing checks confirmed the title, revised description, categories, publication date, image, and image alt text. Post metadata checks confirmed the Open Graph description/image and `summary_large_image` Twitter card.
 
-A source scan confirmed no remaining `mermaid`, `Testing testing`, `~X`, or `TODO` placeholders in `index.qmd`; expected citation keys remain in source.
+`_freeze/posts/zero-inflated-models-tutorial/index/execute-results/html.json` contains the revised source and outputs. The live `_site` page also contains the outlier follow-up callout and the revised summary.
 
-Follow-up verification on 2026-06-17:
+## Render and Preview Caveat
 
-``` text
-quarto check knitr: OK
-quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute: OK
-R detected by Quarto: 4.6.0
-R library path: project renv library, then base R library
-```
+The existing Quarto preview remained active during this pass. Manual `quarto render --execute` calls sometimes raced the preview during post-knit file copying. Observed failures included missing files during `rename`, `utime`, or `site_libs` copying.
+These were not R, model-fitting, or knitr failures: all 35 cells knitted before the file-copy race, and at least one full executable render completed successfully during the pass.
 
-2026-06-22 voice-pass verification:
+For the next clean publication check, use one renderer at a time:
 
-``` text
-Preview URL: http://localhost:7921/posts/zero-inflated-models-tutorial/
-agent-browser title: Zero-Inflated Models: A Practical Tutorial - Andrea Di Francia
-main.content count: 1
-Rendered rewritten intro text found: yes
-Rendered rewritten model-comparison text found: yes
-Rendered final checklist/body text found: yes
-Full-page screenshot captured without obvious layout breakage
-git diff --check posts/zero-inflated-models-tutorial/index.qmd: OK
-```
+1. Either rely on the running preview and verify the live page.
+2. Or stop the preview, run the full render, then restart preview if needed.
 
-No `quarto render`, `quarto preview`, or other Quarto process was started during the 2026-06-22 pass; the existing user-provided preview was used.
+Do not interpret a post-knit file-copy race as a model or document execution failure. Confirm whether `html.json` and the live page updated before rerunning expensive diagnostics.
 
-## Hiccups And Issues Found
+On 2026-07-08, the preview was stopped before `quarto render posts/zero-inflated-models-tutorial/index.qmd --to html --execute`. All 33 stages completed and the output was written successfully; the preview was then restarted on port 7921.
 
-### Stale `QUARTO_R`
+## Recommended Follow-up Work
 
-The Machine-scope environment variable `QUARTO_R` pointed to a missing R install:
+1. **Run the exact DHARMa outlier bootstrap if the outlier claim will be discussed.** The article shows the recommended follow-up but does not execute it because `nBoot = 1000` is intentionally expensive:
 
-``` text
-E:\Program Files\R\R-4.5.0\bin\R.exe
-```
+   ```r
+   testOutliers(
+     zinb_residuals,
+     type = "bootstrap",
+     nBoot = 1000,
+     plot = FALSE
+   )
+   ```
 
-The actual R found was:
+2. **Deepen residual diagnosis if publication standards require it.** Inspect residuals against important predictors, assess influential records, and compare out-of-sample predictions for negative binomial and ZINB.
+3. **Resolve the repository ownership warning if permanent Git configuration is desired.** Read-only inspection currently works with a command-local `safe.directory` override.
+4. **Optionally remove the stale Machine-scope `QUARTO_R`.** It still points to `E:\Program Files\R\R-4.5.0\bin\R.exe`; the empty User-scope override currently allows Quarto to find R 4.6.0.
 
-``` text
-C:\Program Files\R\R-4.6.0\bin\R.exe
-```
+## DHARMa Sources for Follow-up
 
-Setting `QUARTO_R` to an empty User-scope value lets Quarto auto-discover the rig-managed R 4.6.0 installation. For the durable cleanup, remove the Machine-scope value from an elevated PowerShell:
+These were checked on 2026-07-06 and should be consulted before changing the diagnostic workflow:
 
-``` powershell
-[Environment]::SetEnvironmentVariable('QUARTO_R', $null, 'Machine')
-```
+- DHARMa reference manual: <https://florianhartig.r-universe.dev/DHARMa/doc/manual.html>
+  - Current signatures and details for `simulateResiduals()`, `testUniformity()`, `testDispersion()`, `testZeroInflation()`, and `testOutliers()`.
+  - Documents `type = "bootstrap"` and `nBoot` for integer-response outlier checks.
+- DHARMa CRAN vignette: <https://stat.ethz.ch/CRAN/web/packages/DHARMa/vignettes/DHARMa.html>
+  - Interpretation of simulated quantile residuals, diagnostic plots, dispersion, zero inflation, and simulation choices.
+- DHARMa source repository: <https://github.com/florianhartig/DHARMa>
+  - Use for release notes, open issues, and behaviour not fully explained in the reference manual.
+- `glmmTMB` model-evaluation vignette: <https://glmmtmb.github.io/glmmTMB/articles/model_evaluation.html>
+  - Package-specific post-fit evaluation and DHARMa integration.
+- `glmmTMB` troubleshooting vignette: <https://glmmtmb.github.io/glmmTMB/articles/troubleshooting.html>
+  - Follow this if convergence, Hessian, or extreme-parameter warnings appear.
 
-### Standalone render hang
+Important interpretation points from the current DHARMa documentation:
 
-Several direct render attempts had hung while Quarto started R/knitr, including with a corrected session-level `QUARTO_R`:
-
-``` powershell
-quarto render posts\zero-inflated-models-tutorial\index.qmd --to html --no-execute
-```
-
-The root cause was `renv_load_sandbox`. Disabling only `renv.config.sandbox.enabled` in `.Rprofile` fixed normal `Rscript` startup, `quarto check knitr`, and the standalone render while preserving the project `renv` library.
-
-The checklist now marks the reproducible render task complete, with `_freeze/` verification still open.
-
-### Citation processing failure
-
-Initial citation rendering showed literal citekeys despite parsed citation spans in HTML. A tiny same-folder test file proved Quarto/Pandoc citeproc and `references.bib` were valid. The long post only rendered citations correctly after adding explicit citeproc settings under `format.html` and forcing `--citeproc` via `pandoc-args`.
-
-This has now been retested after the render path stabilized. The active post only needs top-level `bibliography: references.bib`; the explicit citeproc workaround is no longer required.
-
-### Freeze output changed
-
-`_freeze/posts/zero-inflated-models-tutorial/index/execute-results/html.json` changed by hash and embedded markdown. It appears legitimate because the frozen markdown moved from the older Mermaid/placeholder version to the revised article. Do not blindly revert it unless intentionally discarding this post update.
-
-### Git dubious ownership
-
-Some git commands work, but `git status` and `git ls-files --others` can fail with dubious ownership for this repo. `git diff --stat` worked. If a future agent needs normal git status, they may need to configure safe.directory or use commands that are already permitted in this environment.
-
-## Suggested Next Work
-
-1. Continue output presentation cleanup.
-    - There are still long code/output sequences.
-    - `logistic_analysis`, `poisson_analysis`, `healthcare_zero_inflated`, and `healthcare_model_comparison` still print substantial raw model output.
-    - Decide whether to keep the detailed output folded, replace more of it with `knitr::kable()` summaries, or move some details into optional expandable sections.
-2. Decide what to do with the diagnostics section.
-    - The current DHARMa/performance diagnostic chunks are `eval: false`.
-    - Either make a compact diagnostic example executable with clean output, or explicitly frame diagnostics as optional follow-up code for readers to run locally.
-3. Confirm publication/listing behavior.
-    - Check date, title, description, and categories in blog listing/social preview context.
-    - The description was rewritten on 2026-06-22 but the blog listing/social preview still needs a final check.
-4. Refresh and verify `_freeze/` output before publication.
-    - This should be done only when ready for a full publication verification pass.
-5. Remove the stale Machine-scope `QUARTO_R` when running an elevated/admin PowerShell is available.
+- Zero inflation is always relative to a fitted model; many observed zeros alone do not establish zero inflation.
+- `testZeroInflation()` compares observed zeros with zeros generated under the fitted model.
+- For large integer-valued datasets, the default outlier test can use a binomial approximation. DHARMa recommends the bootstrap procedure for an exact simulation-based expectation.
+- A significant diagnostic test identifies model-data mismatch; it does not by itself identify the correct replacement model or justify deleting observations.
 
 ## Suggested Skills
 
-- `quarto-authoring`: use for Quarto config/render/freeze behavior and citation metadata cleanup.
-- `diagnose`: use for the standalone render/R/knitr hang.
-- `agent-browser`: use to verify the running preview after each visible/document-rendering change.
-- `excalidraw-diagram-generator`: use if further diagram refinement or new diagrams are needed.
-- `writing-clearly-and-concisely`: use when tightening the remaining long prose/output sections.
-
-## External Source Used
-
-Quarto citations documentation was consulted:
-
-- https://quarto.org/docs/authoring/citations.html
+- `quarto-authoring`: Quarto execution, freeze behaviour, callouts, tables, and final render checks.
+- `agent-browser`: live-preview verification across desktop, mobile, and colour schemes.
+- `diagnose`: only if the render/preview race or an R diagnostic failure recurs under a single-renderer setup.
+- `documentation-lookup`: current DHARMa and `glmmTMB` APIs before changing diagnostic code.
+- `writing-clearly-and-concisely`: final prose tightening and publication copy.
