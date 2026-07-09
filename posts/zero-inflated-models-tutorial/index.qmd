@@ -76,6 +76,16 @@ enable_knitr_chunk_profile()
   padding-top: 0.8rem;
 }
 
+/* Keep long equations inside the article column on narrow screens. MathJax
+   containers are keyboard-focusable, so readers can scroll them directly. */
+mjx-container[display="true"] {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25rem;
+}
+
 @media (min-width: 768px) {
   .model-moments {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -108,7 +118,7 @@ What does this actually mean? Well, suppose you are counting clinic visits. A ze
 - the person was never really in a position to generate a visit during the study window
 - the person could have generated a visit, but happened not to
 
-The first type would be defined a **structural zero**. The second is a **sampling zero**. If I was using a standard Poisson model, this would treat both people as if they came from the same process. A zero-inflated model lets us separate them.
+The first type would be defined a **structural zero**. The second is a **sampling zero**. If I was using a standard Poisson model, this would treat both people as if they came from the same process. A zero-inflated model represents both routes to zero, although it cannot tell us with certainty which route produced any individual observation.
 
 ## When Do We Need Zero-Inflated Models?
 
@@ -126,7 +136,7 @@ In each case, the "zero" will carry information about the process that generated
 
 # Theoretical Foundation: Generalized Linear Models
 
-## What are they and why do they matter?
+## What Are They and Why Do They Matter?
 
 Before fitting zero-inflated models, it helps to spend a little time on **generalized linear models** (GLMs). You can think of GLMs as a powerful extension of ordinary linear regression that can handle different types of data: counts, yes/no responses, continuous positive values, and more.
 
@@ -163,12 +173,12 @@ We'll apply this to two common distributions that we'll use throughout this tuto
 
 $$f(y|\mu) = \mu^y(1-\mu)^{1-y} = \exp\left\{y \log\left(\frac{\mu}{1-\mu}\right) + \log(1-\mu)\right\}$$
 
-This is simply a re-formulation of the usual logistic regression function, to showcase that the distribution is part of the exponential family. We tipically use this when the outcome is binary, such as whether a patient develops diabetes, whether a treatment works, or whether a customer makes a purchase.
+This is simply a reformulation of the Bernoulli probability mass function that shows its exponential-family form. We use it for binary outcomes, such as whether a patient develops diabetes or a treatment succeeds.
 
 This formulation gives us:
 
 - Natural parameter: $\theta = \log\left(\frac{\mu}{1-\mu}\right)$ (logit transformation)
-- Canonical link: logit link
+- Canonical link: logit link <!-- Why no formula here -->
 
 The logit link matters because probabilities must stay between 0 and 1, while a linear predictor can take any real value. The logit link maps any real number to a valid probability.
 
@@ -183,7 +193,7 @@ In a healthcare setting, this could mean predicting whether a patient develops t
 
 $$f(y|\mu) = \frac{\mu^y e^{-\mu}}{y!} = \exp\{y \log \mu - \mu - \log y!\}$$
 
-The Poisson distribution is, as the name suggests, the distribution underlying Poisson regression. We tipically use this when the outcome is a count: hospital admissions per month, accidents per day, or doctor visits per year.
+The Poisson distribution underlies Poisson regression. We use it for counts such as hospital admissions per month, accidents per day, or doctor visits per year.
 
 This gives us:
 
@@ -199,15 +209,15 @@ In the healthcare example, we might model emergency department visits per patien
 - **Interpretation**: $\exp(\beta_j)$ = multiplicative effect on the rate for a unit change in $x_j$
 - If having diabetes has coefficient 0.5, then diabetic patients have $e^{0.5} = 1.65$ times the visit rate (65% more visits)
 - **Key assumption**: $E[Y] = \text{Var}(Y) = \lambda$ (equidispersion)
-- **When this breaks down**: If you see many more zeros than Poisson predicts, or if the variance is much larger than the mean, you need zero-inflated or overdispersed models.
+- **When this breaks down**: If the fitted model underpredicts zeros or allows too little conditional variation, investigate the mean specification and compare more flexible count models.
 
 ## Generalized Linear Models (GLMs): Putting It Together
 
 For the rest of the post, the GLM structure we need is simple:
 
-1. **Linear predictor** ($\eta = X\beta$): i.e: a linear combination of your predictors
-2. **Link function** ($g(\mu) = \eta$): The "link" which connects your linear predictor to the expected value of your outcome
-3. **Response distribution**: A distribution from the exponential family (Poisson, binomial, etc.)
+1. **Linear predictor** ($\eta = X\beta$): a linear combination of predictors
+2. **Link function** ($g(\mu) = \eta$): the transformation connecting that linear predictor to the expected outcome
+3. **Response distribution**: a distribution suited to the outcome, such as Poisson or binomial, that is part of the exponential family
 
 ![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](glm-pipeline.png){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
 
@@ -504,8 +514,11 @@ We will first interpret the conditional-mean estimates, then check whether the P
 #| code-summary: "Show Poisson model code"
 #| tbl-cap: "Poisson regression estimates for physician office visits."
 # Fit Poisson model
+count_formula <- ofp ~ healthpoor + healthexcellent + numchron +
+  age + male + married
+
 poisson_model <- glm(
-  ofp ~ healthpoor + healthexcellent + numchron + age + male + married,
+  count_formula,
   data = medcare,
   family = poisson()
 )
@@ -785,28 +798,19 @@ Using a variable in both components is perfectly valid. It simply means that the
 
 # Fitting, Checking, and Interpreting the Models
 
-We now fit four versions of the same healthcare model. Keeping the conditional formula fixed makes the distributional comparison easier to interpret.
+We now complete the candidate set for the same healthcare model. The Poisson model and `count_formula` were created in the baseline section, so we reuse them here rather than fitting the same model twice. Keeping the conditional formula fixed makes the distributional comparison easier to interpret.
 
-## Fit the Four Candidates
+## Fit the Remaining Candidates
 
-<!-- FIX: rendering issues -->
 ```{r}
 #| label: fit-zero-inflated-models
 #| cache: true
 #| output: false
 
-count_formula <- ofp ~ healthpoor + healthexcellent + numchron + # <1>
-  age + male + married
-
-# Poisson model without a separate zero process
-poisson_model <- glmmTMB(
-  count_formula,
-  data = medcare,
-  family = poisson()
-)
+# Reuse the baseline Poisson model fitted earlier. # <1>
 
 # A negative binomial model without a separate zero process
-nb_model <- glmmTMB(
+nb_model <- glmmTMB( # <2>
   count_formula,
   data = medcare,
   family = nbinom2()
@@ -815,7 +819,7 @@ nb_model <- glmmTMB(
 # Zero-inflated Poisson model
 zip_model <- glmmTMB(
   count_formula,
-  ziformula = ~ healthexcellent + age + male, # <2>
+  ziformula = ~ healthexcellent + age + male, # <3>
   data = medcare,
   family = poisson()
 )
@@ -823,15 +827,16 @@ zip_model <- glmmTMB(
 # Zero-inflated negative binomial model
 zinb_model <- glmmTMB(
   count_formula,
-  ziformula = ~ healthexcellent + age + male, # <2>
+  ziformula = ~ healthexcellent + age + male, 
   data = medcare,
-  family = nbinom2() # <3>
+  family = nbinom2() # <4>
 )
 ```
 
-1. The conditional formula models the expected visit count within the count-generating group. Keeping it fixed makes the distributional comparison easier to interpret.
-2. The zero-inflation formula models the log-odds of belonging to the extra-zero group. It appears only in ZIP and ZINB.
-3. With a zero-inflation formula, `poisson()` gives ZIP; `nbinom2()` gives ZINB and allows the conditional variance to grow faster than its mean.
+1. The baseline Poisson fit remains part of the comparison, but the object already exists from the earlier diagnostic section.
+2. The negative binomial model keeps one count-generating process and adds conditional overdispersion.
+3. The zero-inflation formula models the log-odds of latent extra-zero membership. It appears only in ZIP and ZINB.
+4. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
 
 The Poisson and negative binomial models provide one-process benchmarks. In particular, a negative binomial model can sometimes explain an apparent surplus of zeros through additional count variation, without introducing a second latent process.
 
@@ -871,7 +876,7 @@ comparison_table <- tibble::tibble(
     across(c(AIC, BIC, `Δ AIC`), ~ round(.x, 1)),
     RMSE = round(RMSE, 3)
   ) |>
-  arrange(desc(AIC)) |>
+  arrange(AIC) |>
   dplyr::select(Model, AIC, BIC, `Δ AIC`, RMSE)
 
 knitr::kable(comparison_table, align = c("l", "r", "r", "r", "r"))
