@@ -814,7 +814,7 @@ We now complete the candidate set for the same healthcare model. The Poisson mod
 nb_model <- glmmTMB( # <2>
   count_formula,
   data = medcare,
-  family = nbinom2()
+  family = nbinom2() # <2>
 )
 
 # Zero-inflated Poisson model
@@ -828,16 +828,17 @@ zip_model <- glmmTMB(
 # Zero-inflated negative binomial model
 zinb_model <- glmmTMB(
   count_formula,
-  ziformula = ~ healthexcellent + age + male, 
+  ziformula = ~ healthexcellent + age + male, # <4>
   data = medcare,
-  family = nbinom2() # <4>
+  family = nbinom2() # <5>
 )
 ```
 
 1. The baseline Poisson fit remains part of the comparison, but the object already exists from the earlier diagnostic section.
 2. The negative binomial model keeps one count-generating process and adds conditional overdispersion.
-3. The zero-inflation formula models the log-odds of latent extra-zero membership. It appears only in ZIP and ZINB.
-4. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
+3. ZIP adds a zero-inflation formula, which models the log-odds of latent extra-zero membership.
+4. ZINB uses the same zero-inflation formula for the extra-zero process.
+5. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
 
 The Poisson and negative binomial models provide one-process benchmarks. In particular, a negative binomial model can sometimes explain an apparent surplus of zeros through additional count variation, without introducing a second latent process.
 

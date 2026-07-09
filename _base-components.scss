@@ -580,6 +580,17 @@ pre {
   padding-left: 1rem;
 }
 
+pre.sourceCode.code-annotation-code {
+  position: relative;
+}
+
+#code-annotation-line-highlight {
+  left: 4px !important;
+  margin-left: 0 !important;
+  pointer-events: none;
+  right: 0;
+}
+
 code,
 kbd,
 samp {
