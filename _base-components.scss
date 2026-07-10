@@ -619,6 +619,15 @@ samp {
 // Small chrome elements should feel connected to the larger surface system
 // without drawing focus away from the content itself.
 
+// Quarto gives the sticky margin sidebar z-index: 1 while the article sits at
+// z-index: 0. Citation previews are appended inside the article, so even
+// Tippy's high z-index cannot escape that parent stacking context. Raise the
+// article only while a preview is open so it can pass over the TOC without
+// changing the normal page layering.
+#quarto-content.page-columns main.content:has([data-tippy-root]) {
+  z-index: 2;
+}
+
 #TOC,
 .sidebar nav[role='doc-toc'] {
   background-color: rgba($surface-secondary, 0.92);
