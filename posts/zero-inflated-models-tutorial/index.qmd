@@ -143,100 +143,80 @@ In each case, the zero may carry information about the process that generated th
 
 ## Generalized Linear Models
 
-Before fitting zero-inflated models, it helps to revisit **generalized linear models** (GLMs). Counts are non-negative integers, usually right-skewed, and often have variance that changes with the mean. Ordinary linear regression does not encode those features: it can predict negative values and assumes a constant-variance normal error structure. GLMs retain a regression-style mean model while using a response distribution suited to the outcome.
+Before fitting zero-inflated models, it helps to revisit **generalized linear models** (GLMs). Counts are non-negative integers, usually right-skewed, and often have variance that changes with the mean. Ordinary linear regression does not encode those features: it can predict negative values and assumes a constant-variance normal error structure. GLMs allow us to retain a regression-style mean model while using a response distribution suited to the outcome.
 
-A GLM connects a linear predictor to the mean of an outcome distribution through a link function. The zero-inflated count models used here combine two such regression components: one for membership in the latent extra-zero group and one for the count-generating process.
-The original zero-inflated Poisson regression paper framed this as a practical way to model excess zeros in manufacturing defects [@lambert1992]; the same count-model idea now appears across health, ecology, insurance, and many other settings.
+A GLM connects a linear predictor to the mean of an outcome distribution through a link function. Three ingredients define that structure:
 
-Logistic and Poisson regression are familiar examples of this framework. A short exponential-family refresher makes the connection between them explicit.
-
-The **exponential family** is a collection of probability distributions that share a common mathematical structure. This might sound abstract, but it includes most distributions you encounter in practice: normal, Poisson, binomial, gamma, and many others.
-
-**Why does this matter?** Distributions in the exponential family can all be used in a common modelling framework. That gives us:
-
-- a response distribution suited to the outcome
-- a link function that keeps predictions in the right range
-- a linear predictor that we can interpret using coefficients
-
-Formally, a distribution belongs to the exponential family if its probability density can be written as:
-
-$$f(y|\theta, \phi) = \exp\left\{\frac{y\theta - b(\theta)}{\phi} + c(y, \phi)\right\}$$
-
-Even though the formula looks daunting, the important part to keep in mind is that this format essentially *standardises* how we work with different distributions. The components are:
-
-- $\theta$ is the **natural parameter** (relates to the mean)
-- $\phi$ is the **dispersion parameter** (relates to the variance)
-- $b(\cdot)$ and $c(\cdot)$ are specific functions that define each distribution type
-
-We'll apply this to two common distributions that we'll use throughout this tutorial: the Bernoulli distribution (for yes/no outcomes) and the Poisson distribution (for counts).
-
-### Two GLM Examples
-
-#### **Bernoulli Distribution** (for yes/no outcomes):
-
-$$f(y|\mu) = \mu^y(1-\mu)^{1-y} = \exp\left\{y \log\left(\frac{\mu}{1-\mu}\right) + \log(1-\mu)\right\}$$
-
-This is simply a reformulation of the Bernoulli probability mass function that shows its exponential-family form. We use it for binary outcomes, such as whether a patient develops diabetes or a treatment succeeds.
-
-This formulation gives us:
-
-- Natural parameter: $\theta = \log\left(\frac{\mu}{1-\mu}\right)$ (logit transformation)
-- Canonical link: logit link <!-- Why no formula here? -->
-
-The logit link matters because probabilities must stay between 0 and 1, while a linear predictor can take any real value. The logit link maps any real number to a valid probability.
-
-In a healthcare setting, this could mean predicting whether a patient develops type 2 diabetes from BMI, age, and family history.
-
-- **Setup**: Bernoulli distribution with logit link $\log\left(\frac{\pi}{1-\pi}\right) = X\beta$
-- **Interpretation**: $\exp(\beta_j)$ = odds ratio for a unit change in predictor $x_j$
-- If BMI has coefficient 0.1, then each unit increase in BMI multiplies the odds of diabetes by $e^{0.1} = 1.105$ (about 10.5% higher odds)
-- **Benefit**: The logit link ensures our predicted probabilities stay between 0 and 1
-
-#### **Poisson Distribution** (for counting rare events):
-
-$$f(y|\mu) = \frac{\mu^y e^{-\mu}}{y!} = \exp\{y \log \mu - \mu - \log y!\}$$
-
-The Poisson distribution underlies Poisson regression. We use it for counts such as hospital admissions per month, accidents per day, or doctor visits per year.
-
-This gives us:
-
-- Natural parameter: $\theta = \log \mu$ (working on the log scale)
-- Cumulant function: $b(\theta) = e^\theta = \mu$ 
-- Canonical link: $\log(\mu)$ (log link)
-
-The log link matters because counts cannot be negative. We model the count on the log scale, then transform it back to a positive expected count.
-
-In the healthcare example, we might model emergency department visits per patient per year from age, chronic conditions, and socioeconomic status.
-
-- **Setup**: Poisson distribution with log link $\log(\lambda) = X\beta$  
-- **Interpretation**: $\exp(\beta_j)$ = multiplicative effect on the rate for a unit change in $x_j$
-- If having diabetes has coefficient 0.5, then diabetic patients have $e^{0.5} = 1.65$ times the visit rate (65% more visits)
-- **Key assumption**: $E[Y] = \text{Var}(Y) = \lambda$ (equidispersion)
-- **When this breaks down**: If the fitted model underpredicts zeros or allows too little conditional variation, investigate the mean specification and compare more flexible count models.
-
-## Generalized Linear Models (GLMs): Putting It Together
-
-For the rest of the post, the GLM structure we need is simple:
-
-1. **Linear predictor** ($\eta = X\beta$): a linear combination of predictors
-2. **Link function** ($g(\mu) = \eta$): the transformation connecting that linear predictor to the expected outcome
-3. **Response distribution**: a distribution suited to the outcome, such as Poisson or binomial, that is part of the exponential family
+1. **Linear predictor** ($\eta_i=X_i\beta$): a linear combination of predictor values and coefficients
+2. **Link function** ($g(\mu_i)=\eta_i$): the transformation connecting the linear predictor to the conditional mean
+3. **Response distribution**: a distribution suited to the outcome, such as Bernoulli for a binary response or Poisson for a count
 
 ![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](glm-pipeline.png){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
 
-Once this structure is clear, zero-inflated models become less mysterious: they are not a completely different modelling universe, but a way of combining a binary process with a count process.
+Zero-inflated count models use this structure twice: a binary component models membership in the latent extra-zero group, and a count component models the expected outcome among observations in the count-generating group. The original zero-inflated Poisson regression paper framed this as a practical way to model excess zeros in manufacturing defects [@lambert1992]; the same idea now appears across health, ecology, insurance, and many other settings.
+<!-- Review paragraph below, need to sound more editorial -->
+Logistic and Poisson regression provide the two building blocks. A short exponential-family refresher first recovers the logit link for a Bernoulli response; the following count-model section then applies the same logic to Poisson regression and its extensions.
+
+## The Exponential Family
+
+The **exponential family** is a collection of probability distributions with a shared mathematical form. This might sound abstract, but it includes most distributions you encounter in practice: normal, Poisson, binomial, gamma, and many others.
+
+A density or probability mass function in this family can be written as:
+
+$$f(y\mid\theta, \phi) = \exp\left\{\frac{y\theta-b(\theta)}{a(\phi)} + c(y,\phi)\right\}.$$
+
+The notation separates the parts that govern the distribution:
+
+- $\theta$ is the **natural parameter**;
+- $\phi$ is a **dispersion parameter**, with $a(\phi)$ controlling its scale;
+- $b(\theta)$ determines the mean and variance through its first two derivatives;
+- $c(y,\phi)$ supplies the remaining terms needed to define a valid distribution.
+
+Even though the formula looks daunting, the important part to keep in mind is that this format essentially *standardises* how we work with different distributions. In particular, it can be proved that for all distributions in this family, the mean and variance are:
+
+$$E(Y)=b'(\theta), \qquad \operatorname{Var}(Y)=a(\phi)b''(\theta).$$
+
+This common structure is what allows GLMs to pair different response distributions with a linear predictor. For a fuller treatment, McCullagh and Nelder give the classic mathematical account, while Dobson and Barnett provide a more introductory route through the same material [@mccullagh1989; @dobson2018].
+
+### The Bernoulli Distribution
+
+For a Bernoulli outcome $Y\in\{0,1\}$ with success probability $p$,
+
+$$f(y\mid p) = p^y(1-p)^{1-y}
+= \exp\left\{y\log\left(\frac{p}{1-p}\right)+\log(1-p)\right\}.$$
+
+Writing the mass function this way identifies the natural parameter as
+
+$$\theta=\log\left(\frac{p}{1-p}\right),$$
+
+also known as the logit of $p$. Bernoulli regression therefore uses the canonical logit link:
+
+$$\operatorname{logit}(p_i)=\log\left(\frac{p_i}{1-p_i}\right)=X_i\beta.$$
+
+The linear predictor $X_i\beta$ can take any real value, while the inverse-logit transformation keeps $p_i$ between 0 and 1. 
+
+Exponentiating a coefficient gives an odds ratio: $e^{\beta_j}$ is the multiplicative change in the odds for a one-unit increase in $x_j$, holding the other predictors fixed. For example, if $\beta_j=0.20$, then $e^{0.20}=1.22$, corresponding to a 22% higher odds for a one-unit increase in $x_j$. We will later use this same link to model the probability of latent extra-zero membership.
+
+Changing the response distribution changes the canonical link and the variance assumption, but not the basic GLM architecture. We now make that transition from a binary response to a count response.
 
 ## Count-Model Building Blocks
 
-The rest of the tutorial uses a deliberate sequence. We start with Poisson regression, check how it fails, move to negative binomial regression when the count process is overdispersed, then ask whether a separate zero-inflation process is still useful.
+Poisson regression is the count-data counterpart to the Bernoulli example above: its exponential-family form produces a log link, while its response distribution supplies the mean-variance relationship. That separation matters because the link and the variance assumption can succeed or fail for different reasons.
+
+The models therefore follow a deliberate sequence. We start with Poisson regression, check its conditional variance and zero predictions, move to negative binomial regression when the count process is overdispersed, and only then ask whether a separate zero-inflation process remains useful. Each step preserves the regression-style mean model while relaxing a specific distributional restriction.
 
 ### Poisson Regression
 
-Poisson regression is the standard first model for a count outcome. For person $i$, it assumes
+Poisson regression is usually the standard first model for a count outcome. For person $i$, it assumes
 
 $$Y_i \mid X_i \sim \operatorname{Poisson}(\lambda_i), \qquad \log(\lambda_i) = X_i\beta.$$
 
-The log link keeps the expected count $\lambda_i$ positive, and the exponentiated coefficients are rate ratios. If a coefficient is $0.20$, the corresponding rate ratio is $e^{0.20}=1.22$, meaning a 22% higher expected count for a one-unit increase in that predictor, holding the other predictors fixed.
+Its probability mass function has the exponential-family form
+
+$$P(Y_i=y\mid X_i)=\frac{\lambda_i^y e^{-\lambda_i}}{y!}
+=\exp\left\{y\log(\lambda_i)-\lambda_i-\log(y!)\right\}.$$
+
+The natural parameter is therefore $\theta_i=\log(\lambda_i)$, with $b(\theta_i)=e^{\theta_i}=\lambda_i$. The canonical log link keeps the expected count $\lambda_i$ positive. Exponentiating a regression coefficient gives a rate ratio: if $\beta_j=0.20$, then $e^{0.20}=1.22$, corresponding to a 22% higher expected count for a one-unit increase in $x_j$, holding the other predictors fixed. Notice the interpretation is different from the odds ratio in the Bernoulli case: ...
 
 The load-bearing assumption is **conditional equidispersion**:
 
@@ -252,11 +232,22 @@ Negative binomial regression is the natural next one-process candidate. It keeps
 
 $$\log(\mu_i) = X_i\beta,$$
 
-but relaxes the Poisson variance assumption. The `nbinom2` family used by `glmmTMB` has the quadratic variance function
+but relaxes the Poisson variance assumption. `glmmTMB` provides two common negative-binomial parameterizations:
 
-$$\operatorname{Var}(Y_i \mid X_i) = \mu_i + \frac{\mu_i^2}{\phi}.$$
+$$
+\begin{aligned}
+\texttt{nbinom1}:\quad
+  \operatorname{Var}(Y_i\mid X_i) &= \mu_i(1+\alpha), \\
+\texttt{nbinom2}:\quad
+  \operatorname{Var}(Y_i\mid X_i) &= \mu_i+\frac{\mu_i^2}{\phi}.
+\end{aligned}
+$$
 
-Here $\phi$ is the dispersion parameter: larger values move the model closer to Poisson, while smaller values allow more extra-Poisson variation. This matters for zero-inflated modelling because an overdispersed one-process distribution can generate more zeros than a Poisson distribution with the same mean. Negative binomial regression is therefore a serious competitor, not just a stepping stone to ZINB.
+In `nbinom1`, extra variance grows in constant proportion to the mean, and the Poisson limit occurs as $\alpha\to0$. In `nbinom2`, the quadratic term lets extra variance grow more rapidly as the expected count increases, and the Poisson limit occurs as $\phi\to\infty$.
+
+This tutorial uses `nbinom2`. Its quadratic variance is a plausible representation of healthcare utilisation when unobserved differences between people create greater spread at higher expected visit counts. It is also the familiar gamma--Poisson formulation and matches the ZINB distribution developed below. This is a modelling assumption rather than a conclusion from the raw variance-to-mean ratio; an analysis centred on the variance function could compare `nbinom1` and `nbinom2` directly.
+
+For the chosen `nbinom2` parameterization, $\phi$ is the dispersion parameter: larger values move the model closer to Poisson, while smaller values allow more extra-Poisson variation. This matters for zero-inflated modelling because an overdispersed one-process distribution can generate more zeros than a Poisson distribution with the same mean. Negative binomial regression is therefore a serious competitor, not just a stepping stone to ZINB.
 
 ::: {.callout-note appearance="simple" collapse="true"}
 ## Advanced aside: generalized Poisson models
@@ -269,7 +260,7 @@ For conditional mean $\mu_i$, the variance is then
 
 $$\operatorname{Var}(Y_i \mid X_i) = \mu_iD = \frac{\mu_i}{(1-\delta)^2}.$$
 
-The ordinary Poisson model is recovered when $\delta=0$ and $D=1$. Positive $\delta$ gives $D>1$ and overdispersion; negative $\delta$ gives $D<1$ and underdispersion, subject to the admissible parameter range. In `glmmTMB`'s `genpois` family, the same variance is written as $\(\operatorname{Var}(Y_i\mid X_i)=\mu_i\phi_{\mathrm{GP}}^2.\)$. Thus \(\phi_{\mathrm{GP}}^2\) is the index of dispersion—the same quantity denoted by \(D\) above.
+The ordinary Poisson model is recovered when $\delta=0$ and $D=1$. Positive $\delta$ gives $D>1$ and overdispersion; negative $\delta$ gives $D<1$ and underdispersion, subject to the admissible parameter range. In `glmmTMB`'s `genpois` family, the same variance is written as $\operatorname{Var}(Y_i\mid X_i)=\mu_i\phi_{\mathrm{GP}}^2$. Thus $\phi_{\mathrm{GP}}^2$ is the index of dispersion—the same quantity denoted by $D$ above.
 
 This mean-variance pattern differs from `nbinom2`. Generalized Poisson variance is proportional to $\mu_i$ through $D$, whereas `nbinom2` adds the quadratic term $\mu_i^2/\phi$. I do not fit a generalized Poisson model here because the tutorial focuses on ZIP and ZINB, but it is a useful nearby option when the negative binomial variance pattern is a poor match.
 :::
