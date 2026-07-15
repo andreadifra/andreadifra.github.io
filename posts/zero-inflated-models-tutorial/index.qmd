@@ -911,7 +911,9 @@ For these healthcare data, I would ask whether a predictor plausibly describes *
   - Poor health status (sicker people visit more often)
   - Age (older patients typically have more complex needs)
 
-Excellent health, age, and sex enter the zero-inflation component here; health status, chronic conditions, age, sex, and marital status enter the count component. This is a defensible working model, but it is not the only possible one. The dataset lacks direct measures of access and eligibility, so the zero-inflation formula should not be read as a complete mechanism.
+The exploratory logistic regression in @tbl-logistic-analysis found the clearest adjusted associations with an observed zero for chronic conditions, sex, and marital status. I therefore carry those variables forward as a compact starting formula for the zero-inflation component. This choice is empirically informed, but it does not identify the true extra-zero process: the earlier regression combines sampling zeros and latent extra zeros in a single observed-zero outcome.
+
+Health status, chronic conditions, age, sex, and marital status enter the count component. The dataset lacks direct measures of access and eligibility, so neither component should be read as a complete mechanism.
 
 Using a variable in both components is perfectly valid. It simply means that the variable may be associated with two different parts of the outcome distribution. Conversely, leaving a variable out of one component is a substantive restriction and should be treated as such.
 
@@ -922,7 +924,7 @@ We now move from foundations to model choice. There are two decisions to keep se
 1. **Model-family choice**: Poisson, negative binomial, ZIP, or ZINB.
 2. **Model-specification choice**: which predictors belong in the count component and, if present, which predictors belong in the zero-inflation component.
 
-The Poisson model and `count_formula` were created in the baseline section, so we reuse them rather than fitting the same model twice. Keeping the count formula fixed first makes the distributional comparison easier to interpret. After that family comparison, we revisit the zero-inflation formula as a specification decision.
+The Poisson model and `count_formula` were created in the baseline section, so we reuse them rather than fitting the same model twice. For the first comparison, ZIP and ZINB also share the compact zero-inflation formula motivated above. Holding both formulas fixed isolates the main family contrast: Poisson versus negative-binomial variation in the count process. After that comparison, we revisit the zero-inflation formula as a specification decision.
 
 ## Fit the Remaining Candidates
 
@@ -933,35 +935,36 @@ The Poisson model and `count_formula` were created in the baseline section, so w
 
 # Reuse the baseline Poisson model fitted earlier. # <1>
 
+baseline_zi_formula <- ~ numchron + male + married # <2>
+
 # A negative binomial model without a separate zero process
-nb_model <- glmmTMB( # <2>
+nb_model <- glmmTMB( # <3>
   count_formula,
   data = medcare,
-  family = nbinom2() # <2>
+  family = nbinom2() # <3>
 )
 
 # Zero-inflated Poisson model
 zip_model <- glmmTMB(
   count_formula,
-  ziformula = ~ healthexcellent + age + male, # <3>
+  ziformula = baseline_zi_formula, # <4>
   data = medcare,
   family = poisson()
 )
 
 # Zero-inflated negative binomial model
-zinb_model <- glmmTMB(
+zinb_family_model <- glmmTMB(
   count_formula,
-  ziformula = ~ healthpoor + healthexcellent + numchron +
-    age + male + married, # <4>
+  ziformula = baseline_zi_formula, # <4>
   data = medcare,
   family = nbinom2() # <5>
 )
 ```
 
 1. The baseline Poisson fit remains part of the comparison, but the object already exists from the earlier diagnostic section.
-2. The negative binomial model keeps one count-generating process and adds conditional overdispersion.
-3. ZIP adds a compact zero-inflation formula, which models the log-odds of latent extra-zero membership.
-4. The working ZINB model uses the same predictors in the count and zero-inflation components, letting the data estimate different roles for each predictor across the two processes.
+2. The shared zero-inflation formula carries forward the clearest adjusted associations with observed zeros from @tbl-logistic-analysis.
+3. The negative binomial model keeps one count-generating process and adds conditional overdispersion.
+4. ZIP and ZINB use the same count and zero-inflation formulas, so their difference in this comparison is the count distribution.
 5. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
 
 The Poisson and negative binomial models provide one-process benchmarks. In particular, a negative binomial model can sometimes explain an apparent surplus of zeros through additional count variation, without introducing a second latent process.
@@ -982,7 +985,7 @@ models <- list(
   Poisson = poisson_model,
   `Negative binomial` = nb_model,
   ZIP = zip_model,
-  ZINB = zinb_model
+  ZINB = zinb_family_model
 )
 
 comparison_table <- tibble::tibble(
@@ -1015,7 +1018,7 @@ ZINB has the lowest AIC and BIC in this comparison, although in-sample RMSE bare
 
 ## Move From Family Choice to Specification Choice
 
-Selecting ZINB as a candidate family does not settle the formula. The count component and the zero-inflation component answer different questions, so a predictor can reasonably appear in one component, both components, or neither. The first family comparison used a fixed count formula and a defensible ZINB specification. The table below makes that specification choice explicit without turning the tutorial into an exhaustive model-search exercise.
+Selecting ZINB as a candidate family does not settle the formula. The count component and the zero-inflation component answer different questions, so a predictor can reasonably appear in one component, both components, or neither. The first family comparison used the observed-zero association baseline for both zero-inflated models. The table below compares that starting point with substantively motivated alternatives without turning the tutorial into an exhaustive model-search exercise.
 
 ```{r}
 #| label: tbl-zinb-specification-candidates
@@ -1038,28 +1041,31 @@ zinb_spec_models <- list(
     data = medcare,
     family = nbinom2()
   ),
-  `Need/access proxy set` = glmmTMB(
+  `Observed-zero association baseline` = zinb_family_model,
+  `Shared adjustment set` = glmmTMB(
     count_formula,
-    ziformula = ~ healthexcellent + age + male,
+    ziformula = ~ healthpoor + healthexcellent + numchron +
+      age + male + married,
     data = medcare,
     family = nbinom2()
-  ),
-  `Shared adjustment set` = zinb_model
+  )
 )
+
+zinb_model <- zinb_spec_models[["Observed-zero association baseline"]]
 
 zinb_spec_table <- tibble::tibble(
   Specification = names(zinb_spec_models),
   `Zero-inflation formula` = c(
     "~ 1",
     "~ healthexcellent",
-    "~ healthexcellent + age + male",
+    sub("^~", "~ ", format(baseline_zi_formula)),
     "~ healthpoor + healthexcellent + numchron + age + male + married"
   ),
   Rationale = c(
     "Tests whether a constant extra-zero probability is enough.",
     "Keeps the zero component focused on low-need patients.",
-    "Adds basic demographic proxies without sharing the full count formula.",
-    "Lets each baseline predictor have a distinct count and zero-process role."
+    "Carries forward the clearest adjusted observed-zero associations.",
+    "Lets every count predictor have a distinct zero-process role."
   ),
   AIC = vapply(zinb_spec_models, AIC, numeric(1)),
   BIC = vapply(zinb_spec_models, BIC, numeric(1))
@@ -1072,7 +1078,7 @@ zinb_spec_table <- tibble::tibble(
 knitr::kable(zinb_spec_table, align = c("l", "l", "l", "r", "r"))
 ```
 
-The shared adjustment set is the working specification for the rest of the article. It has the best AIC and BIC among this small set, and it is interpretable: chronic conditions, health status, age, sex, and marital status can plausibly affect visit intensity and the probability of being in the latent extra-zero group. That does not mean every coefficient will be precise or causally meaningful. It means the formula is a defensible working model for this tutorial.
+The observed-zero association baseline is the working specification for the rest of the article. Its AIC differs from the shared adjustment set by only 0.2 points, while its BIC is 18.9 points lower. Adding health status and age to the zero process therefore buys almost no in-sample fit under AIC and is disfavoured by BIC's stronger complexity penalty. I retain the compact model on grounds of parsimony, not because these three predictors reveal the true extra-zero mechanism.
 
 ::: {.callout-note appearance="simple"}
 ## Why I avoid a likelihood-ratio-test ladder here
@@ -1099,7 +1105,7 @@ I use 1,000 simulations per model and a fixed seed so the results in the article
 #| fig-height: 4.8
 #| fig-width: 8
 #| cache: true
-#| dependson: fit-zero-inflated-models
+#| dependson: tbl-zinb-specification-candidates
 #| code-fold: true
 #| code-summary: "Show residual-simulation code"
 
@@ -1194,7 +1200,7 @@ With ZINB selected as the working model, we can interpret its two sets of coeffi
 
 ```{r}
 #| label: tbl-zinb-count-effects
-#| dependson: fit-zero-inflated-models
+#| dependson: tbl-zinb-specification-candidates
 #| code-fold: true
 #| code-summary: "Show count-component interpretation code"
 #| tbl-cap: "Count component: multiplicative effects on expected visit rates."
@@ -1225,7 +1231,7 @@ knitr::kable(count_df, align = c("l", "r", "c"), row.names = FALSE)
 
 ```{r}
 #| label: tbl-zinb-zero-effects
-#| dependson: fit-zero-inflated-models
+#| dependson: tbl-zinb-specification-candidates
 #| code-fold: true
 #| code-summary: "Show zero-inflation-component interpretation code"
 #| tbl-cap: "Zero-inflation component: odds ratios for belonging to the extra-zero group."
@@ -1259,27 +1265,26 @@ I read the fitted ZINB model in two passes.
 **First, the count component:** within the count-generating group, what changes the expected visit rate?
 
 - **Chronic conditions:** Each additional condition is associated with a 16% higher visit rate (rate ratio 1.16, 95% CI 1.14–1.19).
-- **Poor health:** Poor rather than average health is associated with a 33% higher visit rate (1.33, 95% CI 1.22–1.46).
-- **Age:** Each additional decade is associated with a 7% lower visit rate (0.93, 95% CI 0.88–0.98).
-- **Excellent health:** Excellent rather than average health is associated with a 26% lower visit rate (0.74, 95% CI 0.65–0.83).
+- **Poor health:** Poor rather than average health is associated with a 32% higher visit rate (1.32, 95% CI 1.21–1.44).
+- **Age:** Each additional decade is associated with a 5% lower visit rate (0.95, 95% CI 0.90–0.99).
+- **Excellent health:** Excellent rather than average health is associated with a 27% lower visit rate (0.73, 95% CI 0.65–0.82).
 
 The intervals for sex and marital status include 1, so this specification does not provide clear evidence of adjusted differences for those predictors in the count component.
 
 **Then, the zero-inflation component:** what changes the odds of belonging to the extra-zero group?
 
-- **Chronic conditions:** Each additional chronic condition is associated with lower odds of belonging to the extra-zero group (odds ratio 0.29, 95% CI 0.20–0.42).
-- **Sex:** Men have higher estimated odds than women (3.11, 95% CI 1.88–5.14).
-- **Marital status:** Married participants have lower estimated odds than those who are not married (0.33, 95% CI 0.20–0.55).
-- **Age:** Each additional decade is associated with lower odds of belonging to the extra-zero group, although the interval just reaches 1 (0.68, 95% CI 0.47–1.00).
+- **Chronic conditions:** Each additional chronic condition is associated with lower odds of belonging to the extra-zero group (odds ratio 0.28, 95% CI 0.19–0.41).
+- **Sex:** Men have higher estimated odds than women (3.08, 95% CI 1.84–5.16).
+- **Marital status:** Married participants have lower estimated odds than those who are not married (0.35, 95% CI 0.21–0.59).
 
-The health-status terms in the zero-inflation component are imprecise after adjustment, even though health status remains important in the count component. The distinction is useful, but it is descriptive rather than causal. The model estimates different associations in the two parts of the distribution; it does not establish why those associations arise, nor does it reveal which individual zero observations are structural.
+These estimates are descriptive rather than causal. The model associates the three selected predictors with latent extra-zero membership; it does not establish why those associations arise, nor does it reveal which individual zero observations are structural.
 
 <!-- TODO: This needs to transition more into an "end of tutorial recap" you would find at the end of a scientific blog or end-of-chapter section of a textbook -->
 # Conclusion and Final Remarks
 
 The Medicare data began with a clear warning sign: the fitted Poisson model expected about 37 zero-visit records, while the data contained 683. That gap justified more flexible models, but it did not by itself prove a separate structural-zero process. The negative binomial model showed why. A one-process count model with extra variation can explain much of what first looks like zero inflation.
 
-For this tutorial, ZINB is the working model I would interpret. It has the lowest AIC and BIC among the candidates considered, brings the zero-frequency diagnostic closer to the observed data, and matches the two-process question that motivated the analysis. The case is not airtight. The leading candidates still leave some residual structure, and a broader analysis could test prediction on held-out data or compare additional count distributions. That tension is useful: model choice is not a trophy for the lowest information criterion, but a defensible argument across fit, diagnostics, and the data-generating story.
+For this tutorial, the compact ZINB is the working model I would interpret. It outperforms the other families under AIC and BIC, has essentially the same AIC as the broader ZINB specification with a lower BIC, brings the zero-frequency diagnostic closer to the observed data, and matches the two-process question that motivated the analysis. The case is not airtight. The leading candidates still leave some residual structure, and a broader analysis could test prediction on held-out data or compare additional count distributions. That tension is useful: model choice is not a trophy for the lowest information criterion, but a defensible argument across fit, diagnostics, parsimony, and the data-generating story.
 
 The interpretation should stay modest. The count component describes expected visits among people in the count-generating group. The zero-inflation component estimates associations with latent extra-zero membership. It does not identify the cause of any individual zero, prove access barriers, or turn observed associations into causal effects.
 
