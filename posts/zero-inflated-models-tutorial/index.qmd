@@ -538,7 +538,7 @@ This is deliberately slower than a final analysis. The payoff is that the eventu
 
 ### Step 1: Logistic Regression for Zero vs Non-Zero
 
-First, we collapse the outcome to **zero versus one or more visits** and fit a logistic regression. This is not the zero component of a fitted zero-inflated model, and it cannot identify which observed zeros are structural. It simply asks whether the adjusted probability of recording no visits varies with the available predictors.
+First, we collapse the outcome to **zero versus one or more visits** and fit a logistic regression. It's important to remember that this is not the same as the zero component of a fitted zero-inflated model, and it cannot identify which observed zeros are structural. However, it provides a useful comparison ... simply asks whether the adjusted probability of recording no visits varies with the available predictors.
 
 In applied work, I would use this step to start a conversation with domain experts. A coefficient can show that a group has more or fewer zero records after adjustment, but it cannot tell us whether those zeros arise from good health, poor access, avoidance, eligibility rules, or an omitted variable.
 <!-- TODO: Maybe add & showcase code result for logistic regression rather than only showcasing the final coefficient table -->
@@ -651,7 +651,7 @@ knitr::kable(poisson_table, align = c("l", "r", "c", "r"))
 Here, under the Poisson mean model, poor health is associated with a 29% higher expected visit count than average health, while excellent health is associated with a 30% lower count. Each additional chronic condition is associated with an 18% increase. Men have an expected count about 10% lower than women, and a decade of age is associated with a 5% reduction. The estimate for marital status is essentially null.
 
 We next assess conditional dispersion using the Pearson residuals.
-
+<!-- Instead of extracting p-value, the code below prints the value - this is not very scientific and reproducible -->
 ```{r}
 #| label: tbl-poisson-overdispersion
 #| code-fold: true
@@ -687,7 +687,7 @@ knitr::kable(overdispersion_table)
 ::: {.callout-tip}
 ## What is overdispersion?
 
-Overdispersion occurs when the conditional variance of the observed counts exceeds the variance allowed by the model. For a Poisson model, the conditional mean and variance must be equal. A dispersion ratio substantially above 1 indicates that this assumption is inadequate.
+Remember that overdispersion occurs when the conditional variance of the observed counts exceeds the variance allowed by the model. For a Poisson model, the conditional mean and variance must be equal. A dispersion ratio substantially above 1 indicates that this assumption is inadequate.
 :::
 
 The dispersion ratio is 7.20, well above the value of 1 expected under a Poisson model. The observed visit counts therefore vary much more than the model permits under the Poisson assumption. This overdispersion makes the model-based standard errors too small and the corresponding confidence intervals and p-values too optimistic. The rate ratios still summarize the fitted mean structure, but this means that the Poisson model does not provide reliable inference for these data.
@@ -789,8 +789,9 @@ $$P(Y_i = k) = (1-\pi_i)f_c(k;\mu_i,\theta), \qquad k = 1, 2, 3, \ldots.$$
 
 In words, an observed zero can come directly from the extra-zero process or from the count process producing a zero by chance. A positive count can only come from the count process. In `glmmTMB`, the main formula supplies predictors for the count-process mean, while `ziformula` supplies predictors for $\pi_i$ on the logit scale:
 
-<!-- Is this for a single predictor or multiple predictors? The beta and gamma coefficients can be vectors so its not clear what they represent here -->
 $$\log(\mu_i) = X_i\beta, \qquad \operatorname{logit}(\pi_i) = Z_i\gamma.$$
+
+Here $X_i$ is the row vector of count-component predictor values for person $i$, and $\beta$ is the corresponding coefficient vector. Likewise, $Z_i$ is the row vector of zero-inflation predictor values, and $\gamma$ is its coefficient vector. The two row vectors may contain different predictors and normally include an intercept unless the formula removes it.
 
 ### Zero-Inflated Poisson (ZIP) Model
 
@@ -862,31 +863,31 @@ In our example, those terms are $2.72$ and $1.31$, giving a total variance of $4
 The ZINB model keeps the same zero-inflation idea but replaces the Poisson count component with a negative binomial count component:
 
 **For zeros:**
-$$P(Y = 0) = \pi + (1-\pi)\left(\frac{r}{r+\mu}\right)^r$$
+$$P(Y = 0) = \pi + (1-\pi)\left(\frac{\phi}{\phi+\mu}\right)^\phi$$
 
 **For positive counts:**
-$$P(Y = k) = (1-\pi)\frac{\Gamma(k+r)}{k!\Gamma(r)}\left(\frac{r}{r+\mu}\right)^r\left(\frac{\mu}{r+\mu}\right)^k$$
+$$P(Y = k) = (1-\pi)\frac{\Gamma(k+\phi)}{k!\Gamma(\phi)}\left(\frac{\phi}{\phi+\mu}\right)^\phi\left(\frac{\mu}{\phi+\mu}\right)^k$$
 
 The difference from ZIP is practical:
 
 - Uses negative binomial instead of Poisson for the count component
-- Parameter $r$ controls additional overdispersion within the potential user group
-- As $r \to \infty$, the negative binomial count distribution approaches a Poisson distribution
+- Parameter $\phi$ controls additional overdispersion within the potential user group
+- As $\phi \to \infty$, the negative binomial count distribution approaches a Poisson distribution
 
-The same distinction between conditional and population moments applies here. Under the `nbinom2` parameterization used later, the count process has mean $\mu$ and variance $\mu + \mu^2/r$. After mixing in the extra-zero group,
+The same distinction between conditional and population moments applies here. Under the `nbinom2` parameterization used later, the count process has mean $\mu$ and variance $\mu + \mu^2/\phi$. After mixing in the extra-zero group,
 
 $$
 \begin{aligned}
 E[Y] &= (1-\pi)\mu, \\
 \operatorname{Var}(Y)
-  &= \underbrace{(1-\pi)\left(\mu + \frac{\mu^2}{r}\right)}_{
+  &= \underbrace{(1-\pi)\left(\mu + \frac{\mu^2}{\phi}\right)}_{
        \text{variation within the count process}} \\
   &\quad + \underbrace{\pi(1-\pi)\mu^2}_{
        \text{variation between the two groups}}.
 \end{aligned}
 $$
 
-ZINB therefore adds one source of variation to the ZIP model: the $\mu^2/r$ term allows overdispersion within the count-generating group, while the final term still captures variation from mixing that group with an extra-zero group. A second worked example would repeat the ZIP calculation without adding much intuition, so I will use this decomposition as the bridge to the fitted models.
+ZINB therefore adds one source of variation to the ZIP model: the $\mu^2/\phi$ term allows overdispersion within the count-generating group, while the final term still captures variation from mixing that group with an extra-zero group. A second worked example would repeat the ZIP calculation without adding much intuition, so I will use this decomposition as the bridge to the fitted models.
 
 I would consider ZINB over ZIP when:
 
@@ -1008,9 +1009,70 @@ comparison_table <- tibble::tibble(
 knitr::kable(comparison_table, align = c("l", "r", "r", "r", "r"))
 ```
 
-The comparison does not produce a unanimous winner. ZINB has the lowest AIC, but the ordinary negative binomial model has the lowest BIC because BIC applies a stronger penalty for the additional zero-inflation coefficients. In-sample RMSE barely differs across all four models, so it does not discriminate among them here. AIC and BIC, not RMSE, provide the evidence against the Poisson and ZIP specifications.
+The comparison points strongly away from Poisson and ZIP. Both keep the Poisson count variance, and the fit statistics show that this is too restrictive for these data. The negative binomial model is a much better one-process benchmark, which is exactly why it belongs in the comparison: overdispersion can absorb some apparent zero inflation by allowing more probability in the lower and upper tails.
+<!-- Paragraph needs to be changed: weak, i.e "declaring victory" not very scientific -->
+ZINB has the lowest AIC and BIC in this comparison, although in-sample RMSE barely differs across the two leading candidates. I therefore carry the negative binomial and ZINB models into residual assessment rather than declaring victory from fit statistics alone. ZINB remains scientifically interesting because it separates the two processes we set out to study; the negative binomial remains a serious competitor because it describes the data with a simpler structure.
 
-I therefore carry the negative binomial and ZINB models into residual assessment rather than declaring victory from AIC alone. ZINB remains scientifically interesting because it separates the two processes we set out to study; the negative binomial remains a serious competitor because it describes the data with a simpler structure.
+## Move From Family Choice to Specification Choice
+
+Selecting ZINB as a candidate family does not settle the formula. The count component and the zero-inflation component answer different questions, so a predictor can reasonably appear in one component, both components, or neither. The first family comparison used a fixed count formula and a defensible ZINB specification. The table below makes that specification choice explicit without turning the tutorial into an exhaustive model-search exercise.
+
+```{r}
+#| label: tbl-zinb-specification-candidates
+#| cache: true
+#| dependson: fit-zero-inflated-models
+#| code-fold: true
+#| code-summary: "Show ZINB specification-comparison code"
+#| tbl-cap: "Compact comparison of candidate ZINB zero-inflation specifications. The count formula is held fixed across rows."
+
+zinb_spec_models <- list(
+  `Intercept-only zero process` = glmmTMB(
+    count_formula,
+    ziformula = ~ 1,
+    data = medcare,
+    family = nbinom2()
+  ),
+  `Excellent-health zero process` = glmmTMB(
+    count_formula,
+    ziformula = ~ healthexcellent,
+    data = medcare,
+    family = nbinom2()
+  ),
+  `Need/access proxy set` = glmmTMB(
+    count_formula,
+    ziformula = ~ healthexcellent + age + male,
+    data = medcare,
+    family = nbinom2()
+  ),
+  `Shared adjustment set` = zinb_model
+)
+
+zinb_spec_table <- tibble::tibble(
+  Specification = names(zinb_spec_models),
+  `Zero-inflation formula` = c(
+    "~ 1",
+    "~ healthexcellent",
+    "~ healthexcellent + age + male",
+    "~ healthpoor + healthexcellent + numchron + age + male + married"
+  ),
+  Rationale = c(
+    "Tests whether a constant extra-zero probability is enough.",
+    "Keeps the zero component focused on low-need patients.",
+    "Adds basic demographic proxies without sharing the full count formula.",
+    "Lets each baseline predictor have a distinct count and zero-process role."
+  ),
+  AIC = vapply(zinb_spec_models, AIC, numeric(1)),
+  BIC = vapply(zinb_spec_models, BIC, numeric(1))
+) |>
+  mutate(
+    across(c(AIC, BIC), ~ round(.x, 1))
+  ) |>
+  arrange(AIC)
+
+knitr::kable(zinb_spec_table, align = c("l", "l", "l", "r", "r"))
+```
+
+The shared adjustment set is the working specification for the rest of the article. It has the best AIC and BIC among this small set, and it is interpretable: chronic conditions, health status, age, sex, and marital status can plausibly affect visit intensity and the probability of being in the latent extra-zero group. That does not mean every coefficient will be precise or causally meaningful. It means the formula is a defensible working model for this tutorial.
 
 ::: {.callout-note appearance="simple"}
 ## Why I avoid a likelihood-ratio-test ladder here
