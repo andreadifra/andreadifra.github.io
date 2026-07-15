@@ -1223,10 +1223,11 @@ count_df <- model_parameters(
       married = "Married vs not married"
     ),
     `Rate ratio` = sprintf("%.2f", Coefficient),
-    `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high)
+    `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high),
+    `p-value` = format.pval(p, digits = 2, eps = 0.001)
   )
 
-knitr::kable(count_df, align = c("l", "r", "c"), row.names = FALSE)
+knitr::kable(count_df, align = c("l", "r", "c", "r"), row.names = FALSE)
 ```
 
 ```{r}
@@ -1254,14 +1255,14 @@ zi_df <- model_parameters(
       married = "Married vs not married"
     ),
     `Odds ratio` = sprintf("%.2f", Coefficient),
-    `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high)
+    `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high),
+    `p-value` = format.pval(p, digits = 2, eps = 0.001)
   )
 
-knitr::kable(zi_df, align = c("l", "r", "c"), row.names = FALSE)
+knitr::kable(zi_df, align = c("l", "r", "c", "r"), row.names = FALSE)
 ```
 
 I read the fitted ZINB model in two passes.
-<!-- TODO: Maybe instead of CI i should reference the p-values here, and add them to the table -->
 **First, the count component:** within the count-generating group, what changes the expected visit rate?
 
 - **Chronic conditions:** Each additional condition is associated with a 16% higher visit rate (rate ratio 1.16, 95% CI 1.14–1.19).
