@@ -218,9 +218,11 @@ $$P(Y_i=y\mid X_i)=\frac{\lambda_i^y e^{-\lambda_i}}{y!}
 
 The natural parameter is therefore $\theta_i=\log(\lambda_i)$, with $b(\theta_i)=e^{\theta_i}=\lambda_i$. The canonical log link keeps the expected count $\lambda_i$ positive. Exponentiating a regression coefficient gives a rate ratio: if $\beta_j=0.20$, then $e^{0.20}=1.22$, corresponding to a 22% higher expected count for a one-unit increase in $x_j$, holding the other predictors fixed. Notice the interpretation is different from the odds ratio in the Bernoulli case: ...
 
-The derivative relationships from the exponential-family form now give
+The Poisson distribution has no estimated dispersion parameter, so $a(\phi)=1$ in the general exponential-family form. Its derivative relationships are therefore
 
 $$
+a(\phi)=1,
+\qquad
 b'(\theta_i)=b''(\theta_i)=e^{\theta_i}=\lambda_i,
 $$
 
@@ -230,18 +232,7 @@ $$
 E(Y_i \mid X_i)=\operatorname{Var}(Y_i \mid X_i)=\lambda_i.
 $$
 
-This equality is conditional on the predictors. Even when it holds, the variance across people can exceed the overall mean because their conditional means differ. The law of total variance shows the two sources:
-
-$$
-\begin{aligned}
-\operatorname{Var}(Y)
-  &=E\!\left\{\operatorname{Var}(Y\mid X)\right\}
-    +\operatorname{Var}\!\left\{E(Y\mid X)\right\} \\
-  &=E(\lambda)+\operatorname{Var}(\lambda).
-\end{aligned}
-$$
-
-By contrast, $E(Y)=E(\lambda)$. Variation in $\lambda$ can therefore make the raw variance-to-mean ratio exceed 1 without violating the Poisson assumption. Assessing equidispersion requires a fitted mean model and a check of the remaining conditional variation.
+This equality applies after conditioning on the predictors. Across the sample, people can have different values of $\lambda_i$, so combining their count distributions can produce a raw variance larger than the raw mean even when the conditional Poisson assumption holds. A large variance-to-mean ratio or a large number of zeros is therefore a warning, not evidence by itself of either conditional overdispersion or a separate zero-generating process. We assess those possibilities after fitting the Poisson mean model.
 
 ### Overdispersion and Negative Binomial Distribution
 
@@ -251,7 +242,7 @@ $$
 \operatorname{Var}(Y_i\mid X_i)>E(Y_i\mid X_i).
 $$
 
-This inequality describes lack of fit after conditioning on the specified predictors. It can arise because people with the same observed predictors still differ in health needs, access, preferences, or event risk. An omitted predictor, an incorrect functional form, or dependence between observations can produce the same pattern. Whatever its source, unmodelled overdispersion makes Poisson standard errors too small and may leave too little fitted probability in both the lower and upper tails.
+At a given conditional mean, an overdispersed count distribution is more spread out than the corresponding Poisson distribution. It places less probability near the mean and more in the tails, including at zero and at unusually large counts. An overdispersed one-process distribution can therefore reproduce zeros that a Poisson model misses without introducing a separate extra-zero group. Unobserved differences between people, an incomplete mean model, or dependence between observations can all produce this pattern. Whatever its source, unmodelled overdispersion makes Poisson standard errors too small and may leave too little fitted probability in both the lower and upper tails.
 
 The negative binomial distribution tries to address this by adding an extra dispersion parameter. It allows us to keep the same log mean model,
 
@@ -268,7 +259,12 @@ $$
 \end{aligned}
 $$
 
-In `nbinom1`, the additional variance $\alpha\mu_i$ grows linearly with the mean, and the Poisson limit occurs as $\alpha\to0$. In `nbinom2`, the additional variance $\mu_i^2/\phi$ grows quadratically, and the Poisson limit occurs as $\phi\to\infty$. Thus $\alpha$ and $\phi$ are family-specific parameters, ... . In this tutorial we will use the NB2 parametrization, but NB1 remains a genuine candidate when the residual spread grows roughly in proportion to the mean.
+In `nbinom1`, the additional variance $\alpha\mu_i$ grows linearly with the mean, and the Poisson limit occurs as $\alpha\to0$. In `nbinom2`, the additional variance $\mu_i^2/\phi$ grows quadratically, and the Poisson limit occurs as $\phi\to\infty$. The models fitted below use NB2 because its variance permits progressively greater spread at higher expected visit counts and because the zero-inflated negative binomial count component uses the same distribution. NB1 would remain plausible if the extra conditional variance increased approximately linearly with the mean.
+
+NB2 also has a useful interpretation in terms of unobserved heterogeneity. Suppose counts are Poisson conditional on an individual event rate, but those rates vary according to a gamma distribution among people with the same observed predictors. Integrating over that variation gives the NB2 distribution, with $\mu_i^2/\phi$ measuring the additional variance due to differences in the underlying rates.
+
+::: {.callout-warning appearance="simple" collapse="true"}
+## Mathematical details: NB2 in exponential-family form
 
 For NB2, the conditional probability mass function is
 
@@ -307,14 +303,12 @@ E(Y_i\mid X_i)=b'(\theta_i)=\mu_i,
 =\mu_i+\frac{\mu_i^2}{\phi}.
 $$
 
-The canonical link associated with $\theta_i$ is not the log link used here. Negative binomial regression instead specifies $\log(\mu_i)=X_i\beta$, which keeps the mean positive and gives coefficients a rate-ratio interpretation.
+:::
 
-This tutorial carries `nbinom2` forward because its quadratic variance is a plausible representation of healthcare utilisation when unobserved differences between people create greater spread at higher expected visit counts. It is also the familiar gamma--Poisson formulation and matches the ZINB distribution developed below. This is a modelling assumption rather than a conclusion from the raw variance-to-mean ratio; an analysis centred on the variance function could compare `nbinom1` and `nbinom2` directly.
-
-For NB2, larger values of $\phi$ move the model closer to Poisson, while smaller values allow more extra-Poisson variation. This matters for zero-inflated modelling because an overdispersed one-process distribution can generate more zeros than a Poisson distribution with the same mean. Negative binomial regression is therefore a serious competitor, not just a stepping stone to ZINB.
+Because NB2 assigns more probability to zero than a Poisson distribution with the same mean, it may account for some of an observed zero surplus without a separate structural-zero process. The later model comparison therefore includes both negative binomial and zero-inflated negative binomial models.
 
 ::: {.callout-note appearance="simple" collapse="true"}
-## Advanced aside: generalized Poisson models
+## Generalized Poisson models
 
 Poisson and negative binomial models are not the only count-process choices. A generalized Poisson model is another way to relax the Poisson mean-variance relationship. In a common parameterization, let $\delta$ control dispersion and define
 
