@@ -896,26 +896,29 @@ I would consider ZINB over ZIP when:
 
 Healthcare utilisation often has both features: more zero visits than a simple count model predicts, and substantial variation among the remaining counts. Whether ZINB is worth the additional zero-inflation component is still an empirical question, so we will compare it with a standard negative binomial model rather than treating zero inflation as the automatic answer.
 
-## Choosing Predictors for Each Component
+## Choosing Predictors
 
-The main specification decision is which variables belong in each component. I start with the data-generating story, not with a search for whichever formula produces the lowest AIC.
+The two components describe different parts of the outcome distribution and therefore need not use the same predictors. The count component models expected visit intensity within the count-generating group. The zero-inflation component models the probability of membership in the latent extra-zero group. A predictor belongs in either formula when its proposed role matches that estimand and the available data can support the distinction.
 
-For these healthcare data, I would ask whether a predictor plausibly describes **entry into the extra-zero group**, **visit intensity within the count process**, or both. A defensible working model could be the following:
+Ideally, the zero-inflation formula would include variables that directly describe why someone cannot or does not enter the visit-generating process, such as eligibility restrictions, insurance coverage, or geographic access. The `medcare` data contain no such measures. Health and demographic variables can capture systematic differences in zero probability, but they cannot establish the mechanism that produced those differences. The fitted zero-inflation component must therefore be read as a pragmatic statistical description rather than a complete model of healthcare access.
 
-- **Zero-inflation component**:
-  - Health status, which may distinguish people with little need for care
-  - Demographic variables associated with the probability of a zero
-  - Direct measures of insurance, eligibility, or geographic access, when available
-- **Count component**:
-  - Chronic conditions (more conditions → more visits)
-  - Poor health status (sicker people visit more often)
-  - Age (older patients typically have more complex needs)
+The count component retains the baseline adjustment set used in the Poisson analysis:
 
-The exploratory logistic regression in @tbl-logistic-analysis found the clearest adjusted associations with an observed zero for chronic conditions, sex, and marital status. I therefore carry those variables forward as a compact starting formula for the zero-inflation component. This choice is empirically informed, but it does not identify the true extra-zero process: the earlier regression combines sampling zeros and latent extra zeros in a single observed-zero outcome.
+```r
+ofp ~ healthpoor + healthexcellent + numchron + age + male + married
+```
 
-Health status, chronic conditions, age, sex, and marital status enter the count component. The dataset lacks direct measures of access and eligibility, so neither component should be read as a complete mechanism.
+These predictors represent health need and demographic differences that may be associated with visit rates. Their inclusion defines the conditional comparison; it does not turn the resulting coefficients into causal effects.
 
-Using a variable in both components is perfectly valid. It simply means that the variable may be associated with two different parts of the outcome distribution. Conversely, leaving a variable out of one component is a substantive restriction and should be treated as such.
+For the initial ZIP and ZINB comparison, the zero-inflation component uses the more compact formula:
+
+```r
+~ numchron + male + married
+```
+
+Chronic conditions, sex, and marital status showed the clearest adjusted associations with an **observed zero** in @tbl-logistic-analysis. That result provides an empirical starting point, but it's worth highlighting that the logistic outcome combines sampling zeros with zeros from the latent extra-zero group, and as such is not a direct measurement of extra-zero membership. The later specification comparison therefore tests this compact formula against plausible alternatives rather than treating it as settled.
+
+A predictor may appear in both components because the formulas address different quantities. Here, chronic conditions, sex, and marital status may be associated both with visit intensity and with the probability assigned to the extra-zero group. Excluding a predictor from one component imposes a substantive restriction just as surely as including it does.
 
 # Fitting, Checking, and Interpreting the Models
 
