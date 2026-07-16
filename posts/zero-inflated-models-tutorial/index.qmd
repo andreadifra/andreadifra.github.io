@@ -263,7 +263,7 @@ In `nbinom1`, the additional variance $\alpha\mu_i$ grows linearly with the mean
 
 NB2 also has a useful interpretation in terms of unobserved heterogeneity. Suppose counts are Poisson conditional on an individual event rate, but those rates vary according to a gamma distribution among people with the same observed predictors. Integrating over that variation gives the NB2 distribution, with $\mu_i^2/\phi$ measuring the additional variance due to differences in the underlying rates.
 
-::: {.callout-warning appearance="simple" collapse="true"}
+::: {.callout-caution collapse="true"}
 ## Mathematical details: NB2 in exponential-family form
 
 For NB2, the conditional probability mass function is
@@ -305,9 +305,9 @@ $$
 
 :::
 
-Because NB2 assigns more probability to zero than a Poisson distribution with the same mean, it may account for some of an observed zero surplus without a separate structural-zero process. The later model comparison therefore includes both negative binomial and zero-inflated negative binomial models.
+Because NB2 assigns more probability to zero than a Poisson distribution with the same mean, it may account for some of an observed zero surplus without a separate structural-zero process. The case study therefore fits NB2 as the stronger one-process baseline before introducing a separate extra-zero mechanism.
 
-::: {.callout-note appearance="simple" collapse="true"}
+::: {.callout-note collapse="true"}
 ## Generalized Poisson models
 
 Poisson and negative binomial models are not the only count-process choices. A generalized Poisson model is another way to relax the Poisson mean-variance relationship. In a common parameterization, let $\delta$ control dispersion and define
@@ -323,11 +323,13 @@ The ordinary Poisson model is recovered when $\delta=0$ and $D=1$. Positive $\de
 This mean-variance pattern differs from `nbinom2`. Generalized Poisson variance is proportional to $\mu_i$ through $D$, whereas `nbinom2` adds the quadratic term $\mu_i^2/\phi$. I do not fit a generalized Poisson model here because the tutorial focuses on ZIP and ZINB, but it is a useful nearby option when the negative binomial variance pattern is a poor match.
 :::
 
-# Practical Implementation: Foundation Models
+# Data, Exploration, and Baseline Models
 
-## Package Installation
+Section 2 established the three main modelling possibilities carried into the case study: Poisson variation as a baseline, additional variation within a negative binomial count process, and a separate extra-zero process that can be combined with either count distribution. We now take those possibilities to the Medicare data. In general, it is good practice to progressively establish how and where more flexible one-process models fail, before implementing a two-process model.
 
-Before starting, install the required packages:
+::: {.callout-note appearance="simple" collapse="true" title="Prerequisites"}
+
+Install the required packages before running the analysis:
 
 ```{r}
 #| label: install-packages
@@ -338,19 +340,22 @@ install.packages(c(
   "gridExtra", "knitr", "catdata"
 ))
 ```
+:::
 
-## Loading The Dataset
+## Medicare Data and Outcome
 
-We'll use the `medcare` dataset from the `catdata` package. It records healthcare use for 4,406 people aged 66 and over who were covered by Medicare. Our outcome, `ofp`, is each person's number of physician office visits during the observation period.
+The `medcare` dataset from the `catdata` package records healthcare use for 4,406 people aged 66 and over who were covered by Medicare. The outcome, `ofp`, is each person's number of physician office visits during the observation period.
 
 I like this example because the case for a zero-inflated model is not obvious from one dramatic spike at zero. The data instead make us work through the same questions that arise in practice: how variable are the counts, which patients have no visits, and can a standard count model reproduce the observed zeros?
 
-First, we load the packages and inspect the data:
+The analysis uses the following packages and variables:
 
 ```{r}
 #| label: load-libraries
 #| message: false
 #| warning: false
+#| code-fold: true
+#| code-summary: "Show package-loading code"
 # Load required packages
 library(glmmTMB)
 library(DHARMa)
@@ -384,9 +389,9 @@ The variables used in this section are:
 - `age`: Age in decades (`6.6` represents 66 years)
 - `married`: Marital status (married = 1, else = 0)
 
-## Understanding the Data
+## Distribution of Visits and Observed Zeros
 
-As is standard practice before choosing a model, we should establish what the outcome actually looks like. The table below keeps the sample size, centre, spread, and frequency of zeros in one place.
+The outcome summary keeps the sample size, centre, spread, and frequency of zeros in one place.
 
 ```{r}
 #| label: tbl-doctor-visit-summary
@@ -428,9 +433,9 @@ There are three key insights we can draw from @tbl-doctor-visit-summary:
 
 - The variance is 7.91 times the mean. This **marginal** variance-to-mean ratio warns us that a Poisson model may be too restrictive, although the relevant assumption is conditional equidispersion after accounting for the predictors. We will test that on the fitted model rather than declaring overdispersion from the raw outcome alone.
 
-## Visualizing Zero-Inflation
+### Zero Patterns Across Patient Characteristics
 
-Let's now explore some of the visual patterns in the data. By exploring the distribution of zero-visit records, we notice that they are not distributed uniformly across the observed patient characteristics.
+By exploring the distribution of zero-visit records, we notice that they are not distributed uniformly across the observed patient characteristics.
 
 ```{r}
 #| label: fig-zero-inflation-eda
@@ -526,22 +531,11 @@ Self-reported health shows a less linear pattern. The zero proportion is highest
 
 What the plots do establish is heterogeneity. The probability of a zero changes with observed patient characteristics, which makes a separate zero process plausible enough to investigate. It does not yet tell us whether a zero-inflated model will outperform an overdispersed one-process model.
 
-## Foundation Models: Step-by-Step Analysis
+### Adjusted Associations with an Observed Zero
 
-I think zero-inflated models are much easier to interpret once you understand the simpler pieces they are built from, which is the purpose of this section. Here, we'll do the following:
-
-1. Model zero versus non-zero visits
-2. Model visit counts with a standard Poisson regression
-3. Compare how many zeros the Poisson model expects with how many we actually observe
-
-This is deliberately slower than a final analysis. The payoff is that the eventual model no longer feels like a "black box" with two sets of coefficients: we will have already examined each component and the assumptions it is meant to address.
-
-### Step 1: Logistic Regression for Zero vs Non-Zero
-
-First, we collapse the outcome to **zero versus one or more visits** and fit a logistic regression. It's important to remember that this is not the same as the zero component of a fitted zero-inflated model, and it cannot identify which observed zeros are structural. However, it provides a useful comparison ... simply asks whether the adjusted probability of recording no visits varies with the available predictors.
+Collapsing the outcome to **zero versus one or more visits** allows an adjusted analysis of the observed zero pattern. This logistic regression is not the zero component of a fitted zero-inflated model and cannot identify which observed zeros are structural. It asks only whether the adjusted probability of recording no visits varies with the available predictors.
 
 In applied work, I would use this step to start a conversation with domain experts. A coefficient can show that a group has more or fewer zero records after adjustment, but it cannot tell us whether those zeros arise from good health, poor access, avoidance, eligibility rules, or an omitted variable.
-<!-- TODO: Maybe add & showcase code result for logistic regression rather than only showcasing the final coefficient table -->
 
 ```{r}
 #| label: tbl-logistic-analysis
@@ -582,7 +576,7 @@ logistic_table <- model_parameters(
 knitr::kable(logistic_table, align = c("l", "r", "c", "r"))
 ```
 
-The model results are showcased in @tbl-logistic-analysis. Each additional chronic condition is associated with 42% lower odds of recording zero visits (odds ratio 0.58, 95% CI 0.53–0.63). Men have 70% higher odds of a zero than women, while married participants have 36% lower odds than those who are not married. These are interesting findings, but these estimates only describe associations conditional on the other variables; they do not establish causal effects.
+@tbl-logistic-analysis shows that each additional chronic condition is associated with 42% lower odds of recording zero visits (odds ratio 0.58, 95% CI 0.53–0.63). Men have 70% higher odds of a zero than women, while married participants have 36% lower odds than those who are not married. These estimates describe associations conditional on the other variables; they do not establish causal effects.
 
 The health-status coefficients point towards higher adjusted odds of a zero for both poor and excellent health, but the confidence intervals include 1. The data therefore do not support a clear adjusted health-status association in this specification. Likewise, the age estimate suggests that older cohorts have slightly lower odds of a zero, but its confidence interval also includes 1.
 
@@ -590,9 +584,9 @@ This difference between the descriptive plot and the adjusted model is useful ra
 
 Together with the descriptive plots, this model shows that zero outcomes have structure worth modelling and that their interpretation depends on the adjustment set.
 
-### Step 2: Poisson Regression for Count Data
+## Poisson Baseline
 
-Next, we fit the standard starting point for count data: a Poisson regression. Even when we expect it to fail, this model gives us a useful baseline:
+The standard starting point for count data is a Poisson regression. Even when we expect it to fail, this model provides a useful baseline:
 
 - What relationships would a one-process count model estimate?
 - How badly does the variance assumption break?
@@ -650,7 +644,9 @@ knitr::kable(poisson_table, align = c("l", "r", "c", "r"))
 
 Here, under the Poisson mean model, poor health is associated with a 29% higher expected visit count than average health, while excellent health is associated with a 30% lower count. Each additional chronic condition is associated with an 18% increase. Men have an expected count about 10% lower than women, and a decade of age is associated with a 5% reduction. The estimate for marital status is essentially null.
 
-We next assess conditional dispersion using the Pearson residuals.
+## Where the Poisson Model Fails
+
+The fitted mean structure does not establish that the Poisson distribution describes the conditional variation. The Pearson residuals provide a direct assessment of equidispersion after adjustment for the predictors.
 <!-- Instead of extracting p-value, the code below prints the value - this is not very scientific and reproducible -->
 ```{r}
 #| label: tbl-poisson-overdispersion
@@ -692,61 +688,85 @@ Remember that overdispersion occurs when the conditional variance of the observe
 
 The dispersion ratio is 7.20, well above the value of 1 expected under a Poisson model. The observed visit counts therefore vary much more than the model permits under the Poisson assumption. This overdispersion makes the model-based standard errors too small and the corresponding confidence intervals and p-values too optimistic. The rate ratios still summarize the fitted mean structure, but this means that the Poisson model does not provide reliable inference for these data.
 
-Overdispersion tells us that the Poisson model is inadequate, but it does not identify the source of the extra variation. A negative binomial model can accommodate heterogeneity in the counts, whereas a zero-inflated model introduces a separate process for excess zeros. A zero-inflated negative binomial model combines both features. Before choosing among them, we examine whether the fitted Poisson model reproduces the observed number of zero visits.
+Overdispersion identifies the Poisson model as inadequate but does not identify the source of the extra variation. The next one-process candidate is therefore negative binomial regression, which relaxes equidispersion without introducing a latent extra-zero group.
 
-### Step 3: Comparing Observed vs Expected Zeros
+## Negative-Binomial Fit and Zero-Frequency Comparison
 
-The dispersion diagnostic shows that the Poisson model does not capture the overall variation in visit counts. Because our main interest is the frequency of zero visits, we now examine one specific aspect of that lack of fit: whether the model predicts approximately the observed number of zeros.
+The negative binomial baseline retains `count_formula`, so it makes the same conditional comparisons as the Poisson model. Its `nbinom2` variance, $\mu_i + \mu_i^2/\phi$, allows variation to increase faster than the mean.
 
-For participant $i$, the fitted Poisson model provides an expected visit count $\hat{\lambda}_i$. Under the Poisson distribution, the corresponding probability of zero visits is
+```{r}
+#| label: fit-nb-baseline
+#| cache: true
+#| output: false
+
+nb_model <- glmmTMB(
+  count_formula,
+  data = medcare,
+  family = nbinom2()
+)
+```
+
+The fitted dispersion parameter is $\hat{\phi} =$ `r sprintf("%.2f", sigma(nb_model))`. This finite value allows substantially more conditional variation than Poisson; the Poisson limit would require $\phi \to \infty$. The model still treats every participant as arising from one count-generating process.
+
+Zero prediction isolates one important consequence of the different variance assumptions. For participant $i$, the fitted Poisson probability of zero is
+
 $$P(Y_i = 0) = e^{-\hat{\lambda}_i}$$
-Summing these probabilities across participants gives the number of zero-visit records expected under the fitted model.
+
+whereas the fitted NB2 probability is
+
+$$P(Y_i = 0) = \left(\frac{\hat{\phi}}{\hat{\phi}+\hat{\mu}_i}\right)^{\hat{\phi}}.$$
+
+Summing the person-specific probabilities gives the expected number of zero-visit records under each model.
 
 ```{r}
 #| label: tbl-zero-comparison
 #| code-fold: true
-#| code-summary: "Show zero-inflation comparison analysis"
-#| tbl-cap: "Observed zero visits compared with the zeros expected from the fitted Poisson model."
+#| code-summary: "Show zero-frequency comparison code"
+#| tbl-cap: "Zeros expected from the fitted one-process models. The data contain 683 observed zero-visit records."
 # Observed zeros
 observed_zeros <- sum(medcare$ofp == 0)
-total_obs <- nrow(medcare)
 
 # Predicted zeros from Poisson model
 poisson_pred <- predict(poisson_model, type = "response")
 poisson_zero_prob <- exp(-poisson_pred)  # P(Y=0) for Poisson
 expected_zeros_poisson <- sum(poisson_zero_prob)
 
-# Create comparison table for the article body.
+# Predicted zeros from negative binomial model
+nb_mean <- predict(nb_model, type = "conditional")
+nb_dispersion <- predict(nb_model, type = "disp")
+nb_zero_prob <- dnbinom(0, mu = nb_mean, size = nb_dispersion)
+expected_zeros_nb <- sum(nb_zero_prob)
+
 zero_comparison <- tibble::tibble(
-  Metric = c(
-    "Observed zeros",
-    "Expected zeros (Poisson)",
-    "Observed minus expected"
-  ),
-  Count = c(
-    observed_zeros,
-    round(expected_zeros_poisson),
-    observed_zeros - round(expected_zeros_poisson)
-  ),
-  Percentage = c(
-    round(100 * observed_zeros / total_obs, 1),
-    round(100 * expected_zeros_poisson / total_obs, 1),
-    round(100 * (observed_zeros - expected_zeros_poisson) / total_obs, 1)
+  Model = c("Poisson", "Negative binomial (NB2)"),
+  `Expected zeros` = round(c(
+    expected_zeros_poisson,
+    expected_zeros_nb
+  )),
+  `Observed minus expected` = observed_zeros - `Expected zeros`,
+  `Expected / observed` = sprintf(
+    "%.1f%%",
+    100 * `Expected zeros` / observed_zeros
   )
 )
 
-knitr::kable(zero_comparison)
+knitr::kable(
+  zero_comparison,
+  align = c("l", "r", "r", "r")
+)
 ```
 
-We observe 683 zero-visit records, whereas the fitted Poisson model expects approximately 37 -- only about 5% as many zeros as were observed. This large discrepancy identifies zero prediction as an important part of the model’s lack of fit. It does not, however, demonstrate that the data contain a distinct class of structural zeros. 
+The fitted Poisson model expects approximately 37 zero-visit records, only 5.4% of the 683 observed. NB2 expects approximately 623, or 91.2% of the observed number. Allowing extra variation within one count process therefore explains most of what initially looked like a zero surplus.
 
-Unmodelled heterogeneity, an inadequate mean specification, or overdispersion in the count process could also produce more zeros than a Poisson model predicts. Negative binomial and zero-inflated models therefore remain competing explanations, and we explore them in the next section.
+The remaining shortfall is about 60 zero records. That discrepancy keeps a separate extra-zero process under consideration, but it does not prove that such a process exists. Misspecification of the conditional mean, other forms of heterogeneity, or a different count distribution could also affect zero prediction.
+
+The baseline analysis has therefore narrowed rather than settled the question. Poisson is too restrictive, while NB2 captures most of the dispersion and zero frequency without a latent class. Section 4 introduces the extra-zero mechanism so that its additional structure can be compared with this stronger one-process benchmark.
 
 # How Zero-Inflated Models Work
 
 ## The Core Concept: Two-Process Thinking
 
-The Poisson checks justify considering more flexible models: we introduce the zero-inflated candidate next because its two-process structure requires explanation before it can be compared with the one-process negative binomial alternative. The model assumes that the data arise from two connected processes: one that produces structural zeros and another that produces counts, including sampling zeros.
+Unlike the negative binomial baseline, which keeps every participant in one count process, a zero-inflated model assumes that the data arise from two connected processes: one that produces structural zeros and another that produces counts, including sampling zeros.
 
 The diagram shows the two possible routes to an observed zero:
 
@@ -874,7 +894,7 @@ The difference from ZIP is practical:
 - Parameter $\phi$ controls additional overdispersion within the potential user group
 - As $\phi \to \infty$, the negative binomial count distribution approaches a Poisson distribution
 
-The same distinction between conditional and population moments applies here. Under the `nbinom2` parameterization used later, the count process has mean $\mu$ and variance $\mu + \mu^2/\phi$. After mixing in the extra-zero group,
+The same distinction between conditional and population moments applies here. Under the `nbinom2` parameterization used for the baseline and ZINB models, the count process has mean $\mu$ and variance $\mu + \mu^2/\phi$. After mixing in the extra-zero group,
 
 $$
 \begin{aligned}
@@ -922,35 +942,28 @@ A predictor may appear in both components because the formulas address different
 
 # Fitting, Checking, and Interpreting the Models
 
-We now move from foundations to model choice. There are two decisions to keep separate:
+The Poisson and negative binomial baselines established the one-process alternatives. The comparison now adds ZIP and ZINB while keeping two decisions separate:
 
 1. **Model-family choice**: Poisson, negative binomial, ZIP, or ZINB.
 2. **Model-specification choice**: which predictors belong in the count component and, if present, which predictors belong in the zero-inflation component.
 
-The Poisson model and `count_formula` were created in the baseline section, so we reuse them rather than fitting the same model twice. For the first comparison, ZIP and ZINB also share the compact zero-inflation formula motivated above. Holding both formulas fixed isolates the main family contrast: Poisson versus negative-binomial variation in the count process. After that comparison, we revisit the zero-inflation formula as a specification decision.
+The baseline section created `count_formula`, `poisson_model`, and `nb_model`, so all three objects are reused here. ZIP and ZINB share the compact zero-inflation formula motivated above. Holding both formulas fixed isolates the main family contrast: Poisson versus negative-binomial variation in the count process. After that comparison, we revisit the zero-inflation formula as a specification decision.
 
-## Fit the Remaining Candidates
+## Fit the Zero-Inflated Candidates
 
 ```{r}
 #| label: fit-zero-inflated-models
 #| cache: true
 #| output: false
 
-# Reuse the baseline Poisson model fitted earlier. # <1>
+# Reuse the Poisson and negative binomial baselines. # <1>
 
 baseline_zi_formula <- ~ numchron + male + married # <2>
-
-# A negative binomial model without a separate zero process
-nb_model <- glmmTMB( # <3>
-  count_formula,
-  data = medcare,
-  family = nbinom2() # <3>
-)
 
 # Zero-inflated Poisson model
 zip_model <- glmmTMB(
   count_formula,
-  ziformula = baseline_zi_formula, # <4>
+  ziformula = baseline_zi_formula, # <3>
   data = medcare,
   family = poisson()
 )
@@ -958,17 +971,16 @@ zip_model <- glmmTMB(
 # Zero-inflated negative binomial model
 zinb_family_model <- glmmTMB(
   count_formula,
-  ziformula = baseline_zi_formula, # <4>
+  ziformula = baseline_zi_formula, # <3>
   data = medcare,
-  family = nbinom2() # <5>
+  family = nbinom2() # <4>
 )
 ```
 
-1. The baseline Poisson fit remains part of the comparison, but the object already exists from the earlier diagnostic section.
+1. The Poisson and negative binomial fits remain part of the comparison, but both objects already exist from the baseline section.
 2. The shared zero-inflation formula carries forward the clearest adjusted associations with observed zeros from @tbl-logistic-analysis.
-3. The negative binomial model keeps one count-generating process and adds conditional overdispersion.
-4. ZIP and ZINB use the same count and zero-inflation formulas, so their difference in this comparison is the count distribution.
-5. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
+3. ZIP and ZINB use the same count and zero-inflation formulas, so their difference in this comparison is the count distribution.
+4. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
 
 The Poisson and negative binomial models provide one-process benchmarks. In particular, a negative binomial model can sometimes explain an apparent surplus of zeros through additional count variation, without introducing a second latent process.
 
@@ -980,7 +992,7 @@ We now have four plausible descriptions of the same outcome: Poisson, negative b
 #| label: tbl-model-performance
 #| code-fold: true
 #| cache: true
-#| dependson: fit-zero-inflated-models
+#| dependson: [fit-nb-baseline, fit-zero-inflated-models]
 #| code-summary: "Show model-comparison code"
 #| tbl-cap: "In-sample comparison of the four count models. Lower AIC, BIC, and RMSE values indicate better fit by each criterion."
 
