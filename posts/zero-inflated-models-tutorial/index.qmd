@@ -45,38 +45,6 @@ enable_knitr_chunk_profile()
   background-repeat: no-repeat;
 }
 
-.model-moments {
-  display: grid;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-.model-moment {
-  background: rgba(var(--bs-body-color-rgb), 0.045);
-  border: 1px solid var(--bs-border-color);
-  border-top: 3px solid var(--bs-primary);
-  border-radius: var(--bs-border-radius-lg, 0.75rem);
-  box-shadow: 0 0.5rem 1.5rem rgba(var(--bs-body-color-rgb), 0.08);
-  padding: 1.2rem 1.25rem;
-}
-
-.model-moment > :last-child {
-  margin-bottom: 0;
-}
-
-.model-moment .math.display {
-  margin: 0.85rem 0;
-}
-
-.model-moment-result {
-  border-top: 1px solid var(--bs-border-color);
-  color: var(--bs-secondary-color);
-  display: block;
-  font-size: 0.9rem;
-  margin-top: 1rem;
-  padding-top: 0.8rem;
-}
-
 /* Keep long equations inside the article column on narrow screens. MathJax
    containers are keyboard-focusable, so readers can scroll them directly. */
 mjx-container[display="true"] {
@@ -87,11 +55,6 @@ mjx-container[display="true"] {
   padding-bottom: 0.25rem;
 }
 
-@media (min-width: 768px) {
-  .model-moments {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 </style>
 ```
 
@@ -764,159 +727,197 @@ The baseline analysis has therefore narrowed rather than settled the question. P
 
 # How Zero-Inflated Models Work
 
-## The Core Concept: Two-Process Thinking
+## A Latent Two-Process Model
 
-Unlike the negative binomial baseline, which keeps every participant in one count process, a zero-inflated model assumes that the data arise from two connected processes: one that produces structural zeros and another that produces counts, including sampling zeros.
+Unlike the negative binomial baseline, which keeps every participant in one count process, a zero-inflated model allows either of two states to generate each observed count. For participant $i$, we introduce $S_i$ as a binary indicator of that state.
 
-The diagram shows the two possible routes to an observed zero:
+- $S_i=1$ means the **extra-zero state** is active. In this state, the recorded number of visits must be zero.
+- $S_i=0$ means the **count-generating state** is active. This state can produce either zero visits or a positive number of visits.
 
-![A zero-inflated model first estimates whether an observation belongs to a structural-zero group, then uses a count process for observations that can produce events.](zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a new patient enters a zero-inflation process, which either produces a structural zero or passes the patient to a count process that can produce a sampling zero or one or more visits."}
+The state is *latent* because it is not recorded in the data. When a participant has zero visits, we do not know which state generated that zero. The idea is to model the probability that an individual patient will fall under each state.
 
-That separation of stages is the key idea underpinning this model. We can ask one set of questions about who is likely to be in the extra-zero group, and another set about how many visits we expect among people who can generate visits. Here, the parameter $\pi$ represents the probability of being a structural zero.
-
-## Breaking Down the Healthcare Process
-
-For the Medicare data, I find it useful to translate the two components into two different questions:
-
-**Stage 1 — zero-inflation process**: which patient profiles are more likely to belong to the latent extra-zero group?
-
-- Plausible predictors include health status, age, and factors related to access or eligibility.
-- The coefficients describe changes in the odds of belonging to that extra-zero group.
-
-**Stage 2 — count process**: for patients in the count-generating group, how does the expected number of visits change?
-
-- Plausible predictors include chronic conditions, poor health, age, and social support.
-- The coefficients describe proportional changes in the expected visit count.
-
-This language is deliberately cautious. The model estimates membership in a latent statistical group; it does not observe a patient's reason for recording zero visits. Access barriers may provide a good substantive explanation, but the fitted zero-inflation component does not prove that explanation by itself.
-
-## Mathematical Formulation
-
-We can concretize the intuition by formalizing the two-process story with a simple set of equations.
-
-Let $Y_i$ be the observed count for person $i$. A zero-inflated model has two linked parts:
-
-- $\pi_i$, the probability that person $i$ belongs to the latent extra-zero group
-- $f_c(k;\mu_i,\theta)$, the probability of count $k$ under the count-generating distribution, with mean $\mu_i$ and any additional distribution parameter $\theta$
-
-The general mixture form is
-
-$$P(Y_i = 0) = \pi_i + (1-\pi_i)f_c(0;\mu_i,\theta),$$
-
-and for positive counts,
-
-$$P(Y_i = k) = (1-\pi_i)f_c(k;\mu_i,\theta), \qquad k = 1, 2, 3, \ldots.$$
-
-In words, an observed zero can come directly from the extra-zero process or from the count process producing a zero by chance. A positive count can only come from the count process. In `glmmTMB`, the main formula supplies predictors for the count-process mean, while `ziformula` supplies predictors for $\pi_i$ on the logit scale:
-
-$$\log(\mu_i) = X_i\beta, \qquad \operatorname{logit}(\pi_i) = Z_i\gamma.$$
-
-Here $X_i$ is the row vector of count-component predictor values for person $i$, and $\beta$ is the corresponding coefficient vector. Likewise, $Z_i$ is the row vector of zero-inflation predictor values, and $\gamma$ is its coefficient vector. The two row vectors may contain different predictors and normally include an intercept unless the formula removes it.
-
-### Zero-Inflated Poisson (ZIP) Model
-
-The ZIP model combines a structural-zero probability with a Poisson count model:
-
-**For zeros (no doctor visits):**
-$$P(Y = 0) = \pi + (1-\pi)e^{-\lambda}$$
-
-**For positive counts (1, 2, 3, ... visits):**
-$$P(Y = k) = (1-\pi)\frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 1, 2, 3, ...$$
-
-Where:
-
-- $\pi$ -- probability of being a "structural zero" (never visits doctors)
-- $(1-\pi)$ -- probability of being a "potential healthcare user"
-- $\lambda$ -- expected visit rate for potential users
-- $e^{-\lambda}$ -- probability a potential user happens to have zero visits (sampling zero)
-
-The total probability of zero visits is therefore the sum of two routes: extra zeros plus sampling zeros from potential users. For non-zero visits, the probability is the Poisson probability scaled by the chance of belonging to the count-generating group.
-
-<!-- How would we estimate lambda in the this case? -->
-For a concrete healthcare interpretation, suppose we estimate $\pi = 0.15$ and $\lambda = 3.2$ for a particular patient profile. This means:
-
-- **15%** of patients are structural zeros
-- **85%** are potential healthcare users with average rate 3.2 visits/year
-
-Therefore, among potential users, $e^{-3.2}$ = 4.1% happen to have zero visits by chance, and we calculate the **total probability of zero visits** as: 15% + 85% × 4.1% = 18.5%
-
-#### What Happens to the Mean and Variance?
-
-The parameter $\lambda$ is the mean **inside the Poisson count process**. It is not the mean across the whole population, because the structural-zero group always contributes zero. Mixing the two groups therefore changes both the centre and the spread of the observed outcome.
-
-:::: {.model-moments}
-::: {.model-moment}
-**Population mean**
-
-$$E[Y] = (1-\pi)\lambda$$
-
-Only the count-generating group contributes visits.
-
-[In the example: $0.85 \times 3.2 = 2.72$ visits]{.model-moment-result}
-:::
-
-::: {.model-moment}
-**Population variance**
-
-$$\operatorname{Var}(Y) = \lambda(1-\pi)(1+\pi\lambda)$$
-
-Variation comes from the Poisson counts and from mixing a zero-only group with a count-generating group.
-
-[In the example: $3.2 \times 0.85 \times 1.48 = 4.03$]{.model-moment-result}
-:::
-::::
-
-The variance formula becomes easier to read when we split it into its two sources:
+This probability may vary across patient profiles. Let $Z_i$ contain the predictors used for this part of the model, and let $\pi_i$ be the resulting probability that participant $i$ is in the extra-zero state. We write
 
 $$
 \begin{aligned}
-\operatorname{Var}(Y)
-  &= \underbrace{(1-\pi)\lambda}_{\text{variation within the count process}} \\
-  &\quad + \underbrace{\pi(1-\pi)\lambda^2}_{\text{variation between the two groups}}.
+S_i \mid Z_i &\sim \operatorname{Bernoulli}(\pi_i), \\
+P(S_i=1\mid Z_i) &= \pi_i.
 \end{aligned}
 $$
 
-In our example, those terms are $2.72$ and $1.31$, giving a total variance of $4.03$. The second term is the important addition: even if the count process is perfectly Poisson, mixing it with a structural-zero group makes the marginal variance exceed the marginal mean whenever $0 < \pi < 1$ and $\lambda > 0$.
+In other words, $S_i$ takes the value 1 with probability $\pi_i$, based on the participant's zero-inflation predictors $Z_i$.
 
-### Zero-Inflated Negative Binomial (ZINB) Model
-
-The ZINB model keeps the same zero-inflation idea but replaces the Poisson count component with a negative binomial count component:
-
-**For zeros:**
-$$P(Y = 0) = \pi + (1-\pi)\left(\frac{\phi}{\phi+\mu}\right)^\phi$$
-
-**For positive counts:**
-$$P(Y = k) = (1-\pi)\frac{\Gamma(k+\phi)}{k!\Gamma(\phi)}\left(\frac{\phi}{\phi+\mu}\right)^\phi\left(\frac{\mu}{\phi+\mu}\right)^k$$
-
-The difference from ZIP is practical:
-
-- Uses negative binomial instead of Poisson for the count component
-- Parameter $\phi$ controls additional overdispersion within the potential user group
-- As $\phi \to \infty$, the negative binomial count distribution approaches a Poisson distribution
-
-The same distinction between conditional and population moments applies here. Under the `nbinom2` parameterization used for the baseline and ZINB models, the count process has mean $\mu$ and variance $\mu + \mu^2/\phi$. After mixing in the extra-zero group,
+Now let $Y_i$ be the observed number of visits and let $X_i$ contain the predictors used for the count component. The outcome model formalizes the two states described above:
 
 $$
 \begin{aligned}
-E[Y] &= (1-\pi)\mu, \\
-\operatorname{Var}(Y)
-  &= \underbrace{(1-\pi)\left(\mu + \frac{\mu^2}{\phi}\right)}_{
-       \text{variation within the count process}} \\
-  &\quad + \underbrace{\pi(1-\pi)\mu^2}_{
-       \text{variation between the two groups}}.
+Y_i \mid S_i=1 &\equiv 0, \\
+Y_i \mid S_i=0,X_i &\sim f_c(\,\cdot\,;\mu_i,\psi).
 \end{aligned}
 $$
 
-ZINB therefore adds one source of variation to the ZIP model: the $\mu^2/\phi$ term allows overdispersion within the count-generating group, while the final term still captures variation from mixing that group with an extra-zero group. A second worked example would repeat the ZIP calculation without adding much intuition, so I will use this decomposition as the bridge to the fitted models.
+When the extra-zero state is active, by definition the number of visits must be zero. In the count-generating state, visits follow $f_c$, a count distribution with mean $\mu_i$. The placeholder $\psi$ represents a family-specific dispersion parameter when one is required: it is absent for Poisson and equals $\phi$ for the NB2 model used later.
 
-I would consider ZINB over ZIP when:
+The central point is simpler than the notation: the extra-zero state always produces zero, whereas the count-generating state can produce either zero or a positive count. @fig-zero-inflated-process illustrates the two-stage process.
 
-- the data have excess zeros
-- the positive counts are still more variable than a Poisson model can handle
+![A zero-inflated model assigns probability to a latent extra-zero state and uses a count process for observations outside that state.](zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a patient record enters a zero-inflation process, which can produce an extra zero or pass the record to a count process that can produce zero or one or more visits."}
 
-Healthcare utilisation often has both features: more zero visits than a simple count model predicts, and substantial variation among the remaining counts. Whether ZINB is worth the additional zero-inflation component is still an empirical question, so we will compare it with a standard negative binomial model rather than treating zero inflation as the automatic answer.
+For the Medicare data, the two components therefore ask different questions. The zero-inflation component asks which patient profiles receive a higher probability of the extra-zero state. The count component asks how expected visits change within the count-generating state.
 
-## Choosing Predictors
+## Mixture Probabilities and Joint Likelihood
+
+The two latent states create two routes to an observed zero but only one route to a positive count. Let $f_c(k;\mu_i,\psi)$ denote the probability that the count component assigns to the value $k$.
+
+- If $y_i=0$, the zero may come directly from the extra-zero state, with probability $\pi_i$, or from the count-generating state producing zero, with probability $(1-\pi_i)f_c(0;\mu_i,\psi)$.
+- If $y_i>0$, the observation must come from the count-generating state, with probability $(1-\pi_i)f_c(y_i;\mu_i,\psi)$.
+
+The likelihood contribution $L_i$ is the probability that the model assigns to the outcome observed for participant $i$. The two cases above give
+
+$$
+L_i(\pi_i,\mu_i,\psi)
+=
+\begin{cases}
+\pi_i+(1-\pi_i)f_c(0;\mu_i,\psi), & y_i=0, \\
+(1-\pi_i)f_c(y_i;\mu_i,\psi), & y_i>0.
+\end{cases}
+$$
+
+This equation does not classify a zero as one type or the other. Instead, it adds the probabilities of both possible routes.
+
+*If your main goal is to fit and interpret zero-inflated models, you can skip the next equation. The paragraph after it contains the practical point.*
+
+To fit the model, we combine the likelihood contributions from all $n$ participants. The parameters $\beta$ and $\gamma$ are the count- and zero-inflation coefficient vectors introduced more fully in Section 4.4:
+
+$$
+L(\beta,\gamma,\psi)
+=\prod_{i=1}^{n}L_i\bigl(\pi_i(\gamma),\mu_i(\beta),\psi\bigr).
+$$
+
+The product tells the fitting procedure to find one set of count, zero-inflation, and dispersion parameters that collectively makes the observed data most plausible. Both components are therefore estimated jointly. The model does not first classify the zeros and then fit two separate regressions.
+
+This distinction also explains why the preliminary logistic regression in @tbl-logistic-analysis is not the fitted zero-inflation component. That regression predicts whether an observed count equals zero, regardless of which state produced it. The fitted zero-inflation component instead models the unobserved event $S_i=1$. Let $p_{0i}=P(Y_i=0\mid X_i,Z_i)$ denote the overall probability of zero. The two outcomes have different probabilities:
+
+$$
+\begin{aligned}
+p_{0i} &=\pi_i \\
+  &\quad +(1-\pi_i)f_c(0;\mu_i,\psi), \\
+P(S_i=1\mid Z_i) &=\pi_i.
+\end{aligned}
+$$
+
+Although the state remains unobserved, seeing a zero allows the model to update the probability that the extra-zero state generated it. Bayes' rule gives
+
+$$
+\begin{aligned}
+&P(S_i=1\mid Y_i=0,X_i,Z_i) \\
+&\qquad=\frac{\pi_i}{p_{0i}}.
+\end{aligned}
+$$
+
+The numerator is the probability of the extra-zero route. The denominator is the total probability of observing zero through either route. For a positive count, the posterior probability of the extra-zero state is zero because that state cannot produce a positive value.
+
+For a concrete ZIP example, suppose the model assigns observations with a particular covariate profile $\pi_i=0.15$ and a Poisson count-component mean $\lambda_i=3.2$.
+
+- Within the count-generating state, the probability of zero visits is $e^{-3.2}=0.041$, or 4.1%.
+- Combining both routes gives an overall zero probability of $0.15+0.85(0.041)=0.185$, or 18.5%.
+- If an observation with this profile equals zero, the posterior probability of the extra-zero state is $0.15/0.185\approx0.81$, or 81%.
+
+The model therefore assigns the zero more strongly to the extra-zero route, but it does not establish the state with certainty or turn it into an observed diagnosis.
+
+## Conditional Mixture Mean and Variance
+
+The mean and variance of a zero-inflated outcome combine the two latent states. Suppose the count-generating state has mean $\mu_i$ and variance $V_c(\mu_i)$, where $V_c$ is the variance function of the selected count distribution:
+
+$$
+\begin{aligned}
+E(Y_i\mid S_i=0,X_i) &= \mu_i, \\
+\operatorname{Var}(Y_i\mid S_i=0,X_i) &= V_c(\mu_i).
+\end{aligned}
+$$
+
+The extra-zero state contributes a value of zero with probability $\pi_i$, while the count-generating state contributes an average of $\mu_i$ with probability $1-\pi_i$. Averaging over those states gives
+
+$$
+E(Y_i\mid X_i,Z_i)
+=\pi_i(0)+(1-\pi_i)\mu_i
+=(1-\pi_i)\mu_i.
+$$
+
+This is the **conditional mixture mean**: it is conditional on the observed predictors $X_i$ and $Z_i$, but averages over the unobserved state $S_i$. It is smaller than the count-component mean $\mu_i$ whenever $\pi_i>0$.
+
+The mixture variance has two sources: variation among counts within the count-generating state, and additional variation from mixing that state with an always-zero state.
+
+*The variance derivation is not required for fitting or interpreting the models. You can skip to the table below; the key point is that the two sources of variation are added together.*
+
+Applying the law of total variance gives the two-term decomposition
+
+$$
+\begin{aligned}
+\operatorname{Var}(Y_i\mid X_i,Z_i)
+&=(1-\pi_i)V_c(\mu_i) \\
+&\quad+\pi_i(1-\pi_i)\mu_i^2.
+\end{aligned}
+$$
+
+In the final line, $(1-\pi_i)V_c(\mu_i)$ is the contribution from variation within the count-generating state. The term $\pi_i(1-\pi_i)\mu_i^2$ is the additional variation created by mixing the two states.
+
+We can now substitute the variance functions from Section 2 rather than derive ZIP and ZINB separately. The final column of @tbl-zero-inflated-moments shows the resulting variance of the observed mixture; the preceding columns identify the count-component ingredients.
+
+::: {#tbl-zero-inflated-moments .responsive}
+
+| Model | Count-state zero probability $f_c(0)$ | Count-state variance $V_c(\mu_i)$ | Conditional mixture variance |
+|:--|:--|:--|:--|
+| ZIP | $e^{-\mu_i}$ | $\mu_i$ | $(1-\pi_i)\mu_i+\pi_i(1-\pi_i)\mu_i^2$ |
+| ZINB (NB2) | $\left(\dfrac{\phi}{\phi+\mu_i}\right)^\phi$ | $\mu_i+\dfrac{\mu_i^2}{\phi}$ | $(1-\pi_i)\left(\mu_i+\dfrac{\mu_i^2}{\phi}\right)+\pi_i(1-\pi_i)\mu_i^2$ |
+
+Count-component probabilities and resulting mixture variances for ZIP and ZINB.
+:::
+
+Both models have conditional mixture mean $(1-\pi_i)\mu_i$. ZIP combines an extra-zero state with a Poisson count state. ZINB adds the term $\mu_i^2/\phi$, allowing overdispersion within the count-generating state as well. As $\phi\to\infty$, that additional NB2 variation disappears and the ZINB expressions approach their ZIP counterparts.
+
+The practical summary is that zero inflation changes both the mean and the variance. It reduces the overall expected count by the factor $1-\pi_i$ and adds variation because observations may arise from different latent states.
+
+## Regression Structure and Overall Expected Counts
+
+The model needs one regression for each component. Let $X_i$ contain the count-component predictors and $\beta$ their coefficients. Let $Z_i$ contain the zero-inflation predictors and $\gamma$ their coefficients. The two regressions are
+
+$$
+\begin{aligned}
+\log(\mu_i) &= X_i\beta, \\
+\operatorname{logit}(\pi_i) &= Z_i\gamma.
+\end{aligned}
+$$
+
+The log link keeps the count-component mean $\mu_i$ positive. The logit link keeps the extra-zero probability $\pi_i$ between zero and one. The two components may use different predictors, although both normally include an intercept.
+
+The coefficients answer component-specific questions:
+
+- $e^{\beta_j}$ is a rate ratio within the count-generating state.
+- $e^{\gamma_j}$ is an odds ratio for membership in the extra-zero state.
+
+Neither quantity automatically describes the predictor's combined association with observed visits. The overall expected count combines both components:
+
+$$
+m_i=E(Y_i\mid X_i,Z_i)=(1-\pi_i)\mu_i.
+$$
+
+For example, a predictor may increase the expected number of visits within the count-generating state while also increasing the probability of the extra-zero state. The first pathway raises the overall mean, while the second lowers it.
+
+*The next equation makes this combined effect explicit, but it is optional for following the case study. Section 5 uses response-scale predictions to provide the practical interpretation.*
+
+For the additive linear predictors used here, if $x_j$ appears in both components, a one-unit increase gives the overall expected-count ratio
+
+$$
+\frac{m_i(x_j+1)}{m_i(x_j)}
+=e^{\beta_j}
+\frac{1-\pi_i(x_j+1)}{1-\pi_i(x_j)}.
+$$
+
+The first factor is the change in the count-component mean. The second is the change in the probability of being in the count-generating state. Because the second factor depends on the covariate profile, the combined ratio can also vary across profiles.
+
+If $x_j$ appears only in the count component, $\pi_i$ remains fixed and the overall ratio reduces to $e^{\beta_j}$. If it appears only in the zero-inflation component, the first factor equals one and the overall association operates through $\pi_i$. Chronic conditions, sex, and marital status enter both components of the working model, so Section 5 supplements their component coefficients with response-scale predictions.
+
+## Choosing Predictors for Each Component
 
 The two components describe different parts of the outcome distribution and therefore need not use the same predictors. The count component models expected visit intensity within the count-generating group. The zero-inflation component models the probability of membership in the latent extra-zero group. A predictor belongs in either formula when its proposed role matches that estimand and the available data can support the distinction.
 
@@ -1294,6 +1295,74 @@ The intervals for sex and marital status include 1, so this specification does n
 - **Marital status:** Married participants have lower estimated odds than those who are not married (0.35, 95% CI 0.21–0.59).
 
 These estimates are descriptive rather than causal. The model associates the three selected predictors with latent extra-zero membership; it does not establish why those associations arise, nor does it reveal which individual zero observations are structural.
+
+### Overall Expected Visits
+
+The component tables answer two useful but partial questions. The count table describes $\mu_i$ within the count-generating state, while the zero-inflation table describes $\pi_i$. Expected visits on the observed response scale combine them as $(1-\pi_i)\mu_i$.
+
+@tbl-zinb-overall-contrasts reports average standardized predictions for the three predictors shared by both components. For each contrast, the focal predictor is changed for every eligible participant while all other predictors retain their observed values; the response-scale predictions are then averaged. The chronic-condition contrast excludes the three participants already at the observed maximum of eight conditions, avoiding extrapolation beyond the data.
+
+```{r}
+#| label: tbl-zinb-overall-contrasts
+#| cache: true
+#| dependson: tbl-zinb-specification-candidates
+#| code-fold: true
+#| code-summary: "Show standardized-prediction code"
+#| tbl-cap: "Average standardized overall expected visits from the working ZINB model. Values are model-based point predictions marginal over the latent state."
+
+average_response_prediction <- function(newdata) {
+  mean(predict(zinb_model, newdata = newdata, type = "response"))
+}
+
+chronic_reference <- medcare |>
+  filter(numchron < max(numchron))
+chronic_comparison <- chronic_reference |>
+  mutate(numchron = numchron + 1)
+
+female_scenario <- medcare |>
+  mutate(male = 0)
+male_scenario <- medcare |>
+  mutate(male = 1)
+not_married_scenario <- medcare |>
+  mutate(married = 0)
+married_scenario <- medcare |>
+  mutate(married = 1)
+
+overall_contrasts <- tibble::tibble(
+  Contrast = c(
+    "One more vs observed chronic-condition count",
+    "Male vs female",
+    "Married vs not married"
+  ),
+  Reference = c(
+    average_response_prediction(chronic_reference),
+    average_response_prediction(female_scenario),
+    average_response_prediction(not_married_scenario)
+  ),
+  Comparison = c(
+    average_response_prediction(chronic_comparison),
+    average_response_prediction(male_scenario),
+    average_response_prediction(married_scenario)
+  )
+) |>
+  mutate(
+    Difference = Comparison - Reference,
+    Ratio = Comparison / Reference
+  ) |>
+  transmute(
+    Contrast,
+    `Reference mean` = sprintf("%.2f", Reference),
+    `Comparison mean` = sprintf("%.2f", Comparison),
+    Difference = sprintf("%+.2f", Difference),
+    Ratio = sprintf("%.2f", Ratio)
+  )
+
+knitr::kable(overall_contrasts, align = c("l", "r", "r", "r", "r"))
+```
+
+These predictions show how the two components combine. Each additional chronic condition raises the count-state mean and lowers the estimated probability of the extra-zero state, so both pathways increase overall expected visits. The count-component estimate for sex is close to one, but men's higher estimated extra-zero probability lowers their overall expected visits relative to women. Marriage has opposing component associations: its fitted count-state mean is lower, while its estimated extra-zero probability is also lower. The two pathways nearly offset one another, leaving an overall point-prediction ratio of 0.98 for married versus not married.
+
+The contrasts average over the observed covariate distribution instead of defining a single typical patient. They remain descriptive associations from the fitted model, not causal effects, and the point predictions do not express uncertainty about the estimated parameters.
 
 <!-- TODO: This needs to transition more into an "end of tutorial recap" you would find at the end of a scientific blog or end-of-chapter section of a textbook -->
 # Conclusion and Final Remarks
