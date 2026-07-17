@@ -764,12 +764,14 @@ The central point is simpler than the notation: the extra-zero state always prod
 
 For the Medicare data, the two components therefore ask different questions. The zero-inflation component asks which patient profiles receive a higher probability of the extra-zero state. The count component asks how expected visits change within the count-generating state.
 
-## Mixture Probabilities and Joint Likelihood
+## Mixture Probabilities and Likelihood
 
-The two latent states create two routes to an observed zero but only one route to a positive count. Let $f_c(k;\mu_i,\psi)$ denote the probability that the count component assigns to the value $k$.
+Zeros are ambiguous because either latent state can produce them. Positive counts are not: they can come only from the count-generating state. This asymmetry gives the model information about both components. It estimates them jointly from all observations rather than classifying the zeros first and then fitting separate regressions.
 
-- If $y_i=0$, the zero may come directly from the extra-zero state, with probability $\pi_i$, or from the count-generating state producing zero, with probability $(1-\pi_i)f_c(0;\mu_i,\psi)$.
-- If $y_i>0$, the observation must come from the count-generating state, with probability $(1-\pi_i)f_c(y_i;\mu_i,\psi)$.
+Let $f_c(k;\mu_i,\psi)$ denote the probability that the count component assigns to the value $k$. The possible routes are:
+
+- If $y_i=0$, the observation may come directly from the extra-zero state, with probability $\pi_i$, or from the count-generating state producing zero, with probability $(1-\pi_i)f_c(0;\mu_i,\psi)$.
+- If $y_i>0$, the observation has one possible route: the count-generating state, with probability $(1-\pi_i)f_c(y_i;\mu_i,\psi)$.
 
 The likelihood contribution $L_i$ is the probability that the model assigns to the outcome observed for participant $i$. The two cases above give
 
@@ -782,47 +784,54 @@ L_i(\pi_i,\mu_i,\psi)
 \end{cases}
 $$
 
-This equation does not classify a zero as one type or the other. Instead, it adds the probabilities of both possible routes.
+In each case, $L_i$ is the probability that the model assigns to participant $i$'s observed outcome. For a zero, the contribution adds the probabilities of both routes instead of choosing one. Across the sample, these contributions form a single objective for estimating the count, zero-inflation, and dispersion parameters together.
 
-*If your main goal is to fit and interpret zero-inflated models, you can skip the next equation. The paragraph after it contains the practical point.*
+::: {.callout-caution collapse="true" title="The full likelihood"}
 
-To fit the model, we combine the likelihood contributions from all $n$ participants. The parameters $\beta$ and $\gamma$ are the count- and zero-inflation coefficient vectors introduced more fully in Section 4.4:
+Multiplying the contributions from all $n$ participants gives the full likelihood. The coefficient vectors $\beta$ and $\gamma$ govern the count and zero-inflation components, respectively:
 
 $$
 L(\beta,\gamma,\psi)
-=\prod_{i=1}^{n}L_i\bigl(\pi_i(\gamma),\mu_i(\beta),\psi\bigr).
+=
+\prod_{i=1}^{n}
+L_i\bigl(\pi_i(\gamma),\mu_i(\beta),\psi\bigr).
 $$
 
-The product tells the fitting procedure to find one set of count, zero-inflation, and dispersion parameters that collectively makes the observed data most plausible. Both components are therefore estimated jointly. The model does not first classify the zeros and then fit two separate regressions.
+Maximizing this product estimates the count, zero-inflation, and dispersion parameters jointly.
 
-This distinction also explains why the preliminary logistic regression in @tbl-logistic-analysis is not the fitted zero-inflation component. That regression predicts whether an observed count equals zero, regardless of which state produced it. The fitted zero-inflation component instead models the unobserved event $S_i=1$. Let $p_{0i}=P(Y_i=0\mid X_i,Z_i)$ denote the overall probability of zero. The two outcomes have different probabilities:
+:::
 
-$$
-\begin{aligned}
-p_{0i} &=\pi_i \\
-  &\quad +(1-\pi_i)f_c(0;\mu_i,\psi), \\
-P(S_i=1\mid Z_i) &=\pi_i.
-\end{aligned}
-$$
+Joint estimation also explains why the preliminary logistic regression in @tbl-logistic-analysis is not the fitted zero-inflation component. The preliminary regression models the observed event $Y_i=0$, regardless of which state produced the zero. The fitted zero-inflation component models the latent event $S_i=1$. These are different outcomes: the probability of an observed zero includes both routes, whereas $\pi_i$ is the model probability of the extra-zero state.
 
-Although the state remains unobserved, seeing a zero allows the model to update the probability that the extra-zero state generated it. Bayes' rule gives
+Because the state remains unobserved, a zero raises the practical question: given that we observed a zero, what is the probability that it came from the extra-zero state rather than from the count-generating state? The posterior probability below answers that question. Bayes' rule first expresses it in terms of model probabilities:
 
 $$
 \begin{aligned}
-&P(S_i=1\mid Y_i=0,X_i,Z_i) \\
-&\qquad=\frac{\pi_i}{p_{0i}}.
+P(S_i=1\mid Y_i=0,X_i,Z_i)
+&=
+\frac{
+P(Y_i=0\mid S_i=1)P(S_i=1\mid Z_i)
+}{
+P(Y_i=0\mid X_i,Z_i)
+} \\
+&=
+\frac{
+1\times\pi_i
+}{
+\pi_i+(1-\pi_i)f_c(0;\mu_i,\psi)
+}.
 \end{aligned}
 $$
 
-The numerator is the probability of the extra-zero route. The denominator is the total probability of observing zero through either route. For a positive count, the posterior probability of the extra-zero state is zero because that state cannot produce a positive value.
+The first numerator term equals one because the extra-zero state always produces zero. The prior model probability of that state is $\pi_i$ by definition of the zero-inflation component. The denominator contains both routes to an observed zero: the extra-zero route and a zero from the count-generating state. For a positive count, the posterior probability of the extra-zero state is zero because that state cannot produce a positive value.
 
-For a concrete ZIP example, suppose the model assigns observations with a particular covariate profile $\pi_i=0.15$ and a Poisson count-component mean $\lambda_i=3.2$.
+For a concrete example with a Poisson count component, suppose the model assigns observations with a particular covariate profile an extra-zero probability $\pi_i=0.15$ and a count-component mean $\lambda_i=3.2$.
 
 - Within the count-generating state, the probability of zero visits is $e^{-3.2}=0.041$, or 4.1%.
 - Combining both routes gives an overall zero probability of $0.15+0.85(0.041)=0.185$, or 18.5%.
 - If an observation with this profile equals zero, the posterior probability of the extra-zero state is $0.15/0.185\approx0.81$, or 81%.
 
-The model therefore assigns the zero more strongly to the extra-zero route, but it does not establish the state with certainty or turn it into an observed diagnosis.
+This posterior probability therefore updates uncertainty about the latent state. Because the count component considers zero unlikely for this profile, observing zero shifts much of the model’s probability toward the extra-zero state. This soft assignment helps estimate the two components jointly.
 
 ## Conditional Mixture Mean and Variance
 
