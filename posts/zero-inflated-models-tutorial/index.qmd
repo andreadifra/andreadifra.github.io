@@ -833,9 +833,9 @@ For a concrete example with a Poisson count component, suppose the model assigns
 
 This posterior probability therefore updates uncertainty about the latent state. Because the count component considers zero unlikely for this profile, observing zero shifts much of the model’s probability toward the extra-zero state. This soft assignment helps estimate the two components jointly.
 
-## Conditional Mixture Mean and Variance
+## Mixture Mean and Variance
 
-The mean and variance of a zero-inflated outcome combine the two latent states. Suppose the count-generating state has mean $\mu_i$ and variance $V_c(\mu_i)$, where $V_c$ is the variance function of the selected count distribution:
+Once the model has estimated the extra-zero probability and the behaviour of the count-generating state, we can ask what it predicts for observed visits. Here, $\mu_i$ is the mean of the chosen count distribution for participant $i$ within the count-generating state. Let $V_c(\mu_i)$ denote the corresponding variance:
 
 $$
 \begin{aligned}
@@ -844,7 +844,9 @@ E(Y_i\mid S_i=0,X_i) &= \mu_i, \\
 \end{aligned}
 $$
 
-The extra-zero state contributes a value of zero with probability $\pi_i$, while the count-generating state contributes an average of $\mu_i$ with probability $1-\pi_i$. Averaging over those states gives
+In a single-process count model, $\mu_i$ would also be the expected observed count. In a zero-inflated model, however, the model assigns some probability to an always-zero state. We must average over both states to obtain expected observed visits.
+
+The extra-zero state contributes zero with probability $\pi_i$, while the count-generating state contributes an average of $\mu_i$ with probability $1-\pi_i$. Therefore,
 
 $$
 E(Y_i\mid X_i,Z_i)
@@ -852,25 +854,51 @@ E(Y_i\mid X_i,Z_i)
 =(1-\pi_i)\mu_i.
 $$
 
-This is the **conditional mixture mean**: it is conditional on the observed predictors $X_i$ and $Z_i$, but averages over the unobserved state $S_i$. It is smaller than the count-component mean $\mu_i$ whenever $\pi_i>0$.
+This **conditional mixture mean** is conditional on the observed predictors $X_i$ and $Z_i$, but averages over the unobserved state $S_i$. It is the quantity we need when comparing expected visits across patient profiles. Reporting $\mu_i$ instead would describe only the count-generating state and would overstate expected observed visits whenever $\pi_i>0$.
 
-The mixture variance has two sources: variation among counts within the count-generating state, and additional variation from mixing that state with an always-zero state.
+The mean alone does not tell us how observations are distributed around that average. Two fitted distributions can predict the same expected number of visits while assigning very different probabilities to zero, moderate, and high counts. The mixture variance summarizes this spread, so it helps us judge whether the fitted distribution represents the observed pattern of visits.
 
-*The variance derivation is not required for fitting or interpreting the models. You can skip to the table below; the key point is that the two sources of variation are added together.*
+::: {.callout-caution collapse="true" title="Deriving the mixture variance"}
 
-Applying the law of total variance gives the two-term decomposition
+The law of total variance separates variation within the latent states from variation between their conditional means.
+
+**Within-state variation** is the variation that remains after fixing the latent state. The extra-zero state contributes no variance because it always produces zero. The count-generating state contributes $V_c(\mu_i)$ and occurs with probability $1-\pi_i$. Therefore,
 
 $$
-\begin{aligned}
+\begin{gathered}
+E\!\left[
+\operatorname{Var}(Y_i\mid S_i,X_i,Z_i)
+\right] \\
+=\pi_i(0)+(1-\pi_i)V_c(\mu_i) \\
+=(1-\pi_i)V_c(\mu_i).
+\end{gathered}
+$$
+
+**Between-state variation** arises because the states have different means: zero in the extra-zero state and $\mu_i$ in the count-generating state. The state-specific mean can be written as $\mu_i(1-S_i)$. Because $S_i$ is Bernoulli with probability $\pi_i$,
+
+$$
+\begin{gathered}
+\operatorname{Var}\!\left[
+E(Y_i\mid S_i,X_i,Z_i)
+\right] \\
+=\mu_i^2\operatorname{Var}(1-S_i) \\
+=\pi_i(1-\pi_i)\mu_i^2.
+\end{gathered}
+$$
+
+Adding the within-state and between-state contributions gives the mixture variance:
+
+$$
 \operatorname{Var}(Y_i\mid X_i,Z_i)
-&=(1-\pi_i)V_c(\mu_i) \\
-&\quad+\pi_i(1-\pi_i)\mu_i^2.
-\end{aligned}
+=
+\underbrace{(1-\pi_i)V_c(\mu_i)}_{\text{within-state variation}}
++
+\underbrace{\pi_i(1-\pi_i)\mu_i^2}_{\text{between-state variation}}.
 $$
 
-In the final line, $(1-\pi_i)V_c(\mu_i)$ is the contribution from variation within the count-generating state. The term $\pi_i(1-\pi_i)\mu_i^2$ is the additional variation created by mixing the two states.
+:::
 
-We can now substitute the variance functions from Section 2 rather than derive ZIP and ZINB separately. The final column of @tbl-zero-inflated-moments shows the resulting variance of the observed mixture; the preceding columns identify the count-component ingredients.
+The count distribution determines $V_c(\mu_i)$. A Poisson count state has $V_c(\mu_i)=\mu_i$, giving a **zero-inflated Poisson (ZIP)** model. An NB2 count state has $V_c(\mu_i)=\mu_i+\mu_i^2/\phi$, giving a **zero-inflated negative-binomial (ZINB)** model. The resulting mixture variances are shown below.
 
 ::: {#tbl-zero-inflated-moments .responsive}
 
@@ -882,9 +910,9 @@ We can now substitute the variance functions from Section 2 rather than derive Z
 Count-component probabilities and resulting mixture variances for ZIP and ZINB.
 :::
 
-Both models have conditional mixture mean $(1-\pi_i)\mu_i$. ZIP combines an extra-zero state with a Poisson count state. ZINB adds the term $\mu_i^2/\phi$, allowing overdispersion within the count-generating state as well. As $\phi\to\infty$, that additional NB2 variation disappears and the ZINB expressions approach their ZIP counterparts.
+Both models have conditional mixture mean $(1-\pi_i)\mu_i$. Their difference lies in the spread around that mean. ZIP uses a Poisson count state, whereas ZINB adds the term $\mu_i^2/\phi$ and therefore allows overdispersion within the count-generating state. As $\phi\to\infty$, that additional variation disappears and the ZINB expressions approach their ZIP counterparts.
 
-The practical summary is that zero inflation changes both the mean and the variance. It reduces the overall expected count by the factor $1-\pi_i$ and adds variation because observations may arise from different latent states.
+For the Medicare case study, the mean identity tells us how to calculate expected observed visits, while the variance distinguishes what each count distribution can represent. The next section connects $\pi_i$ and $\mu_i$ to predictors and asks how changes in either component affect the overall mean.
 
 ## Regression Structure and Overall Expected Counts
 
