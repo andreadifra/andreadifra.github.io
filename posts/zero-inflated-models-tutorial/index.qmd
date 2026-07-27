@@ -860,7 +860,7 @@ The mean alone does not tell us how observations are distributed around that ave
 
 ::: {.callout-caution collapse="true" title="Deriving the mixture variance"}
 
-The law of total variance separates variation within the latent states from variation between their conditional means.
+The [law of total variance](https://en.wikipedia.org/wiki/Law_of_total_variance) separates variation within the latent states from variation between their conditional means.
 
 **Within-state variation** is the variation that remains after fixing the latent state. The extra-zero state contributes no variance because it always produces zero. The count-generating state contributes $V_c(\mu_i)$ and occurs with probability $1-\pi_i$. Therefore,
 
@@ -914,9 +914,13 @@ Both models have conditional mixture mean $(1-\pi_i)\mu_i$. Their difference lie
 
 For the Medicare case study, the mean identity tells us how to calculate expected observed visits, while the variance distinguishes what each count distribution can represent. The next section connects $\pi_i$ and $\mu_i$ to predictors and asks how changes in either component affect the overall mean.
 
-## Regression Structure and Overall Expected Counts
+## Regression and Overall Effects
 
-The model needs one regression for each component. Let $X_i$ contain the count-component predictors and $\beta$ their coefficients. Let $Z_i$ contain the zero-inflation predictors and $\gamma$ their coefficients. The two regressions are
+We have seen that the overall mean depends on both the count-state mean $\mu_i$ and the extra-zero probability $\pi_i$. The next question is then: how does a predictor change that mean?
+
+In a zero-inflated model, a predictor may change expected visits within the count-generating state, the probability of the extra-zero state, or both. Its component coefficient therefore need not describe its association with observed visits.
+
+Let $X_i$ contain the count-component predictors and let $\beta$ contain their coefficients. Let $Z_i$ contain the zero-inflation predictors and let $\gamma$ contain their coefficients. In `glmmTMB`, the zero-inflation component always uses a logit link. The count-component link is more flexible: the log link is the default for the Poisson and NB2 distributions used here, as it is for most count distributions available in `glmmTMB`, but it can be changed. The models in this tutorial therefore use
 
 $$
 \begin{aligned}
@@ -925,34 +929,42 @@ $$
 \end{aligned}
 $$
 
-The log link keeps the count-component mean $\mu_i$ positive. The logit link keeps the extra-zero probability $\pi_i$ between zero and one. The two components may use different predictors, although both normally include an intercept.
+The log link keeps $\mu_i$ positive, while the logit link keeps $\pi_i$ between zero and one. A predictor may appear in either equation or in both.
 
-The coefficients answer component-specific questions:
+**Count component**: For a predictor $x_j$ in $X_i$, $e^{\beta_j}$ is the rate ratio for a one-unit increase in $x_j$, holding the other count-component predictors fixed. It describes how $\mu_i$ changes within the count-generating state.
 
-- $e^{\beta_j}$ is a rate ratio within the count-generating state.
-- $e^{\gamma_j}$ is an odds ratio for membership in the extra-zero state.
+**Zero-inflation component**: For a predictor $x_j$ in $Z_i$, $e^{\gamma_j}$ is the odds ratio for the extra-zero state. A value above one means that a one-unit increase in $x_j$ raises the modelled odds of that state, holding the other zero-inflation predictors fixed.
 
-Neither quantity automatically describes the predictor's combined association with observed visits. The overall expected count combines both components:
+Neither coefficient alone answers the practical question: how do expected observed visits change? That quantity still requires both components, which as we have seen in the previous section, is given by:
 
 $$
-m_i=E(Y_i\mid X_i,Z_i)=(1-\pi_i)\mu_i.
+m_i
+=E(Y_i\mid X_i,Z_i)
+=(1-\pi_i)\mu_i.
 $$
 
-For example, a predictor may increase the expected number of visits within the count-generating state while also increasing the probability of the extra-zero state. The first pathway raises the overall mean, while the second lowers it.
+In essence, the two pathways can reinforce or offset one another. Suppose a one-unit increase in a predictor raises $\mu_i$ from 4 to 5 but also raises $\pi_i$ from 0.10 to 0.30. The count-state mean increases by 25%, yet the overall mean falls slightly, from $(1-0.10)4=3.6$ to $(1-0.30)5=3.5$. The higher extra-zero probability more than offsets the higher count-state mean. If $\mu_i$ rises while $\pi_i$ falls, the two pathways instead reinforce one another.
 
-*The next equation makes this combined effect explicit, but it is optional for following the case study. Section 5 uses response-scale predictions to provide the practical interpretation.*
+::: {.callout-caution collapse="true" title="Combining both pathways"}
 
-For the additive linear predictors used here, if $x_j$ appears in both components, a one-unit increase gives the overall expected-count ratio
+For the additive linear predictors used here, suppose $x_j$ appears in both components. A one-unit increase gives the overall expected-count ratio
 
 $$
 \frac{m_i(x_j+1)}{m_i(x_j)}
-=e^{\beta_j}
-\frac{1-\pi_i(x_j+1)}{1-\pi_i(x_j)}.
+=
+\underbrace{e^{\beta_j}}_{\text{count-state change}}
+\underbrace{
+\frac{1-\pi_i(x_j+1)}{1-\pi_i(x_j)}
+}_{\text{count-state probability change}}.
 $$
 
-The first factor is the change in the count-component mean. The second is the change in the probability of being in the count-generating state. Because the second factor depends on the covariate profile, the combined ratio can also vary across profiles.
+The first factor is the change in the count-state mean. The second is the change in the probability of being in the count-generating state. If $x_j$ appears only in the count component, the second factor equals one. If it appears only in the zero-inflation component, the first factor equals one.
 
-If $x_j$ appears only in the count component, $\pi_i$ remains fixed and the overall ratio reduces to $e^{\beta_j}$. If it appears only in the zero-inflation component, the first factor equals one and the overall association operates through $\pi_i$. Chronic conditions, sex, and marital status enter both components of the working model, so Section 5 supplements their component coefficients with response-scale predictions.
+Unlike the count-state factor $e^{\beta_j}$, the second factor depends on the starting value of $\pi_i$. The combined ratio can therefore vary across patient profiles.
+
+:::
+
+Because the pathways can reinforce or offset one another, component coefficient tables do not show how expected observed visits change. Section 5 therefore uses response-scale predictions of $m_i$ rather than stopping at rate ratios and odds ratios. Before fitting those models, however, we must decide which predictors belong in each component.
 
 ## Choosing Predictors for Each Component
 
