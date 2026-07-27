@@ -966,11 +966,14 @@ Unlike the count-state factor $e^{\beta_j}$, the second factor depends on the st
 
 Because the pathways can reinforce or offset one another, component coefficient tables do not show how expected observed visits change. Section 5 therefore uses response-scale predictions of $m_i$ rather than stopping at rate ratios and odds ratios. Before fitting those models, however, we must decide which predictors belong in each component.
 
-## Choosing Predictors for Each Component
+## Choosing Predictors
 
-The two components describe different parts of the outcome distribution and therefore need not use the same predictors. The count component models expected visit intensity within the count-generating group. The zero-inflation component models the probability of membership in the latent extra-zero group. A predictor belongs in either formula when its proposed role matches that estimand and the available data can support the distinction.
+Once a predictor can act through either pathway, we must decide which predictors belong in each component. This is a substantive modelling decision: placing a variable in one formula but not the other restricts which part of the outcome distribution it may change.
 
-Ideally, the zero-inflation formula would include variables that directly describe why someone cannot or does not enter the visit-generating process, such as eligibility restrictions, insurance coverage, or geographic access. The `medcare` data contain no such measures. Health and demographic variables can capture systematic differences in zero probability, but they cannot establish the mechanism that produced those differences. The fitted zero-inflation component must therefore be read as a pragmatic statistical description rather than a complete model of healthcare access.
+The two components pose different questions:
+
+1. Which variables describe visit intensity within the count-generating state?
+2. Which variables plausibly describe the probability of the extra-zero state?
 
 The count component retains the baseline adjustment set used in the Poisson analysis:
 
@@ -980,15 +983,17 @@ ofp ~ healthpoor + healthexcellent + numchron + age + male + married
 
 These predictors represent health need and demographic differences that may be associated with visit rates. Their inclusion defines the conditional comparison; it does not turn the resulting coefficients into causal effects.
 
+Ideally, the zero-inflation formula would include direct measures of why someone cannot or does not enter the visit-generating process, such as eligibility restrictions, insurance coverage, or geographic access. The `medcare` data unfortunately contain no such measures. Its health and demographic variables can describe systematic differences in the estimated extra-zero probability, but they cannot identify the mechanism behind those differences.
+
 For the initial ZIP and ZINB comparison, the zero-inflation component uses the more compact formula:
 
 ```r
 ~ numchron + male + married
 ```
 
-Chronic conditions, sex, and marital status showed the clearest adjusted associations with an **observed zero** in @tbl-logistic-analysis. That result provides an empirical starting point, but it's worth highlighting that the logistic outcome combines sampling zeros with zeros from the latent extra-zero group, and as such is not a direct measurement of extra-zero membership. The later specification comparison therefore tests this compact formula against plausible alternatives rather than treating it as settled.
+Chronic conditions, sex, and marital status showed the clearest adjusted associations with an **observed zero** in @tbl-logistic-analysis. That result provides an empirical starting point, but it's not a direct measurement of extra-zero membership: as established in the mixture-probability subsection, observed zeros combine both possible routes to zero.
 
-A predictor may appear in both components because the formulas address different quantities. Here, chronic conditions, sex, and marital status may be associated both with visit intensity and with the probability assigned to the extra-zero group. Excluding a predictor from one component imposes a substantive restriction just as surely as including it does.
+These three predictors therefore enter both components initially, allowing each to be associated with visit intensity and with the estimated extra-zero probability. Including or excluding a predictor imposes a substantive restriction, and the available variables provide only indirect support for either choice. In Section 5, we therefore also compare some alternative zero-inflation specifications.
 
 # Fitting, Checking, and Interpreting the Models
 
