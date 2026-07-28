@@ -758,7 +758,7 @@ $$
 
 When the extra-zero state is active, by definition the number of visits must be zero. In the count-generating state, visits follow $f_c$, a count distribution with mean $\mu_i$. The placeholder $\psi$ represents a family-specific dispersion parameter when one is required: it is absent for Poisson and equals $\phi$ for the NB2 model used later.
 
-The central point is simpler than the notation: the extra-zero state always produces zero, whereas the count-generating state can produce either zero or a positive count. @fig-zero-inflated-process illustrates the two-stage process.
+In essence, and forgetting about notation for a moment, the central idea is that the extra-zero state always produces zero, whereas the count-generating state can produce either zero or a positive count. @fig-zero-inflated-process illustrates this two-stage process.
 
 ![A zero-inflated model assigns probability to a latent extra-zero state and uses a count process for observations outside that state.](zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a patient record enters a zero-inflation process, which can produce an extra zero or pass the record to a count process that can produce zero or one or more visits."}
 
@@ -968,7 +968,7 @@ Because the pathways can reinforce or offset one another, component coefficient 
 
 ## Choosing Predictors
 
-Once a predictor can act through either pathway, we must decide which predictors belong in each component. This is a substantive modelling decision: placing a variable in one formula but not the other restricts which part of the outcome distribution it may change.
+As we have seen in the previous section, placing a variable in one formula but not the other restricts which part of the outcome distribution it may change, and as such is an important choice to make.
 
 The two components pose different questions:
 
