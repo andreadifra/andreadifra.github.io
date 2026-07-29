@@ -1063,9 +1063,13 @@ We compare these specifications in matched pairs because each pair isolates one 
 
 It's important to keep in mind that the resulting fit statistics provide relative evidence among the specifications, but they neither identify a distinct extra-zero population nor replace distributional diagnostics, which are still needed to assess whether the chosen count distribution adequately represents the data.
 
-## Compare Model Fit
+## Separate Count-Family and Zero-Component Evidence
 
-We now have four plausible descriptions of the same outcome: Poisson, negative binomial, ZIP, and ZINB. Comparing all four is more informative than asking only whether adding zero inflation improves a Poisson model, because the negative binomial model offers another explanation for the extra variation.
+The fitted specifications now let us separate the three decisions posed at the start of this section. We first compare Poisson with NB2, using both the ordinary and zero-inflated versions, to choose the count family. We then return to the ordinary NB2 baseline and add the simplest possible extra-zero component before asking whether that component should vary across patient characteristics.
+
+Both [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) and [BIC](https://en.wikipedia.org/wiki/Bayesian_information_criterion) ask whether an improvement in likelihood is worth the additional parameters. Lower values favour a specification, but only differences among models fitted to the same observations with compatible likelihoods are meaningful. AIC emphasises expected predictive accuracy, whereas BIC is more reluctant to add parameters at this sample size, so comparing them shows how sensitive the result is to the penalty for complexity. These scores can rank the candidates considered here; the residual checks later will show whether the leading models are actually able to reproduce the data.
+
+How large do these differences need to be? There is no universal pass-or-fail cutoff. Values that are close together indicate little separation between two specifications, whereas gaps of hundreds or thousands show a clear preference for the model with the lower value.
 
 ```{r}
 #| label: tbl-model-performance
@@ -1073,13 +1077,14 @@ We now have four plausible descriptions of the same outcome: Poisson, negative b
 #| cache: true
 #| dependson: [fit-nb-baseline, fit-zero-inflated-models]
 #| code-summary: "Show model-comparison code"
-#| tbl-cap: "In-sample comparison of the four count models. Lower AIC, BIC, and RMSE values indicate better fit by each criterion."
+#| tbl-cap: "In-sample comparison of five candidate model specifications. Lower AIC, BIC, and RMSE values indicate better fit by each criterion."
 
 models <- list(
   Poisson = poisson_model,
-  `Negative binomial` = nb_model,
-  ZIP = zip_model,
-  ZINB = zinb_compact_model
+  NB2 = nb_model,
+  `Compact ZIP` = zip_model,
+  `Intercept-only ZINB` = zinb_intercept_model,
+  `Compact ZINB` = zinb_compact_model
 )
 
 comparison_table <- tibble::tibble(
@@ -1096,19 +1101,22 @@ comparison_table <- tibble::tibble(
   )
 ) |>
   mutate(
-    `Δ AIC` = AIC - min(AIC),
-    across(c(AIC, BIC, `Δ AIC`), ~ round(.x, 1)),
+    across(c(AIC, BIC), ~ round(.x, 1)),
     RMSE = round(RMSE, 3)
-  ) |>
-  arrange(AIC) |>
-  dplyr::select(Model, AIC, BIC, `Δ AIC`, RMSE)
+  )
 
-knitr::kable(comparison_table, align = c("l", "r", "r", "r", "r"))
+knitr::kable(comparison_table, align = c("l", "r", "r", "r"))
 ```
 
-The comparison points strongly away from Poisson and ZIP. Both keep the Poisson count variance, and the fit statistics show that this is too restrictive for these data. The negative binomial model is a much better one-process benchmark, which is exactly why it belongs in the comparison: overdispersion can absorb some apparent zero inflation by allowing more probability in the lower and upper tails.
-<!-- Paragraph needs to be changed: weak, i.e "declaring victory" not very scientific -->
-ZINB has the lowest AIC and BIC in this comparison, although in-sample RMSE barely differs across the two leading candidates. I therefore carry the negative binomial and ZINB models into residual assessment rather than declaring victory from fit statistics alone. ZINB remains scientifically interesting because it separates the two processes we set out to study; the negative binomial remains a serious competitor because it describes the data with a simpler structure.
+We start with the count family. Moving from Poisson to NB2 lowers AIC from 37093.4 to 24576.1 when neither model has an extra-zero component. Holding the compact zero formula fixed leads to the same conclusion: moving from ZIP to compact ZINB lowers AIC from 33115.3 to 24458.0. BIC tells the same story in both comparisons. These gaps leave little doubt that Poisson variation is too restrictive here, whether or not the model includes an extra-zero component.
+
+The next question is whether NB2 needs an extra-zero component at all. The cleanest starting point is intercept-only ZINB: it keeps the NB2 count process unchanged and assigns every participant the same extra-zero probability. Compared with ordinary NB2, its AIC is only 1.7 points lower, while its BIC is 4.7 points higher. The small AIC gap and the reversal under BIC suggest that a constant extra-zero probability adds little to the ordinary NB2 model.
+
+What changes when the extra-zero probability can vary between participants? Relative to intercept-only ZINB, the compact ZINB lowers AIC by 116.4 points and BIC by 97.2 points. Both gaps are large: allowing the zero component to vary with chronic conditions, sex, and marital status improves the fitted distribution substantially. It does not, however, show that the zeros came from a separate, identifiable group of patients.
+
+The RMSE column appears to disagree with AIC and BIC because it assesses only the predicted average. For each participant, RMSE compares the observed count with the model's expected count; it does not consider how much probability the model assigned to that count or to other possible counts. Compact ZIP therefore achieves the lowest RMSE, 6.488, even though its AIC and BIC are much higher than those of the NB2 models. Two models can predict similar averages while assigning very different probabilities to zeros, moderate counts, and unusually high counts. If prediction became a primary goal, repeated cross-validation should assess a score for the entire predictive distribution, such as held-out log predictive density or ranked probability score, alongside RMSE.
+
+The comparison therefore narrows the next decision: retain NB2 variation in the count component, then ask which covariate-dependent zero formula, if any, provides a defensible working specification.
 
 ## Move From Family Choice to Specification Choice
 
