@@ -964,7 +964,7 @@ Unlike the count-state factor $e^{\beta_j}$, the second factor depends on the st
 
 :::
 
-Because the pathways can reinforce or offset one another, component coefficient tables do not show how expected observed visits change. Section 5 therefore uses response-scale predictions of $m_i$ rather than stopping at rate ratios and odds ratios. Before fitting those models, however, we must decide which predictors belong in each component.
+Because the pathways can reinforce or offset one another, component coefficient tables do not show how expected observed visits change. [Section 5](#fitting-checking-and-interpreting-the-models) therefore uses response-scale predictions of $m_i$ rather than stopping at rate ratios and odds ratios. Before fitting those models, however, we must decide which predictors belong in each component.
 
 ## Choosing Predictors
 
@@ -993,51 +993,75 @@ For the initial ZIP and ZINB comparison, the zero-inflation component uses the m
 
 Chronic conditions, sex, and marital status showed the clearest adjusted associations with an **observed zero** in @tbl-logistic-analysis. That result provides an empirical starting point, but it's not a direct measurement of extra-zero membership: as established in the mixture-probability subsection, observed zeros combine both possible routes to zero.
 
-These three predictors therefore enter both components initially, allowing each to be associated with visit intensity and with the estimated extra-zero probability. Including or excluding a predictor imposes a substantive restriction, and the available variables provide only indirect support for either choice. In Section 5, we therefore also compare some alternative zero-inflation specifications.
+These three predictors therefore enter both components initially, allowing each to be associated with visit intensity and with the estimated extra-zero probability. Including or excluding a predictor imposes a substantive restriction, and the available variables provide only indirect support for either choice. In the next section we will therefore also compare some alternative zero-inflation specifications.
 
 # Fitting, Checking, and Interpreting the Models
 
-The Poisson and negative binomial baselines established the one-process alternatives. The comparison now adds ZIP and ZINB while keeping two decisions separate:
+[The predictor-selection discussion](#choosing-predictors) showed that predictor placement changes what a zero-inflated model represents: the count formula governs $\mu_i$, while the zero formula governs $\pi_i$. Model comparison must therefore distinguish the count distribution from the presence and specification of the extra-zero component. We will address three decisions in order:
 
-1. **Model-family choice**: Poisson, negative binomial, ZIP, or ZINB.
-2. **Model-specification choice**: which predictors belong in the count component and, if present, which predictors belong in the zero-inflation component.
+1. **Does the count component require NB2 rather than Poisson variation?**
+2. **After allowing NB2 variation, does the model benefit from any extra-zero component?**
+3. **If it does, should the extra-zero probability be constant or vary with patient characteristics?**
 
-The baseline section created `count_formula`, `poisson_model`, and `nb_model`, so all three objects are reused here. ZIP and ZINB share the compact zero-inflation formula motivated above. Holding both formulas fixed isolates the main family contrast: Poisson versus negative-binomial variation in the count process. After that comparison, we revisit the zero-inflation formula as a specification decision.
+Each question requires a matched contrast. Poisson and NB2 use the same count formula and no zero component. Ordinary NB2 and intercept-only ZINB use the same count formula and count family; `ziformula = ~ 1` adds one constant extra-zero probability rather than allowing it to vary across records. The intercept-only and covariate-dependent ZINBs then hold the NB2 count process fixed while changing only the zero formula.
 
-## Fit the Zero-Inflated Candidates
+ZIP remains useful for a different contrast. Comparing ZIP with the compact ZINB holds both formulas fixed and asks whether the count component still needs NB2 variation inside a zero-inflated model. ZIP can therefore show why adding an extra-zero component does not repair an inadequate Poisson count distribution. Comparing ZIP directly with ordinary NB2 would change both the count family and the zero formula, so it would not isolate evidence for an extra-zero component.
+
+## Fit Matched Candidate Specifications
+
+For the sake of simplicity and exposition, every specification considered here uses the same count formula:
+
+```r
+ofp ~ healthpoor + healthexcellent + numchron + age + male + married
+```
+
+[The Poisson baseline](#poisson-baseline) uses the Poisson family with no zero component, while [the negative-binomial baseline](#negative-binomial-fit-and-zero-frequency-comparison) uses NB2 with no zero component. This subsection adds only the candidates needed for the first comparisons:
+
+- **Compact ZIP:** Poisson count family with `~ numchron + male + married` as its zero formula.
+- **Intercept-only ZINB:** NB2 count family with `~ 1` as its zero formula.
+- **Compact ZINB:** NB2 count family with `~ numchron + male + married` as its zero formula.
+
+Additional zero-component formulas are deferred until their rationale is introduced.
 
 ```{r}
 #| label: fit-zero-inflated-models
 #| cache: true
 #| output: false
 
-# Reuse the Poisson and negative binomial baselines. # <1>
+compact_zi_formula <- ~ numchron + male + married # <1>
 
-baseline_zi_formula <- ~ numchron + male + married # <2>
-
-# Zero-inflated Poisson model
+# Compact zero-inflated Poisson model
 zip_model <- glmmTMB(
   count_formula,
-  ziformula = baseline_zi_formula, # <3>
+  ziformula = compact_zi_formula, # <2>
   data = medcare,
   family = poisson()
 )
 
-# Zero-inflated negative binomial model
-zinb_family_model <- glmmTMB(
+# Intercept-only zero-inflated NB2 model
+zinb_intercept_model <- glmmTMB(
   count_formula,
-  ziformula = baseline_zi_formula, # <3>
+  ziformula = ~ 1, # <3>
+  data = medcare,
+  family = nbinom2()
+)
+
+zinb_compact_model <- glmmTMB(
+  count_formula,
+  ziformula = compact_zi_formula, 
   data = medcare,
   family = nbinom2() # <4>
 )
 ```
 
-1. The Poisson and negative binomial fits remain part of the comparison, but both objects already exist from the baseline section.
-2. The shared zero-inflation formula carries forward the clearest adjusted associations with observed zeros from @tbl-logistic-analysis.
-3. ZIP and ZINB use the same count and zero-inflation formulas, so their difference in this comparison is the count distribution.
-4. Pairing `ziformula` with `nbinom2()` gives ZINB: a separate extra-zero process plus negative-binomial variation in the count process.
+1. The compact zero formula carries forward the clearest adjusted associations with observed zeros from @tbl-logistic-analysis.
+2. Compact ZIP and compact ZINB use the same count and zero formulas, so their contrast changes only the count distribution.
+3. With `nbinom2()`, `ziformula = ~ 1` assigns every record the same fitted probability of the latent extra-zero state. The NB2 count mean can still vary with the predictors in `count_formula`.
+4. Pairing a covariate-dependent `ziformula` with `nbinom2()` lets the extra-zero probability vary across patient characteristics while retaining NB2 variation in the count process.
 
-The Poisson and negative binomial models provide one-process benchmarks. In particular, a negative binomial model can sometimes explain an apparent surplus of zeros through additional count variation, without introducing a second latent process.
+We compare these specifications in matched pairs because each pair isolates one modelling decision: the count family, the addition of a constant extra-zero probability, or whether that probability varies with patient characteristics.
+
+It's important to keep in mind that the resulting fit statistics provide relative evidence among the specifications, but they neither identify a distinct extra-zero population nor replace distributional diagnostics, which are still needed to assess whether the chosen count distribution adequately represents the data.
 
 ## Compare Model Fit
 
@@ -1055,7 +1079,7 @@ models <- list(
   Poisson = poisson_model,
   `Negative binomial` = nb_model,
   ZIP = zip_model,
-  ZINB = zinb_family_model
+  ZINB = zinb_compact_model
 )
 
 comparison_table <- tibble::tibble(
@@ -1099,19 +1123,14 @@ Selecting ZINB as a candidate family does not settle the formula. The count comp
 #| tbl-cap: "Compact comparison of candidate ZINB zero-inflation specifications. The count formula is held fixed across rows."
 
 zinb_spec_models <- list(
-  `Intercept-only zero process` = glmmTMB(
-    count_formula,
-    ziformula = ~ 1,
-    data = medcare,
-    family = nbinom2()
-  ),
+  `Intercept-only zero process` = zinb_intercept_model,
   `Excellent-health zero process` = glmmTMB(
     count_formula,
     ziformula = ~ healthexcellent,
     data = medcare,
     family = nbinom2()
   ),
-  `Observed-zero association baseline` = zinb_family_model,
+  `Observed-zero association baseline` = zinb_compact_model,
   `Shared adjustment set` = glmmTMB(
     count_formula,
     ziformula = ~ healthpoor + healthexcellent + numchron +
@@ -1128,7 +1147,7 @@ zinb_spec_table <- tibble::tibble(
   `Zero-inflation formula` = c(
     "~ 1",
     "~ healthexcellent",
-    sub("^~", "~ ", format(baseline_zi_formula)),
+    sub("^~", "~ ", format(compact_zi_formula)),
     "~ healthpoor + healthexcellent + numchron + age + male + married"
   ),
   Rationale = c(
