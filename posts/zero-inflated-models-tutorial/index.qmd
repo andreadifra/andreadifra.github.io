@@ -1118,9 +1118,17 @@ The RMSE column appears to disagree with AIC and BIC because it assesses only th
 
 The comparison therefore narrows the next decision: retain NB2 variation in the count component, then ask which covariate-dependent zero formula, if any, provides a defensible working specification.
 
-## Move From Family Choice to Specification Choice
+## Choose the Zero-Component Specification
 
-Selecting ZINB as a candidate family does not settle the formula. The count component and the zero-inflation component answer different questions, so a predictor can reasonably appear in one component, both components, or neither. The first family comparison used the observed-zero association baseline for both zero-inflated models. The table below compares that starting point with substantively motivated alternatives without turning the tutorial into an exhaustive model-search exercise.
+The preceding comparison showed that adding a constant extra-zero probability to NB2 changes fit very little, whereas allowing that probability to vary across participants produces a much larger improvement. That result leaves an important specification question: which participant characteristics should be allowed to change the extra-zero probability?
+
+Starting from the intercept-only ZINB, we compare three ways of allowing that probability to vary:
+
+- The excellent-health specification represents a narrow health-need explanation;
+- The compact specification carries forward the strongest adjusted associations with an observed zero in these data;
+- The shared-adjustment specification allows every count predictor to have a separate zero-component association.
+
+All four models retain the same NB2 count family and count formula, so the comparison concerns only the zero-component specification. This small candidate set tests whether the compact model's improvement depends on its particular formula and whether the broader specification earns its additional complexity.
 
 ```{r}
 #| label: tbl-zinb-specification-candidates
@@ -1128,17 +1136,17 @@ Selecting ZINB as a candidate family does not settle the formula. The count comp
 #| dependson: fit-zero-inflated-models
 #| code-fold: true
 #| code-summary: "Show ZINB specification-comparison code"
-#| tbl-cap: "Compact comparison of candidate ZINB zero-inflation specifications. The count formula is held fixed across rows."
+#| tbl-cap: "Comparison of four candidate ZINB zero-component specifications. Every model uses the same NB2 count family and count formula."
 
 zinb_spec_models <- list(
-  `Intercept-only zero process` = zinb_intercept_model,
-  `Excellent-health zero process` = glmmTMB(
+  `Intercept-only` = zinb_intercept_model,
+  `Excellent-health only` = glmmTMB(
     count_formula,
     ziformula = ~ healthexcellent,
     data = medcare,
     family = nbinom2()
   ),
-  `Observed-zero association baseline` = zinb_compact_model,
+  Compact = zinb_compact_model,
   `Shared adjustment set` = glmmTMB(
     count_formula,
     ziformula = ~ healthpoor + healthexcellent + numchron +
@@ -1148,7 +1156,7 @@ zinb_spec_models <- list(
   )
 )
 
-zinb_model <- zinb_spec_models[["Observed-zero association baseline"]]
+zinb_model <- zinb_spec_models[["Compact"]]
 
 zinb_spec_table <- tibble::tibble(
   Specification = names(zinb_spec_models),
@@ -1158,11 +1166,11 @@ zinb_spec_table <- tibble::tibble(
     sub("^~", "~ ", format(compact_zi_formula)),
     "~ healthpoor + healthexcellent + numchron + age + male + married"
   ),
-  Rationale = c(
-    "Tests whether a constant extra-zero probability is enough.",
-    "Keeps the zero component focused on low-need patients.",
-    "Carries forward the clearest adjusted observed-zero associations.",
-    "Lets every count predictor have a distinct zero-process role."
+  `Substantive restriction` = c(
+    "Keeps the extra-zero probability constant across participants.",
+    "Allows an excellent-health difference, but none by the other predictors; average and poor health share the same fitted probability.",
+    "Allows differences by chronic-condition count, sex, and marital status; excludes age and additional self-rated-health differences.",
+    "Allows each count predictor its own zero-component association; imposes the fewest restrictions at the cost of three additional coefficients."
   ),
   AIC = vapply(zinb_spec_models, AIC, numeric(1)),
   BIC = vapply(zinb_spec_models, BIC, numeric(1))
@@ -1175,13 +1183,15 @@ zinb_spec_table <- tibble::tibble(
 knitr::kable(zinb_spec_table, align = c("l", "l", "l", "r", "r"))
 ```
 
-The observed-zero association baseline is the working specification for the rest of the article. Its AIC differs from the shared adjustment set by only 0.2 points, while its BIC is 18.9 points lower. Adding health status and age to the zero process therefore buys almost no in-sample fit under AIC and is disfavoured by BIC's stronger complexity penalty. I retain the compact model on grounds of parsimony, not because these three predictors reveal the true extra-zero mechanism.
+The four zero formulas are not all nested, so no single likelihood-ratio test can compare all of them. We therefore use the information-criterion framework introduced above: AIC for relative in-sample comparison and BIC as a stronger parsimony check.
 
-::: {.callout-note appearance="simple"}
-## Why I avoid a likelihood-ratio-test ladder here
+The results give us little reason to carry forward the intercept-only or excellent-health-only models. As the preceding comparison showed, the intercept-only model receives little support beyond ordinary NB2. Allowing the extra-zero probability to vary only with excellent health does no better: its AIC is 24576.0 and its BIC is 24639.9, both higher than the intercept-only model's values of 24574.4 and 24631.9. A single excellent-health indicator is therefore too narrow to reproduce the improvement seen with the compact formula.
 
-Likelihood-ratio tests require carefully nested models and regularity conditions. Zero-inflation parameters sit on the boundary when the simpler model has no extra-zero component, and ZIP and ZINB change the count distribution as well as its parameter count. For this tutorial, information criteria, predictive performance, and residual simulation provide a clearer comparison than a sequence of nominal p-values.
-:::
+That leaves the compact and shared-adjustment specifications. The shared-adjustment model lowers AIC by only 0.2 points, from 24458.0 to 24457.8, but raises BIC by 18.9 points. I therefore keep the compact formula: the three extra coefficients in the shared-adjustment model make almost no difference to AIC and incur a much larger BIC penalty. 
+
+The compact formula was chosen partly after examining adjusted associations with an observed zero in this same dataset, and remains a provisional teaching specification.
+
+Given the results, for the rest of the article, we carry forward `~ numchron + male + married` as the **provisional compact ZINB working specification**. The confidence intervals and p-values reported later treat this formula as if it had been fixed before the analysis. They do not account for the predictor-selection step.
 
 ## Check Residual Fit
 
