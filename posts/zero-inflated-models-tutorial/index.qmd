@@ -1303,28 +1303,49 @@ knitr::kable(stability_status, align = c("l", "l", "l"))
 `diagnose()` is an experimental troubleshooting aid, so the explicit optimizer, Hessian, standard-error, and coefficient checks remain visible rather than being replaced by one package-generated verdict.
 :::
 
-All six `glmmTMB` candidates passed these checks, including the compact ZINB shown above. This result supports using their fitted likelihoods and estimates in the next steps. However, it does not establish that any candidate reproduces the observed count distribution, which we address in the next section with simulation diagnostics.
+All six `glmmTMB` candidates passed these checks, including the compact ZINB shown above. Their likelihood comparisons and coefficient estimates therefore show no evident numerical warning.
 
-## Check Residual Fit
+## Check Distributional Fit
 
-Fit statistics tell us how models compare with one another; they do not tell us whether either candidate reproduces the data well. For discrete models such as negative binomial (NB) and ZINB, ordinary raw residuals are difficult to assess because their distribution changes with the fitted mean. `DHARMa` addresses this by repeatedly simulating outcomes from each fitted model and comparing the observed data with those simulations.
+We now examine how closely the compact ZINB reproduces the observed visit counts. `DHARMa` simulates outcomes from the fitted model and compares each observation with its simulated distribution. It expresses the result as a scaled residual between 0 and 1; a well-calibrated model should produce residuals that are approximately uniform across that interval.
 
-In practice, I want to know three things:
+::: {.callout-caution collapse="true"}
+## DHARMa's scaled residuals
 
-1. Does the model reproduce the observed number of zeros?
-2. Does residual variation agree with the simulations?
-3. Is the full residual distribution approximately uniform, as it should be under a well-calibrated model?
+For participant $i$, let $y_i$ be the observed count and let $y_i^{(1)}, \ldots, y_i^{(S)}$ denote $S$ responses simulated from the conditional fitted distribution implied by the model. In this tutorial, that distribution is determined by the participant's covariates and the estimated ZINB parameters.
 
-I use 1,000 simulations per model and a fixed seed so the results in the article are reproducible. @fig-zinb-diagnostics shows the ZINB residuals because that is the model we may interpret; @tbl-candidate-diagnostic-tests applies the same tests to both candidates.
+DHARMa approximates the fitted cumulative distribution function at the observation by calculating the proportions of simulated responses strictly below and less than or equal to the observed value:
+
+$$
+L_i = \frac{1}{S}\sum_{s=1}^{S}\mathbb{1}\!\left(y_i^{(s)} < y_i\right),
+\qquad
+U_i = \frac{1}{S}\sum_{s=1}^{S}\mathbb{1}\!\left(y_i^{(s)} \leq y_i\right).
+$$
+
+Here, $\mathbb{1}(A)$ is the indicator function: it equals 1 when statement $A$ is true and 0 otherwise. $L_i$ is the empirical cumulative distribution immediately to the left of $y_i$, while $U_i$ is its value at $y_i$. The interval from $L_i$ to $U_i$ therefore represents the fitted probability assigned to the observed count.
+
+DHARMa then draws
+
+$$
+r_i \sim \operatorname{Uniform}(L_i, U_i).
+$$
+
+Randomisation spreads observations tied at the same discrete count across the probability interval associated with that count. Under a correctly specified model and the conditional-independence assumption used here, these randomised residuals are approximately independent $\operatorname{Uniform}(0,1)$ variables; the approximation reflects the finite number of simulations. The [DHARMa vignette](https://stat.ethz.ch/CRAN/web/packages/DHARMa/vignettes/DHARMa.html) develops the method and its diagnostic interpretation in more detail.
+:::
+
+Three standard checks provide the first overview:
+
+1. **Zero frequency:** Does the model reproduce the number of observed zeros?
+2. **Dispersion:** Is the observed residual spread consistent with the simulations?
+3. **Overall uniformity:** Does the fitted conditional distribution reproduce the response more broadly?
+
+We begin with zero frequency because it was the specific weakness of the [negative-binomial model](#negative-binomial-fit-and-zero-frequency-comparison). NB remains as a benchmark for that comparison; the other diagnostics show what changes when the compact ZINB repairs the zero count. I use 1,000 simulations, rather than DHARMa's default of 250, to reduce Monte Carlo variation and support the bootstrap outlier check below. A fixed seed makes the results reproducible, and the same simulations supply every diagnostic and figure in this subsection.
 
 ```{r}
-#| label: fig-zinb-diagnostics
-#| fig-cap: "DHARMa simulated-residual diagnostics for the fitted ZINB model."
-#| fig-alt: "Two DHARMa diagnostic panels. Residual quantiles lie close to the diagonal in the left panel, although the uniformity and outlier annotations are significant. The right panel shows broadly even residuals across fitted values, with high residuals marked along the upper boundary."
-#| fig-height: 4.8
-#| fig-width: 8
+#| label: simulate-leading-model-residuals
 #| cache: true
 #| dependson: tbl-zinb-specification-candidates
+#| output: false
 #| code-fold: true
 #| code-summary: "Show residual-simulation code"
 
@@ -1341,77 +1362,497 @@ zinb_residuals <- simulateResiduals(
   seed = 123,
   plot = FALSE
 )
-
-plot(zinb_residuals, quantreg = FALSE)
 ```
 
 ```{r}
 #| label: tbl-candidate-diagnostic-tests
-#| tbl-cap: "Simulation-based diagnostics for the negative binomial and ZINB candidates."
+#| tbl-cap: "Simulation checks for the negative-binomial benchmark and compact ZINB."
 #| cache: true
-#| dependson: fig-zinb-diagnostics
+#| dependson: simulate-leading-model-residuals
 #| code-fold: true
 #| code-summary: "Show diagnostic-test code"
 
-summarise_diagnostics <- function(model_name, residuals) {
-  zero_test <- testZeroInflation(residuals, plot = FALSE)
-  dispersion_test <- testDispersion(residuals, plot = FALSE)
-  uniformity_test <- testUniformity(residuals, plot = FALSE)
+nb_zero_test <- testZeroInflation(nb_residuals, plot = FALSE)
+nb_dispersion_test <- testDispersion(nb_residuals, plot = FALSE)
+nb_uniformity_test <- testUniformity(nb_residuals, plot = FALSE)
 
-  tibble::tibble(
-    Model = model_name,
-    Check = c("Zero frequency", "Dispersion", "Overall uniformity"),
-    Statistic = c(
-      sprintf("observed/simulated = %.2f", unname(zero_test$statistic)),
-      sprintf("ratio = %.2f", unname(dispersion_test$statistic)),
-      sprintf("KS D = %.3f", unname(uniformity_test$statistic))
-    ),
-    `p-value` = c(
-      zero_test$p.value,
-      dispersion_test$p.value,
-      uniformity_test$p.value
-    ) |>
-      format.pval(digits = 2, eps = 0.001)
-  )
+zinb_zero_test <- testZeroInflation(zinb_residuals, plot = FALSE)
+zinb_dispersion_test <- testDispersion(zinb_residuals, plot = FALSE)
+zinb_uniformity_test <- testUniformity(zinb_residuals, plot = FALSE)
+
+format_diagnostic <- function(statistic, p_value, digits = 2) {
+  p_text <- format.pval(p_value, digits = 2, eps = 0.001)
+  p_text <- if (startsWith(p_text, "<")) {
+    sub("<", "< ", p_text, fixed = TRUE)
+  } else {
+    paste("=", p_text)
+  }
+
+  sprintf(paste0("%.", digits, "f (p %s)"), statistic, p_text)
 }
 
-diagnostic_table <- bind_rows(
-  summarise_diagnostics("Negative binomial", nb_residuals),
-  summarise_diagnostics("ZINB", zinb_residuals)
+diagnostic_table <- tibble::tibble(
+  Check = c("Zero frequency", "Dispersion", "Overall uniformity"),
+  `Statistic shown` = c(
+    "Observed/simulated zeros",
+    "Observed/simulated spread",
+    "KS D (uniformity)"
+  ),
+  `Negative binomial` = c(
+    format_diagnostic(nb_zero_test$statistic, nb_zero_test$p.value),
+    format_diagnostic(
+      nb_dispersion_test$statistic,
+      nb_dispersion_test$p.value
+    ),
+    format_diagnostic(
+      nb_uniformity_test$statistic,
+      nb_uniformity_test$p.value,
+      digits = 3
+    )
+  ),
+  `Compact ZINB` = c(
+    format_diagnostic(zinb_zero_test$statistic, zinb_zero_test$p.value),
+    format_diagnostic(
+      zinb_dispersion_test$statistic,
+      zinb_dispersion_test$p.value
+    ),
+    format_diagnostic(
+      zinb_uniformity_test$statistic,
+      zinb_uniformity_test$p.value,
+      digits = 3
+    )
+  )
 )
 
-knitr::kable(diagnostic_table, align = c("l", "l", "l", "r"))
+knitr::kable(diagnostic_table, align = c("l", "l", "r", "r"))
 ```
 
-::: {.callout-note appearance="simple" collapse="true"}
-## About the outlier warning in the plot
-<!-- 
-TODO: This discussion needs better explanations as well:
-  - Need more explanation on the individual checks
-  - why did we choose these tests, should we do more?
-  - what do the plots show?
-  - wall of text and sounds like AI
--->
+The zero-frequency row returns to the discrepancy that motivated the ZINB. The negative-binomial model produces too few zeros: the observed number is `r sprintf("%.2f", nb_zero_test$statistic)` times its simulated expectation ($p = `r format.pval(nb_zero_test$p.value, digits = 2)`$). For the compact ZINB, the ratio falls to `r sprintf("%.2f", zinb_zero_test$statistic)` ($p = `r format.pval(zinb_zero_test$p.value, digits = 2)`$). The extra-zero component therefore brings the overall number of zeros into line with the simulations. The remaining rows broaden the assessment to residual spread and the full residual distribution.
 
-The default DHARMa plot also reports a significant outlier-count test. For integer-valued outcomes with more than 500 observations, `testOutliers()` defaults to a binomial approximation; the DHARMa documentation recommends confirming that result with a bootstrap. I would treat the red annotation as a prompt for a more careful check, not as proof that particular records should be removed.
+The dispersion row reverses the comparison. NB's ratio of `r sprintf("%.2f", nb_dispersion_test$statistic)` is consistent with its simulations, whereas the ZINB ratio is `r sprintf("%.2f", zinb_dispersion_test$statistic)` ($p = `r format.pval(zinb_dispersion_test$p.value, digits = 2)`$). The ZINB residual spread differs from its simulated expectation by about 18%, a noticeable as well as statistically significant departure.
 
-```r
-testOutliers(
+Both models also depart from uniformity. The Kolmogorov--Smirnov (KS) statistic $D$ is the largest vertical gap between the empirical cumulative distribution of the residuals and the uniform reference distribution. For the compact ZINB, $D = `r sprintf("%.3f", zinb_uniformity_test$statistic)`$ corresponds to a maximum gap of `r sprintf("%.1f", 100 * zinb_uniformity_test$statistic)` percentage points. Its $p$-value of `r format.pval(zinb_uniformity_test$p.value, digits = 2)` is the probability, under uniform residuals, of obtaining a maximum gap at least this large. The zero component repairs the zero frequency, while the dispersion and uniformity results identify broader discrepancies to investigate.
+
+The standard DHARMa display in @fig-zinb-diagnostics brings these results together. The left panel is a uniform QQ plot: residuals from a calibrated model should follow the diagonal. The accompanying labels report the KS uniformity, dispersion, and outlier checks; of these, the KS test corresponds directly to the QQ comparison.
+
+In the right panel, I replace DHARMa's default quantile regressions with a single smooth line showing how the average residual changes across rank-transformed fitted values. The line should remain close to 0.5 throughout. A red star marks an observation whose count falls below every simulated value or above every simulated value for that participant. The later covariate plots follow the 25th, 50th, and 75th residual quantiles separately.
+
+```{r}
+#| label: fig-zinb-diagnostics
+#| fig-cap: "Overall simulated-residual diagnostics for the compact ZINB. The QQ comparison is close to the diagonal but statistically non-uniform; residuals against fitted values remain broadly centred while some observed counts fall beyond all values simulated for the same participant."
+#| fig-alt: "Two DHARMa panels for compact ZINB. The left compares observed residual quantiles with expected uniform quantiles and reports significant uniformity, dispersion, and outlier checks. The right shows scaled residual points against rank-transformed predictions. A black smoother stays near one-half but bends slightly at the ends, and observations outside the range of all their simulated values are marked with red stars."
+#| fig-height: 5
+#| fig-width: 10
+#| cache: true
+#| dependson: simulate-leading-model-residuals
+#| code-fold: true
+#| code-summary: "Show overall residual-plot code"
+
+plot(
+  zinb_residuals,
+  quantreg = FALSE
+)
+```
+
+The QQ curve lies close to the diagonal, and the right-panel smoother stays near 0.5 through most of the fitted range. Across the 4,406 observations, the diagnostic statistics pick up small but consistent departures. The next checks trace those departures through the observed count frequencies and covariates.
+
+::: {.callout-note collapse="true"}
+## Bootstrap outlier check
+
+DHARMa calls an observation a simulation outlier when its observed count falls below or above every value simulated for that participant. Some such cases arise even under a well-fitting model, and their expected frequency depends on the number of simulations. For integer outcomes, the simple theoretical approximation can be inaccurate, so the bootstrap applies the same outside-the-simulated-range rule to data generated under the fitted model.
+
+The [`testOutliers()` reference](https://stat.ethz.ch/CRAN/web/packages/DHARMa/refman/DHARMa.html#testOutliers) recommends at least 1,000 simulations and 1,000 bootstrap replicates for integer-valued outcomes. Here the bootstrap estimates how often observations should fall beyond all their simulated values and compares that expectation with the observed frequency.
+
+```{r}
+#| label: tbl-zinb-outlier-bootstrap
+#| tbl-cap: "Bootstrap check of observations beyond the simulated range for the compact ZINB."
+#| cache: true
+#| dependson: simulate-leading-model-residuals
+#| code-fold: true
+#| code-summary: "Show bootstrap outlier-test code"
+
+zinb_outlier_test <- testOutliers(
   zinb_residuals,
   type = "bootstrap",
   nBoot = 1000,
   plot = FALSE
 )
+
+outlier_table <- tibble::tibble(
+  Quantity = c(
+    "Observed counts beyond all simulated values",
+    "Expected 95% frequency range under the fitted model",
+    "Bootstrap comparison"
+  ),
+  Result = c(
+    sprintf(
+      "%d of %s (%.2f%%)",
+      unname(zinb_outlier_test$statistic),
+      format(
+        unname(zinb_outlier_test$parameter),
+        big.mark = ",",
+        scientific = FALSE
+      ),
+      100 * unname(zinb_outlier_test$estimate)
+    ),
+    sprintf(
+      "%.2f%%–%.2f%%",
+      100 * unname(zinb_outlier_test$conf.int[1]),
+      100 * unname(zinb_outlier_test$conf.int[2])
+    ),
+    paste(
+      "p",
+      if (zinb_outlier_test$p.value < 0.001) {
+        "< 0.001"
+      } else {
+        paste("=", format.pval(zinb_outlier_test$p.value, digits = 2))
+      }
+    )
+  )
+)
+
+knitr::kable(outlier_table, align = c("l", "l"))
 ```
+
+The compact ZINB produces `r unname(zinb_outlier_test$statistic)` observations beyond the simulated range, compared with the much lower frequency expected under the fitted model. This result can arise from misspecified tails, unusual but valid observations, or data errors; the test does not distinguish among them. Individual records should be removed only when an independent data-quality check shows that they are invalid. Otherwise, they remain part of the evidence used to refine the model.
 :::
 
-Read these diagnostics as simulation checks, not as ordinary residual plots. DHARMa asks what residuals should look like if the fitted model generated the data, then compares the observed data with that simulated reference distribution. A well-calibrated model should have approximately uniform scaled residuals, no systematic residual pattern against fitted values, and a simulated zero count close to the observed zero count.
+We next return from scaled residuals to the visit counts themselves. @fig-count-frequency-check compares the observed frequency of each count with the range generated by the same simulations, using the earlier NB model as a benchmark.
 
-On the zero-frequency check, the negative binomial model still produces too few zeros: the observed-to-simulated ratio is 1.10 ($p = 0.008$). ZINB brings that ratio close to 1, with no clear evidence of a remaining zero-frequency mismatch.
+```{r}
+#| label: fig-count-frequency-check
+#| fig-cap: "Observed and simulated count frequencies under the negative-binomial benchmark and compact ZINB. Intervals contain the central 95% of frequencies across 1,000 simulated datasets; counts of 16 or more are pooled."
+#| fig-alt: "Two panels compare observed visit-count frequencies with simulation intervals for negative binomial and compact ZINB. Negative binomial simulates too few zeros and too many counts of one and two. Compact ZINB aligns much more closely with the observed zero and low-count frequencies, although aggregate agreement does not remove conditional residual departures."
+#| fig-height: 5
+#| fig-width: 10
+#| cache: true
+#| dependson: simulate-leading-model-residuals
+#| code-fold: true
+#| code-summary: "Show count-frequency check code"
 
-The remaining checks are more cautious. The ZINB model improves the zero count but still shows dispersion and uniformity departures in the simulated residuals. In @fig-zinb-diagnostics, the quantile plot stays close to the diagonal and the residual-versus-predicted panel has no dominant trend, so the departure looks modest rather than catastrophic. With 4,406 observations, the size and pattern of the departure matter more than a pass/fail label.
+summarise_count_frequencies <- function(residuals, model_name) {
+  simulated <- residuals$simulatedResponse
+  observed <- medcare$ofp
+  displayed_counts <- 0:15
+  count_labels <- c(as.character(displayed_counts), "16+")
 
-For this tutorial, I will interpret ZINB as the working model. It has the lower information criteria, addresses the NB model's remaining zero-frequency mismatch, and represents the two-process question that motivated the analysis. That makes it acceptable for interpretation, not uniquely correct. Its residual diagnostics remain imperfect, and a publication-grade analysis should compare out-of-sample predictions and investigate the remaining residual structure.
+  simulated_counts <- c(
+    lapply(displayed_counts, function(value) {
+      colSums(simulated == value)
+    }),
+    list(colSums(simulated >= 16))
+  )
+
+  tibble::tibble(
+    Model = model_name,
+    Count = factor(count_labels, levels = count_labels),
+    Observed = c(
+      vapply(
+        displayed_counts,
+        function(value) sum(observed == value),
+        numeric(1)
+      ),
+      sum(observed >= 16)
+    ),
+    `Simulated median` = vapply(
+      simulated_counts,
+      median,
+      numeric(1)
+    ),
+    Lower = vapply(
+      simulated_counts,
+      quantile,
+      numeric(1),
+      probs = 0.025,
+      names = FALSE
+    ),
+    Upper = vapply(
+      simulated_counts,
+      quantile,
+      numeric(1),
+      probs = 0.975,
+      names = FALSE
+    )
+  )
+}
+
+count_frequency_check <- bind_rows(
+  summarise_count_frequencies(
+    nb_residuals,
+    "Negative-binomial benchmark"
+  ),
+  summarise_count_frequencies(
+    zinb_residuals,
+    "Compact ZINB"
+  )
+) |>
+  mutate(
+    Model = factor(
+      Model,
+      levels = c(
+        "Negative-binomial benchmark",
+        "Compact ZINB"
+      )
+    )
+  )
+
+ggplot(count_frequency_check, aes(x = Count)) +
+  geom_linerange(
+    aes(
+      ymin = Lower,
+      ymax = Upper,
+      colour = "95% simulation interval"
+    ),
+    linewidth = 0.8
+  ) +
+  geom_point(
+    aes(y = `Simulated median`, colour = "Simulated median"),
+    shape = 95,
+    size = 5
+  ) +
+  geom_point(
+    aes(y = Observed, colour = "Observed frequency"),
+    size = 2
+  ) +
+  facet_wrap(vars(Model), ncol = 1) +
+  scale_colour_manual(
+    values = c(
+      "95% simulation interval" = "#5B8DB8",
+      "Simulated median" = "#1F4E79",
+      "Observed frequency" = "#B23A33"
+    )
+  ) +
+  labs(
+    x = "Physician office visits",
+    y = "Number of participants",
+    colour = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+The NB panel shows the discrepancy already identified earlier: the observed zero count lies above its simulation interval, while counts of one and two are overproduced. The compact ZINB brings the zero and low-count frequencies much closer to the data. However, this marginal agreement can still conceal conditional problems because it pools participants with different fitted distributions.
+
+To locate those problems, @fig-zinb-continuous-residuals groups the ZINB residuals by age and chronic-condition count. A uniform residual distribution would place the three displayed quantiles on the dashed 0.25, 0.50, and 0.75 reference lines within every group.
+
+```{r}
+#| label: fig-zinb-continuous-residuals
+#| fig-cap: "Compact-ZINB residual quantiles across age and chronic-condition groups. Dashed lines mark the 0.25, 0.50, and 0.75 quantiles expected from uniform residuals; ages 90 and older and counts of six or more are pooled because those observations are sparse."
+#| fig-alt: "Two line charts show the 25th, median, and 75th DHARMa residual quantiles. Residual quantiles drift downward in the oldest age bands and vary across chronic-condition groups instead of remaining on their uniform reference lines."
+#| fig-height: 4.8
+#| fig-width: 10
+#| cache: true
+#| dependson: simulate-leading-model-residuals
+#| code-fold: true
+#| code-summary: "Show covariate-residual check code"
+
+age_levels <- c(
+  "66–69", "70–74", "75–79", "80–84", "85–89", "90+"
+)
+chronic_levels <- c("0", "1", "2", "3", "4", "5", "6+")
+
+residual_covariates <- tibble::tibble(
+  Residual = zinb_residuals$scaledResiduals,
+  `Age band` = cut(
+    round(medcare$age * 10),
+    breaks = c(65, 69, 74, 79, 84, 89, Inf),
+    labels = age_levels
+  ),
+  `Chronic conditions` = factor(
+    ifelse(medcare$numchron >= 6, "6+", medcare$numchron),
+    levels = chronic_levels
+  )
+)
+
+age_quantiles <- residual_covariates |>
+  group_by(`Age band`) |>
+  summarise(
+    Q25 = quantile(Residual, 0.25),
+    Median = median(Residual),
+    Q75 = quantile(Residual, 0.75),
+    .groups = "drop"
+  ) |>
+  rename(Level = `Age band`)
+
+chronic_quantiles <- residual_covariates |>
+  group_by(`Chronic conditions`) |>
+  summarise(
+    Q25 = quantile(Residual, 0.25),
+    Median = median(Residual),
+    Q75 = quantile(Residual, 0.75),
+    .groups = "drop"
+  ) |>
+  rename(Level = `Chronic conditions`)
+
+to_long_quantiles <- function(data, panel_name) {
+  bind_rows(
+    transmute(
+      data,
+      Panel = panel_name,
+      Level = as.character(Level),
+      Quantile = "25th",
+      Value = Q25
+    ),
+    transmute(
+      data,
+      Panel = panel_name,
+      Level = as.character(Level),
+      Quantile = "Median",
+      Value = Median
+    ),
+    transmute(
+      data,
+      Panel = panel_name,
+      Level = as.character(Level),
+      Quantile = "75th",
+      Value = Q75
+    )
+  )
+}
+
+covariate_quantiles <- bind_rows(
+  to_long_quantiles(age_quantiles, "Age band (years)"),
+  to_long_quantiles(chronic_quantiles, "Chronic conditions")
+) |>
+  mutate(
+    Level = factor(Level, levels = c(age_levels, chronic_levels)),
+    Quantile = factor(
+      Quantile,
+      levels = c("25th", "Median", "75th")
+    )
+  )
+
+ggplot(
+  covariate_quantiles,
+  aes(x = Level, y = Value, colour = Quantile, group = Quantile)
+) +
+  geom_hline(
+    yintercept = c(0.25, 0.5, 0.75),
+    linetype = "dashed",
+    colour = "#8A8A8A",
+    linewidth = 0.5
+  ) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2) +
+  facet_wrap(vars(Panel), scales = "free_x", ncol = 2) +
+  scale_colour_manual(
+    values = c(
+      "25th" = "#0072B2",
+      "Median" = "#222222",
+      "75th" = "#D55E00"
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = c(0, 0.25, 0.5, 0.75, 1)
+  ) +
+  labs(
+    x = NULL,
+    y = "DHARMa scaled-residual quantile",
+    colour = "Within-group quantile"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+The age quantiles drift below their references among the oldest participants, rather than continuing the near-flat pattern implied by a single linear age term. Chronic-condition groups also vary, particularly at the low and high ends of the observed range. The plots locate the clearest departures in these parts of the data. Either the count mean, the extra-zero probability, or a combination of the two could produce the patterns.
+
+The remaining binary predictors could hide group-specific departures or suggest an omitted interaction. @fig-zinb-group-residuals therefore compares the residual distributions across health status, sex, and marital status. For uniform residuals, each box should have a median near 0.5 and its lower and upper edges near 0.25 and 0.75.
+
+```{r}
+#| label: fig-zinb-group-residuals
+#| fig-cap: "Compact-ZINB residual distributions across health status, sex, and marital status. Dashed lines mark the quartiles expected from a uniform distribution."
+#| fig-alt: "Three panels contain residual boxplots for health-status, sex, and marital-status groups. Group medians and interquartile ranges are broadly similar, with no pronounced between-group shift despite the model's overall residual departures."
+#| fig-height: 4.6
+#| fig-width: 10
+#| cache: true
+#| dependson: simulate-leading-model-residuals
+#| code-fold: true
+#| code-summary: "Show grouped-residual check code"
+
+health_status <- factor(
+  ifelse(
+    medcare$healthpoor == 1,
+    "Poor",
+    ifelse(medcare$healthexcellent == 1, "Excellent", "Average")
+  ),
+  levels = c("Average", "Poor", "Excellent")
+)
+
+group_residuals <- bind_rows(
+  tibble::tibble(
+    Panel = "Health status",
+    Level = as.character(health_status),
+    Residual = zinb_residuals$scaledResiduals
+  ),
+  tibble::tibble(
+    Panel = "Sex",
+    Level = ifelse(medcare$male == 1, "Male", "Female"),
+    Residual = zinb_residuals$scaledResiduals
+  ),
+  tibble::tibble(
+    Panel = "Marital status",
+    Level = ifelse(
+      medcare$married == 1,
+      "Married",
+      "Not married"
+    ),
+    Residual = zinb_residuals$scaledResiduals
+  )
+) |>
+  mutate(
+    Panel = factor(
+      Panel,
+      levels = c("Health status", "Sex", "Marital status")
+    ),
+    Level = factor(
+      Level,
+      levels = c(
+        "Average", "Poor", "Excellent",
+        "Female", "Male",
+        "Not married", "Married"
+      )
+    )
+  )
+
+ggplot(group_residuals, aes(x = Level, y = Residual)) +
+  geom_hline(
+    yintercept = c(0.25, 0.5, 0.75),
+    linetype = "dashed",
+    colour = "#8A8A8A",
+    linewidth = 0.5
+  ) +
+  geom_boxplot(
+    fill = "#D9E8F5",
+    colour = "#1F4E79",
+    width = 0.62,
+    outlier.alpha = 0.15,
+    outlier.size = 0.7
+  ) +
+  facet_wrap(vars(Panel), scales = "free_x", ncol = 3) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = c(0, 0.25, 0.5, 0.75, 1)
+  ) +
+  labs(
+    x = NULL,
+    y = "DHARMa scaled residual"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank())
+```
+
+The group distributions are broadly similar, with no particular health, sex, or marital-status interaction standing out as the next addition. The age and chronic-condition patterns offer clearer directions for further work. A fuller analysis could compare substantively motivated nonlinear terms in the count mean, the extra-zero equation, or both, and evaluate them with out-of-sample data or resampling. Adding a quadratic term chosen from these same residual plots would instead combine model development and assessment in one step.
+
+Together, these standard checks show that the compact ZINB reproduces the overall zero and low-count frequencies much better than the negative-binomial benchmark. The remaining departures are meaningful but limited in magnitude: residual spread is about 18% above its simulated expectation, the largest uniformity gap is 2.9 percentage points, and 20 of 4,406 observations (0.45%) fall beyond all their simulated values. The age and chronic-condition plots locate further discrepancies mainly at the ends of their observed ranges. The small p-values make these patterns unlikely to be simulation noise; their absolute size and location determine how much they matter in practice.
+
+These results support a calculated working-model choice, and for the sake of this tutorial, I retain the compact ZINB as an **illustrative working model** because it has the lowest information criteria among the fitted candidate specifications, repairs the main zero-frequency discrepancy, and directly represents the two-process question of interest. A fuller analysis would compare substantively motivated nonlinear terms, interactions, and alternative specifications, preferably with out-of-sample assessment. The next subsection interprets the fitted components while carrying these diagnostic limitations into the conclusions.
 
 ## Interpret the Working ZINB Model
 
