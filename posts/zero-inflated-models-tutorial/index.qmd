@@ -1193,6 +1193,118 @@ The compact formula was chosen partly after examining adjusted associations with
 
 Given the results, for the rest of the article, we carry forward `~ numchron + male + married` as the **provisional compact ZINB working specification**. The confidence intervals and p-values reported later treat this formula as if it had been fixed before the analysis. They do not account for the predictor-selection step.
 
+Finally, before relying on these comparisons, it's good practice to check whether each candidate produced a numerically trustworthy solution. A successful optimizer termination, a positive-definite Hessian, and finite standard errors indicate that the software found a well-defined optimum. Large zero-component coefficients can instead signal a nearly flat likelihood in which the extra-zero probability approaches zero or one.
+
+::: {.callout-note collapse="true"}
+## Checking for estimation stability
+
+The code below applies the same checks to every `glmmTMB` candidate used in the information-criterion comparisons. It then reports the number of flagged candidates and shows the compact ZINB as a worked example. The supplementary `diagnose()` call checks coefficient magnitudes, predictor scaling, and Hessian curvature. We disable its large-$z$ screen because a precisely estimated association is not by itself an optimization failure.
+
+```{r}
+#| label: tbl-estimation-stability
+#| code-fold: true
+#| code-summary: "Show estimation-stability checks for the fitted candidates."
+#| cache: true
+#| dependson: [fit-nb-baseline, fit-zero-inflated-models, tbl-zinb-specification-candidates]
+#| tbl-cap: "Estimation-stability checks for the fitted candidates, with detailed results for the compact ZINB working specification."
+
+candidate_glmmtmb_models <- c(
+  list(
+    NB2 = nb_model,
+    `Compact ZIP` = zip_model
+  ),
+  setNames(
+    zinb_spec_models,
+    paste(names(zinb_spec_models), "ZINB")
+  )
+)
+
+check_estimation_stability <- function(model) {
+  coefficient_blocks <- summary(model)$coefficients
+  standard_errors <- unlist(lapply(
+    coefficient_blocks,
+    function(block) {
+      if (is.null(block) || nrow(block) == 0) {
+        return(numeric(0))
+      }
+      block[, "Std. Error"]
+    }
+  ))
+  zero_coefficients <- unname(fixef(model)$zi)
+
+  # diagnose() prints a short message, so capture it while retaining its result.
+  diagnose_message <- capture.output(
+    diagnose_ok <- glmmTMB::diagnose(
+      model,
+      check_zstats = FALSE,
+      explain = FALSE
+    )
+  )
+
+  tibble::tibble(
+    optimizer_ok = model$fit$convergence == 0,
+    hessian_ok = isTRUE(model$sdr$pdHess),
+    finite_se = length(standard_errors) > 0 &&
+      all(is.finite(standard_errors)),
+    extreme_zero_coefficient = length(zero_coefficients) > 0 &&
+      any(abs(zero_coefficients) > 10),
+    diagnose_ok = isTRUE(diagnose_ok)
+  )
+}
+
+stability_checks <- dplyr::bind_rows(
+  lapply(candidate_glmmtmb_models, check_estimation_stability),
+  .id = "Model"
+) |>
+  mutate(
+    all_checks_pass = optimizer_ok & hessian_ok & finite_se &
+      !extreme_zero_coefficient & diagnose_ok
+  )
+
+compact_checks <- stability_checks |>
+  filter(Model == "Compact ZINB")
+
+stability_status <- bind_rows(
+  tibble::tibble(
+    Scope = "All comparison candidates",
+    Check = "Candidates with one or more flagged checks",
+    Result = sprintf(
+      "%d of %d",
+      sum(!stability_checks$all_checks_pass),
+      nrow(stability_checks)
+    )
+  ),
+  tibble::tibble(
+    Scope = "Compact ZINB",
+    Check = c(
+      "Optimizer termination",
+      "Positive-definite Hessian",
+      "Finite standard errors",
+      "Zero-component coefficient magnitude",
+      "Supplementary diagnose() checks"
+    ),
+    Result = c(
+      ifelse(compact_checks$optimizer_ok, "Passed", "Flagged"),
+      ifelse(compact_checks$hessian_ok, "Passed", "Flagged"),
+      ifelse(compact_checks$finite_se, "Passed", "Flagged"),
+      ifelse(
+        compact_checks$extreme_zero_coefficient,
+        "Flagged",
+        "No coefficient with |estimate| > 10"
+      ),
+      ifelse(compact_checks$diagnose_ok, "Passed", "Flagged")
+    )
+  )
+)
+
+knitr::kable(stability_status, align = c("l", "l", "l"))
+```
+
+`diagnose()` is an experimental troubleshooting aid, so the explicit optimizer, Hessian, standard-error, and coefficient checks remain visible rather than being replaced by one package-generated verdict.
+:::
+
+All six `glmmTMB` candidates passed these checks, including the compact ZINB shown above. This result supports using their fitted likelihoods and estimates in the next steps. However, it does not establish that any candidate reproduces the observed count distribution, which we address in the next section with simulation diagnostics.
+
 ## Check Residual Fit
 
 Fit statistics tell us how models compare with one another; they do not tell us whether either candidate reproduces the data well. For discrete models such as negative binomial (NB) and ZINB, ordinary raw residuals are difficult to assess because their distribution changes with the fitted mean. `DHARMa` addresses this by repeatedly simulating outcomes from each fitted model and comparing the observed data with those simulations.
