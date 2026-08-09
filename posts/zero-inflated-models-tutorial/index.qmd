@@ -299,8 +299,8 @@ Install the required packages before running the analysis:
 #| eval: false
 # Install packages if not already available
 install.packages(c(
-  "glmmTMB", "DHARMa", "performance", "parameters", "ggplot2", "dplyr",
-  "gridExtra", "knitr", "catdata"
+  "glmmTMB", "lme4", "DHARMa", "performance", "parameters", "ggplot2",
+  "dplyr", "gridExtra", "knitr", "catdata"
 ))
 ```
 :::
@@ -321,6 +321,7 @@ The analysis uses the following packages and variables:
 #| code-summary: "Show package-loading code"
 # Load required packages
 library(glmmTMB)
+library(lme4)
 library(DHARMa)
 library(performance)
 library(parameters)
@@ -1854,16 +1855,20 @@ Together, these standard checks show that the compact ZINB reproduces the overal
 
 These results support a calculated working-model choice, and for the sake of this tutorial, I retain the compact ZINB as an **illustrative working model** because it has the lowest information criteria among the fitted candidate specifications, repairs the main zero-frequency discrepancy, and directly represents the two-process question of interest. A fuller analysis would compare substantively motivated nonlinear terms, interactions, and alternative specifications, preferably with out-of-sample assessment. The next subsection interprets the fitted components while carrying these diagnostic limitations into the conclusions.
 
-## Interpret the Working ZINB Model
+## Interpreting the Zero-Inflated Model
 
-With ZINB selected as the working model, we can interpret its two sets of coefficients. Exponentiating the conditional coefficients gives rate ratios; exponentiating the zero-inflation coefficients gives odds ratios for membership in the extra-zero group.
+A zero-inflated regression offers two related views of the fitted associations. We first examine $\mu_i$ and $\pi_i$ separately to see whether each predictor acts through the count-generating state, the latent extra-zero state, or both. We then recombine the two components on the observed response scale, where their associations may reinforce or offset one another. The first view explains how the model represents the data; the second gives the practical interpretation in expected visits.
+
+### Component-Specific Associations
+
+Building on [the regression formulation](#regression-and-overall-effects), we interpret the illustrative working model in two passes: $\mu_i$, the conditional mean number of visits in the count-generating state, and $\pi_i$, the probability assigned to the latent extra-zero state. Exponentiating their regression coefficients gives multiplicative associations with the count-component conditional mean and with the odds assigned to the extra-zero state, respectively.
 
 ```{r}
 #| label: tbl-zinb-count-effects
 #| dependson: tbl-zinb-specification-candidates
 #| code-fold: true
 #| code-summary: "Show count-component interpretation code"
-#| tbl-cap: "Count component: multiplicative effects on expected visit rates."
+#| tbl-cap: "Count component: multiplicative associations with the count-component conditional mean."
 
 count_df <- model_parameters(
   zinb_model,
@@ -1882,7 +1887,7 @@ count_df <- model_parameters(
       male = "Male vs female",
       married = "Married vs not married"
     ),
-    `Rate ratio` = sprintf("%.2f", Coefficient),
+    `Conditional-mean ratio` = sprintf("%.2f", Coefficient),
     `95% CI` = sprintf("%.2f–%.2f", CI_low, CI_high),
     `p-value` = format.pval(p, digits = 2, eps = 0.001)
   )
@@ -1895,7 +1900,7 @@ knitr::kable(count_df, align = c("l", "r", "c", "r"), row.names = FALSE)
 #| dependson: tbl-zinb-specification-candidates
 #| code-fold: true
 #| code-summary: "Show zero-inflation-component interpretation code"
-#| tbl-cap: "Zero-inflation component: odds ratios for belonging to the extra-zero group."
+#| tbl-cap: "Zero component: multiplicative associations with the odds assigned to the latent extra-zero state."
 
 zi_df <- model_parameters(
   zinb_model,
@@ -1922,47 +1927,89 @@ zi_df <- model_parameters(
 knitr::kable(zi_df, align = c("l", "r", "c", "r"), row.names = FALSE)
 ```
 
-I read the fitted ZINB model in two passes.
-**First, the count component:** within the count-generating group, what changes the expected visit rate?
+**$\mu_i$:** within the count-generating state, the count-component conditional mean is 16% higher for each additional chronic condition (conditional-mean ratio 1.16, 95% CI 1.14–1.19) and 32% higher for poor rather than average health (1.32, 95% CI 1.21–1.44). Excellent rather than average health is associated with a 27% lower conditional mean (0.73, 95% CI 0.65–0.82), while each additional decade of age is associated with a 5% lower conditional mean (0.95, 95% CI 0.90–0.99). The estimates for sex and marital status are close to 1, and their confidence intervals include 1.
 
-- **Chronic conditions:** Each additional condition is associated with a 16% higher visit rate (rate ratio 1.16, 95% CI 1.14–1.19).
-- **Poor health:** Poor rather than average health is associated with a 32% higher visit rate (1.32, 95% CI 1.21–1.44).
-- **Age:** Each additional decade is associated with a 5% lower visit rate (0.95, 95% CI 0.90–0.99).
-- **Excellent health:** Excellent rather than average health is associated with a 27% lower visit rate (0.73, 95% CI 0.65–0.82).
+**$\pi_i$:** each additional chronic condition is associated with 72% lower odds assigned to the latent extra-zero state (odds ratio 0.28, 95% CI 0.19–0.41). The fitted odds are higher for men than women (3.08, 95% CI 1.84–5.16) and lower for married participants than for participants who were not married (0.35, 95% CI 0.21–0.59). Here, the odds refer only to a modelled latent-state probability. Observed-zero odds and membership in a known patient group are different quantities.
 
-The intervals for sex and marital status include 1, so this specification does not provide clear evidence of adjusted differences for those predictors in the count component.
-
-**Then, the zero-inflation component:** what changes the odds of belonging to the extra-zero group?
-
-- **Chronic conditions:** Each additional chronic condition is associated with lower odds of belonging to the extra-zero group (odds ratio 0.28, 95% CI 0.19–0.41).
-- **Sex:** Men have higher estimated odds than women (3.08, 95% CI 1.84–5.16).
-- **Marital status:** Married participants have lower estimated odds than those who are not married (0.35, 95% CI 0.21–0.59).
-
-These estimates are descriptive rather than causal. The model associates the three selected predictors with latent extra-zero membership; it does not establish why those associations arise, nor does it reveal which individual zero observations are structural.
+It's important to note that the reported intervals and p-values assume that the compact formula was fixed in advance, although its predictors were informed partly by observed-zero associations in these data. Specification selection therefore adds uncertainty beyond the reported coefficient estimates. We treat every association as a descriptive summary of the fitted specification, without a causal or individual-classification interpretation.
 
 ### Overall Expected Visits
 
-The component tables answer two useful but partial questions. The count table describes $\mu_i$ within the count-generating state, while the zero-inflation table describes $\pi_i$. Expected visits on the observed response scale combine them as $(1-\pi_i)\mu_i$.
+The component tables describe $\mu_i$ and $\pi_i$ separately, but neither component alone tells us how expected visits change. A predictor can shift the count mean, the extra-zero probability, or both; those shifts may reinforce or offset one another. We therefore combine them in the original outcome units as $(1-\pi_i)\mu_i$.
 
-@tbl-zinb-overall-contrasts reports average standardized predictions for the three predictors shared by both components. For each contrast, the focal predictor is changed for every eligible participant while all other predictors retain their observed values; the response-scale predictions are then averaged. The chronic-condition contrast excludes the three participants already at the observed maximum of eight conditions, avoiding extrapolation beyond the data.
+To see what the two pathways imply together, we create two versions of each eligible record. We change the predictor of interest, retain the observed values of every other predictor, and calculate overall expected visits for both versions. Averaging those predictions across the eligible records gives two standardized means; their difference and ratio form the **standardized contrast** reported in @tbl-zinb-overall-contrasts. We report three such comparisons:
+
+- **Sex and marriage:** set the relevant binary indicator to 0 for every record in the reference version and to 1 in the comparison version.
+- **Chronic conditions:** compare each eligible participant at their observed count and at one additional condition. Excluding the three participants already at the observed maximum of eight avoids extrapolating beyond the data and leaves 4,403 records.
+
+Here, **standardization** refers to averaging record-level predictions over the observed covariate distribution. Every predictor remains on its original scale.
+
+The scenario definitions and averaging operation specify the target quantities: a response-scale difference and ratio. We next quantify their sampling uncertainty. Both combine $\mu_i$ and $\pi_i$, so their intervals must carry uncertainty in the two components, including their covariance, through the nonlinear expression $(1-\pi_i)\mu_i$.
+
+We use a full-refit parametric bootstrap. Each replicate treats the fitted compact ZINB as a data-generating model and follows three steps:
+
+1. simulate new visit counts at the observed covariate values, 
+2. refit both model components, 
+3. recalculate the same standardized differences and ratios.
+
+::: {.callout-caution collapse="true"}
+## How the contrasts and intervals are constructed
+
+Let $\mathcal I$ denote the records eligible for a contrast, and let $\mathbf{x}_i^{(0)}$ and $\mathbf{x}_i^{(1)}$ denote the reference and comparison versions of record $i$. For the fitted ZINB, the overall expected count under version $s$ is
+
+$$
+\widehat m_i^{(s)}
+= \left(1 - \widehat\pi_i^{(s)}\right)\widehat\mu_i^{(s)}.
+$$
+
+Here, $s=0$ identifies the reference version and $s=1$ the comparison version.
+
+Standardization averages these predictions over the eligible records:
+
+$$
+\overline{\widehat m}^{(s)}
+= \frac{1}{\lvert \mathcal I \rvert}
+\sum_{i \in \mathcal I} \widehat m_i^{(s)}.
+$$
+
+The contrast is summarized as a difference and a ratio:
+
+$$
+\widehat\Delta
+= \overline{\widehat m}^{(1)} - \overline{\widehat m}^{(0)},
+\qquad
+\widehat R
+= \frac{\overline{\widehat m}^{(1)}}{\overline{\widehat m}^{(0)}}.
+$$
+
+For each bootstrap replicate, we simulate new outcomes from the fitted ZINB, refit the same count and zero formulas, and recalculate $\widehat\Delta$ and $\widehat R$. The 2.5th and 97.5th percentiles of the replicated values form the approximate 95% percentile parametric-bootstrap confidence intervals.
+
+:::
+
+This simulate–refit–recalculate cycle estimates sampling uncertainty in the complete standardized contrast. @tbl-zinb-overall-contrasts reports approximate 95% percentile intervals from 500 replicates.
+
 
 ```{r}
-#| label: tbl-zinb-overall-contrasts
+#| label: define-zinb-response-contrasts
 #| cache: true
 #| dependson: tbl-zinb-specification-candidates
+#| output: false
 #| code-fold: true
-#| code-summary: "Show standardized-prediction code"
-#| tbl-cap: "Average standardized overall expected visits from the working ZINB model. Values are model-based point predictions marginal over the latent state."
+#| code-summary: "Show prediction-scenario and contrast code"
 
-average_response_prediction <- function(newdata) {
-  mean(predict(zinb_model, newdata = newdata, type = "response"))
+average_response_prediction <- function(model, newdata) {
+  mean(predict(model, newdata = newdata, type = "response"))
 }
 
+# For chronic conditions, compare each eligible participant's observed count
+# with that count plus one. Excluding the observed maximum avoids extrapolation.
 chronic_reference <- medcare |>
   filter(numchron < max(numchron))
 chronic_comparison <- chronic_reference |>
   mutate(numchron = numchron + 1)
 
+# Binary contrasts compare two versions of every record while keeping the
+# remaining observed predictors unchanged.
 female_scenario <- medcare |>
   mutate(male = 0)
 male_scenario <- medcare |>
@@ -1972,43 +2019,240 @@ not_married_scenario <- medcare |>
 married_scenario <- medcare |>
   mutate(married = 1)
 
-overall_contrasts <- tibble::tibble(
-  Contrast = c(
-    "One more vs observed chronic-condition count",
-    "Male vs female",
-    "Married vs not married"
-  ),
-  Reference = c(
-    average_response_prediction(chronic_reference),
-    average_response_prediction(female_scenario),
-    average_response_prediction(not_married_scenario)
-  ),
-  Comparison = c(
-    average_response_prediction(chronic_comparison),
-    average_response_prediction(male_scenario),
-    average_response_prediction(married_scenario)
-  )
-) |>
-  mutate(
-    Difference = Comparison - Reference,
-    Ratio = Comparison / Reference
+estimate_response_contrasts <- function(model) {
+  tibble::tibble(
+    Contrast_id = c("chronic", "sex", "marriage"),
+    Contrast = c(
+      "Adding one chronic condition among participants with 0–7 conditions",
+      "Male vs female",
+      "Married vs not married"
+    ),
+    Reference = c(
+      average_response_prediction(model, chronic_reference),
+      average_response_prediction(model, female_scenario),
+      average_response_prediction(model, not_married_scenario)
+    ),
+    Comparison = c(
+      average_response_prediction(model, chronic_comparison),
+      average_response_prediction(model, male_scenario),
+      average_response_prediction(model, married_scenario)
+    )
   ) |>
+    mutate(
+      Difference = Comparison - Reference,
+      Ratio = Comparison / Reference
+    )
+}
+
+overall_point_contrasts <- estimate_response_contrasts(zinb_model)
+
+# bootMer requires a numeric statistic. Stopping here records an unstable refit
+# as a bootstrap failure rather than allowing it to enter the intervals.
+bootstrap_response_statistic <- function(model) {
+  fit_is_stable <-
+    identical(model$fit$convergence, 0L) &&
+    isTRUE(model$sdr$pdHess)
+
+  if (!fit_is_stable) {
+    stop("Bootstrap refit failed the convergence or Hessian check.")
+  }
+
+  contrasts <- estimate_response_contrasts(model)
+  statistics <- c(contrasts$Difference, contrasts$Ratio)
+  names(statistics) <- c(
+    paste0(contrasts$Contrast_id, "_difference"),
+    paste0(contrasts$Contrast_id, "_ratio")
+  )
+  statistics
+}
+```
+
+```{r}
+#| label: run-zinb-response-bootstrap
+#| cache: true
+#| dependson: define-zinb-response-contrasts
+#| output: false
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "Show parametric-bootstrap refit code"
+
+n_boot <- 500L
+bootstrap_seed <- 20260730L
+
+# Leave one physical core free for Quarto and other desktop work. The fallback
+# keeps the tutorial runnable when R cannot determine the physical core count.
+physical_cores <- parallel::detectCores(logical = FALSE)
+n_workers <- if (is.na(physical_cores)) {
+  1L
+} else {
+  max(1L, physical_cores - 1L)
+}
+
+run_bootstrap_refits <- function() {
+  bootstrap_cluster <- parallel::makeCluster(n_workers)
+  on.exit(parallel::stopCluster(bootstrap_cluster), add = TRUE)
+
+  # Windows uses separate R sessions, so each worker needs the modelling
+  # packages and every object used when glmmTMB reconstructs the original fit.
+  parallel::clusterEvalQ(
+    bootstrap_cluster,
+    suppressPackageStartupMessages({
+      library(lme4)
+      library(glmmTMB)
+      library(dplyr)
+    })
+  )
+
+  parallel::clusterExport(
+    bootstrap_cluster,
+    c(
+      "zinb_model", "medcare",
+      "chronic_reference", "chronic_comparison",
+      "female_scenario", "male_scenario",
+      "not_married_scenario", "married_scenario",
+      "average_response_prediction", "estimate_response_contrasts",
+      "bootstrap_response_statistic"
+    ),
+    envir = environment()
+  )
+
+  # bootMer simulates outcomes, refits the complete ZINB, and evaluates the six
+  # response-scale statistics for every replicate. Each refit uses one thread;
+  # independent replicates are distributed across the worker processes.
+  lme4::bootMer(
+    zinb_model,
+    FUN = bootstrap_response_statistic,
+    nsim = n_boot,
+    seed = bootstrap_seed,
+    use.u = FALSE,
+    type = "parametric",
+    parallel = "snow",
+    ncpus = n_workers,
+    cl = bootstrap_cluster
+  )
+}
+
+bootstrap_result <- run_bootstrap_refits()
+bootstrap_succeeded <- complete.cases(bootstrap_result$t)
+n_boot_success <- sum(bootstrap_succeeded)
+n_boot_failed <- n_boot - n_boot_success
+bootstrap_failure_messages <- attr(bootstrap_result, "boot.fail.msgs")
+
+# A high failure rate makes percentile intervals unreliable and signals a model
+# stability problem that should be investigated rather than silently ignored.
+if (n_boot_success < 0.95 * n_boot) {
+  stop(
+    "Fewer than 95% of parametric-bootstrap models converged with ",
+    "a positive-definite Hessian."
+  )
+}
+
+# Cache only the raw successful statistics and diagnostics. Formatting remains
+# in the lightweight table cell so prose or layout edits do not rerun refits.
+bootstrap_statistics <- bootstrap_result$t[bootstrap_succeeded, , drop = FALSE]
+rm(bootstrap_result)
+```
+
+
+```{r}
+#| label: tbl-zinb-overall-contrasts
+#| dependson: run-zinb-response-bootstrap
+#| code-fold: true
+#| code-summary: "Show interval-summary and table code"
+#| tbl-colwidths: [40, 13, 13, 18, 16]
+#| tbl-cap: "Standardized contrasts in overall expected visits from the working ZINB model."
+
+# Convert the cached bootstrap matrix into percentile intervals. This cell is
+# intentionally lightweight: labels, rounding, and layout can change freely.
+interval_endpoint <- function(column, probability) {
+  quantile(
+    bootstrap_statistics[, column],
+    probs = probability,
+    names = FALSE
+  )
+}
+
+bootstrap_intervals <- tibble::tibble(
+  Contrast_id = overall_point_contrasts$Contrast_id,
+  Difference_low = vapply(
+    paste0(Contrast_id, "_difference"),
+    interval_endpoint,
+    numeric(1),
+    probability = 0.025
+  ),
+  Difference_high = vapply(
+    paste0(Contrast_id, "_difference"),
+    interval_endpoint,
+    numeric(1),
+    probability = 0.975
+  ),
+  Ratio_low = vapply(
+    paste0(Contrast_id, "_ratio"),
+    interval_endpoint,
+    numeric(1),
+    probability = 0.025
+  ),
+  Ratio_high = vapply(
+    paste0(Contrast_id, "_ratio"),
+    interval_endpoint,
+    numeric(1),
+    probability = 0.975
+  )
+)
+
+overall_contrasts <- overall_point_contrasts |>
+  left_join(bootstrap_intervals, by = "Contrast_id") |>
   transmute(
     Contrast,
     `Reference mean` = sprintf("%.2f", Reference),
     `Comparison mean` = sprintf("%.2f", Comparison),
-    Difference = sprintf("%+.2f", Difference),
-    Ratio = sprintf("%.2f", Ratio)
+    `Change (95% CI)` = sprintf(
+      "%+.2f (%+.2f to %+.2f)",
+      Difference,
+      Difference_low,
+      Difference_high
+    ),
+    `Ratio (95% CI)` = sprintf(
+      "%.2f (%.2f–%.2f)",
+      Ratio,
+      Ratio_low,
+      Ratio_high
+    )
   )
 
-knitr::kable(overall_contrasts, align = c("l", "r", "r", "r", "r"))
+knitr::kable(
+  overall_contrasts,
+  align = c("c", "c", "c", "r", "r"),
+  row.names = FALSE
+)
 ```
 
-These predictions show how the two components combine. Each additional chronic condition raises the count-state mean and lowers the estimated probability of the extra-zero state, so both pathways increase overall expected visits. The count-component estimate for sex is close to one, but men's higher estimated extra-zero probability lowers their overall expected visits relative to women. Marriage has opposing component associations: its fitted count-state mean is lower, while its estimated extra-zero probability is also lower. The two pathways nearly offset one another, leaving an overall point-prediction ratio of 0.98 for married versus not married.
+The chronic-condition contrast uses 4,403 participants; the binary contrasts use all 4,406. Parentheses contain approximate 95% percentile parametric-bootstrap confidence intervals.
 
-The contrasts average over the observed covariate distribution instead of defining a single typical patient. They remain descriptive associations from the fitted model, not causal effects, and the point predictions do not express uncertainty about the estimated parameters.
+Adding one chronic condition is associated with 1.18 more expected visits (95% CI 1.02 to 1.36), or a 20% increase. The count-state mean rises while the estimated extra-zero probability falls, so both pathways reinforce the response-scale increase.
 
-<!-- TODO: This needs to transition more into an "end of tutorial recap" you would find at the end of a scientific blog or end-of-chapter section of a textbook -->
+Men have 0.45 fewer expected visits than women after standardization (95% CI 0.07 to 0.83 fewer), an estimated reduction of 8%. Both component point estimates act in the same direction: the count-component mean is slightly lower for men, while their higher estimated extra-zero probability supplies most of the overall difference.
+
+Married participants have 0.09 fewer expected visits than participants who are not married, but the interval ranges from 0.49 fewer to 0.29 more visits. Here the pathways oppose one another: the fitted count-state mean is lower for married participants, while their lower estimated extra-zero probability raises the response-scale expectation. The near cancellation leaves no clear overall difference under this specification.
+
+::: {.callout-note collapse="true"}
+## Why use a parametric bootstrap?
+
+A delta-method interval is a legitimate and much faster alternative. It approximates a nonlinear contrast with a straight line near the fitted coefficients and usually treats their joint sampling distribution as approximately normal. That approximation can work well, but our contrast averages a nonlinear combination of two fitted model components whose estimates can covary.
+
+We chose the full-refit bootstrap because it carries that joint uncertainty through the complete calculation without first linearizing the contrast. Refitting also exposes simulated datasets in which the model cannot be estimated reliably. This choice is not universally superior: it costs more computation and still assumes that the fitted ZINB adequately represents the data-generating process. Readers who want to compare the delta method, coefficient simulation, and bootstrap approaches can consult the [*marginaleffects* guide to uncertainty](https://marginaleffects.com/chapters/uncertainty.html).
+
+:::
+
+We use 500 replicates to keep the tutorial practical to reproduce. A comparison with 1,000 replicates changed the reported interval endpoints by at most 0.02 after rounding; substantive work should use more replicates when necessary and check that the endpoints are stable. The bootstrap used `r n_workers` local workers and successfully refitted `r format(n_boot_success, big.mark = ",")` of `r format(n_boot, big.mark = ",")` simulated datasets. The interval calculation excludes any refit that fails the convergence and Hessian checks used for the working model; none failed here.
+
+The intervals condition on the observed covariates, the compact specification, and the fitted ZINB data-generating model. They exclude uncertainty from formula selection and residual misspecification, and they do not support a causal interpretation.
+
+The three comparisons expose a general feature of zero-inflated regression: a predictor's practical association emerges only after the count and zero pathways are recombined. Reinforcing pathways can magnify the response-scale association, while opposing pathways can nearly cancel even when both components appear meaningful. Standardized contrasts translate this latent two-process representation into the expected observed outcome that motivated the analysis.
+
+With the models now compared, checked, and interpreted on both component and response scales, the final section turns to the complete argument. It synthesizes why the compact ZINB was retained as a working model, what the modelling sequence taught us, and which limitations should shape its use.
+
 # Conclusion and Final Remarks
 
 The Medicare data began with a clear warning sign: the fitted Poisson model expected about 37 zero-visit records, while the data contained 683. That gap justified more flexible models, but it did not by itself prove a separate structural-zero process. The negative binomial model showed why. A one-process count model with extra variation can explain much of what first looks like zero inflation.
