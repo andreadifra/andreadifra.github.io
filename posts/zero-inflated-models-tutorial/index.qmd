@@ -2264,15 +2264,17 @@ In summary, for me one of the biggest takeaways for this tutorial should be that
 
 ## A Repeatable Workflow
 
-The order of the analysis matters more than any single metric. In my own work, I would reuse this sequence:
+To conclude, the approach we used for the Medicare data, and that I have used in practice, can be broken down and adapted to other count outcomes:
 
-1. **Start with theory.** Write down what might create extra zeros, what affects count intensity, and which predictors belong in each component.
-2. **Compare plausible distributions.** Hold the mean structure fixed initially, as in @tbl-model-performance, so Poisson, negative binomial, ZIP, and ZINB differ mainly in their distributional assumptions.
-3. **Assess candidate fit.** Use residual simulations and subject-matter checks to decide whether the leading models reproduce the features that matter. Do not interpret a model merely because it has the lowest AIC.
-4. **Interpret an adequate working model.** Check convergence and standard errors, then explain each component separately and preserve uncertainty about the latent extra-zero group.
-5. **Validate the full specification.** Revisit predictor choices, inspect residuals against important covariates, assess influential observations, and compare out-of-sample predictions.
+1. **Define the outcome and the processes that may generate it.** Establish the observation window or exposure, decide what one count represents, and identify plausible reasons for both variation in the counts and the occurrence of zeros.
+2. **Establish a count-family baseline.** Begin with a simple count model, then use dispersion and residual checks to decide whether the count distribution needs more flexibility. A negative-binomial model is often a useful next candidate when Poisson variation is too restrictive.
+3. **Test a basic extra-zero component.** Within the selected count family, compare the ordinary model with a matched specification containing a constant extra-zero probability. This isolates whether a zero component adds enough to justify further development.
+4. **Choose zero-component predictors deliberately.** Use subject-matter knowledge and direct measures of the proposed zero-generating process whenever possible. When several formulas are plausible, compare a small candidate set with clear substantive interpretations.
+5. **Check estimation stability.** Confirm optimizer convergence, a positive-definite Hessian, finite standard errors, and the absence of extreme zero-component estimates before using fit statistics or residual diagnostics.
+6. **Check the complete fitted distribution.** Use simulation diagnostics to examine zero frequency, dispersion, overall distributional fit, residual patterns across important predictors, and observed versus predicted count frequencies. For predictive work, add repeated out-of-sample assessment with a distribution-sensitive score, such as held-out log predictive density or ranked probability score, alongside RMSE.
+7. **Interpret the model in terms of the observed outcome.** Explain the count and zero components separately, then recombine them on the response scale. Keep the interpretation conditional on the chosen specification, its remaining diagnostic departures, and the scientific meaning of the latent state.
 
-The next layer of model choice is deciding when a hurdle model, alternative count distribution, or richer prediction workflow fits better. That material belongs in a separate advanced tutorial so this article can stay focused on the core zero-inflated workflow.
+The table below summarizes where each common count model may enter this workflow.
 
 ## When to Use Each Model Type
 
