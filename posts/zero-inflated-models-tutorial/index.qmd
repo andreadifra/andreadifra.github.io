@@ -2274,20 +2274,22 @@ To conclude, the approach we used for the Medicare data, and that I have used in
 6. **Check the complete fitted distribution.** Use simulation diagnostics to examine zero frequency, dispersion, overall distributional fit, residual patterns across important predictors, and observed versus predicted count frequencies. For predictive work, add repeated out-of-sample assessment with a distribution-sensitive score, such as held-out log predictive density or ranked probability score, alongside RMSE.
 7. **Interpret the model in terms of the observed outcome.** Explain the count and zero components separately, then recombine them on the response scale. Keep the interpretation conditional on the chosen specification, its remaining diagnostic departures, and the scientific meaning of the latent state.
 
-The table below summarizes where each common count model may enter this workflow.
+## Choosing an Appropriate Candidate
 
-## When to Use Each Model Type
+Given the workflow, you can use the table below to form a candidate set, then use matched comparisons, estimation checks, and simulation diagnostics to decide which specifications remain defensible. Note that the table covers only the four model families discussed in this article; other count distributions and hurdle-type specifications may also be worth considering!
 
-Below is a quick reference for when to use each of the four common count-data model families. The table is not exhaustive, but it summarizes the main points from this tutorial.
+::: {#tbl-model-choice .responsive .hover tbl-colwidths="20, 40, 40"}
 
-| Model Type | Best When | Avoid When |
-|------------|-----------|------------|
-| **Standard Poisson** | Conditional mean and variance are compatible, and zero frequency is reproduced | Residual checks show overdispersion or a zero-frequency mismatch |
-| **Negative Binomial** | Heterogeneity explains the extra variation without a separate zero process | Residual checks still show a substantial zero-frequency mismatch |
-| **Zero-Inflated Poisson** | A distinct extra-zero process is plausible and conditional counts are close to equidispersed | The conditional count process remains overdispersed |
-| **Zero-Inflated NB** | Both an extra-zero process and conditional overdispersion are plausible | A simpler negative binomial model validates equally well, or the data are zero-deflated |
+| Model | Appropriate Candidate When | Reconsider When |
+|:--|:--|:--|
+| **Poisson** | The conditional mean and variance are compatible (equidispersed), and simulations reproduce the zero frequency and tails | Residuals show overdispersion, underdispersion, a zero-frequency mismatch, or systematic patterns across predictors |
+| **Negative binomial (NB2)** | Variation exceeds the Poisson assumption, and NB2 reproduces the residual spread, zero frequency, and tails without a separate zero component | Important zero-frequency, dispersion, tail, or predictor-specific departures remain |
+| **Zero-inflated Poisson (ZIP)** | A separate extra-zero process has a defensible scientific interpretation, adding it improves distributional fit, and Poisson variation remains adequate within the count state | The count component remains overdispersed, the zero component is unstable, or its predictors lack a substantive interpretation |
+| **Zero-inflated negative binomial (ZINB)** | NB2 variation is needed, and a substantively defensible zero component improves distributional fit beyond ordinary NB2 | NB2 already reproduces the relevant features, zero-component estimates are unstable, or important residual departures remain |
 
-: Practical guide for choosing among common count-data model families. {#tbl-model-choice}
+Screening guide for deciding which common count-model specifications merit fitting and diagnostic assessment. Final selection requires matched comparisons, stable estimation, and distributional checks.
+
+:::
 
 ## Further Reading
 
