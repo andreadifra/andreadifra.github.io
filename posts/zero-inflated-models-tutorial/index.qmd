@@ -2,7 +2,7 @@
 title: "Zero-Inflated Models: A Practical Tutorial"
 description: "A practical guide to understanding and implementing zero-inflated models in R."
 image: publication-image.png
-image-alt: "Two paths converge into observed count data: one produces structural zeros, while the other produces counts that can also include zeros."
+image-alt: "Two latent paths converge into observed count data: an extra-zero path and a count-generating path that can also produce zeros."
 title-block-banner: publication-image.png
 open-graph: true
 twitter-card:
@@ -72,13 +72,13 @@ In terms of tooling, I strongly recommend the `glmmTMB` package in R, which is f
 
 ## What Are Zero-Inflated Models?
 
-In regression, zero-inflated models combine two components: a point mass at zero, which produces only zero—a component that produces only zeros—and a second distribution for the outcome. Predictors can enter both components through separate linear predictors and link functions. In this sense, zero-inflated regression models are technically defined as generalized linear mixture models.
+In regression, zero-inflated models combine two components: a point mass at zero and a second distribution for the outcome. Predictors can enter both components through separate linear predictors and link functions. In this sense, zero-inflated regression models are technically defined as generalized linear mixture models.
 
 Although they are often introduced for count data, the general framework is not limited to counts. For example, @liu2019 review zero-inflated models for non-negative continuous outcomes, while @ospina2012 develop zero-or-one-inflated beta regression for proportions.
 
 This tutorial focuses on count data, where an observed count can arise from two distinct latent processes:
 
-1. One that generates **structural zeros** with some probability.
+1. A latent state that always produces zero (defined as **structural zeros**).
 2. A standard event-generating process that produces both zeros (called **sampling zeros**) and positive events.
 
 What does this actually mean? Well, suppose you are counting clinic visits. A zero can mean at least two different things:
@@ -86,7 +86,7 @@ What does this actually mean? Well, suppose you are counting clinic visits. A ze
 - the person was never really in a position to generate a visit during the study window
 - the person could have generated a visit, but happened not to
 
-The first type is a **structural zero**. The second is a **sampling zero**. A standard one-process count model, such as Poisson regression, treats both people as coming from the same count-generating process. A zero-inflated model represents both routes to zero, although it cannot tell us with certainty which route produced any individual observation.
+A zero from the first route is called a **structural zero**; one from the second is a **sampling zero**. A standard one-process count model, such as Poisson regression, treats both people as coming from the same count-generating process. A zero-inflated model represents both routes as latent possibilities, but the data do not reveal which route produced any individual zero.
 
 ## When Do We Need Zero-Inflated Models?
 
@@ -98,7 +98,7 @@ This distinction will become clearer in the following sections, but for now thes
 - **Disease surveillance**: Some locations truly have zero prevalence for a pathogen because the pathogen cannot survive there or has been eradicated (structural zeros). Other locations harbor the pathogen but a given survey fails to detect it during that sampling round (sampling zeros) — e.g., low prevalence or imperfect tests.
 - **Specialist treatments or prescriptions**: Some patients will never be eligible for a specific specialist-only procedure or advanced drug (structural zeros) — think of treatments restricted by age, comorbidity, or insurance coverage. Other patients are eligible but simply don't receive the treatment during the study window (sampling zeros) because they don't yet need it, they defer care, or the treatment is rarely used in short follow-up.
 
-![In healthcare data, zeros can come from fundamentally different processes: policy or access barriers create structural zeros, while ordinary non-use during the observation window creates sampling zeros.](zero-sources.svg){#fig-zero-sources fig-alt="A hand-drawn flow diagram splitting healthcare count zeros into structural zeros from access or eligibility barriers and sampling zeros from no care needed or non-attendance."}
+![Healthcare zeros can be interpreted through two possible latent routes: an extra-zero state associated with policy or access barriers, and ordinary non-use during the observation window.](zero-sources.svg){#fig-zero-sources fig-alt="A hand-drawn flow diagram showing two possible routes to a healthcare count of zero: an extra-zero state associated with access or eligibility barriers, and ordinary non-use among people who could have attended."}
 
 In each case, the zero may carry information about the process that generated the observation. That still leaves an important modelling caveat: excess zeros are not the same thing as proven structural zeros. A flexible one-process count model can sometimes reproduce many zeros without needing a separate latent class.
 
@@ -307,9 +307,11 @@ install.packages(c(
 
 ## Medicare Data and Outcome
 
-The `medcare` dataset from the `catdata` package records healthcare use for 4,406 people aged 66 and over who were covered by Medicare. The outcome, `ofp`, is each person's number of physician office visits during the observation period.
+The `medcare` dataset from the `catdata` package is a reduced teaching extract of the 4,406-person sample used by Deb and Trivedi, drawn from the 1987 National Medical Expenditure Survey [@schauberger2025; @debtrivedi1997]. It records healthcare use among people aged 66 and over who were covered by Medicare. The outcome, `ofp`, is each person's number of physician office visits during the 1987 NMES observation year.
 
-I like this example because the case for a zero-inflated model is not obvious from one dramatic spike at zero. The data instead make us work through the same questions that arise in practice: how variable are the counts, which patients have no visits, and can a standard count model reproduce the observed zeros?
+I like this example because the case for a zero-inflated model is not obvious from one very dramatic spike at zero. The data instead make us work through the same questions that often arise in the real world: how variable are the counts, which patients have no visits, and can a standard count model reproduce the observed zeros?
+
+The extract omits survey weights, strata, and cluster identifiers, so the analysis treats the supplied records as independent and reports model-based rather than design-based uncertainty (for fuller provenance, assumptions, and software versions, jump ahead to @sec-scope-reproducibility).
 
 The analysis uses the following packages and variables:
 
@@ -983,6 +985,8 @@ ofp ~ healthpoor + healthexcellent + numchron + age + male + married
 ```
 
 These predictors represent health need and demographic differences that may be associated with visit rates. Their inclusion defines the conditional comparison; it does not turn the resulting coefficients into causal effects.
+
+Two available variables are deliberately left out. `hosp` counts hospital stays during the same observation period as the office visits, so treating it as a prior predictor would blur the temporal ordering between two concurrent measures of healthcare use. `school` records years of education and could reasonably enter as a socioeconomic covariate. We leave it out to keep the teaching specification focused. The count formula is a starting point, and a fuller analysis would compare other substantively plausible alternatives.
 
 Ideally, the zero-inflation formula would include direct measures of why someone cannot or does not enter the visit-generating process, such as eligibility restrictions, insurance coverage, or geographic access. The `medcare` data unfortunately contain no such measures. Its health and demographic variables can describe systematic differences in the estimated extra-zero probability, but they cannot identify the mechanism behind those differences.
 
@@ -2251,20 +2255,18 @@ The intervals condition on the observed covariates, the compact specification, a
 
 The three comparisons expose a general feature of zero-inflated regression: a predictor's practical association emerges only after the count and zero pathways are recombined. Reinforcing pathways can magnify the response-scale association, while opposing pathways can nearly cancel even when both components appear meaningful. Standardized contrasts translate this latent two-process representation into the expected observed outcome that motivated the analysis.
 
-With the models now compared, checked, and interpreted on both component and response scales, the final section turns to the complete argument. It synthesizes why the compact ZINB was retained as a working model, what the modelling sequence taught us, and which limitations should shape its use.
-
 # Conclusion and Final Remarks
 
 In summary, we worked through a sequential modelling exercise that I hope resembles how you might approach a similar count dataset in practice. We began with Poisson to establish a baseline for the conditional mean, variation, and zero frequency. Its severe overdispersion and 37 expected zeros, against 683 observed, pointed towards a more flexible count distribution. When counts vary far more than Poisson allows, NB2 is often a good candidate to try next. Here, it accounted for about 91% of zeros (623) through a single count process. 
 
 With most of the apparent zero excess captured by NB2, the next question was whether adding a separate zero component improved this stronger baseline. We saw that adding a constant extra-zero component added very little. The substantial improvement appeared when that probability was allowed to vary across patient characteristics. Expanding the compact formula with three additional predictors provided no meaningful improvement after accounting for the extra complexity, so we retained the smaller specification as the more focused way to explore the two-process hypothesis.
 
-In summary, for me one of the biggest takeaways for this tutorial should be that, when we are facing a dataset with a relatively high number of zeros in our response variable, we should start a sequence of progressive comparisons, beginning with the count distribution itself. Before adding a zero component, we should ask whether a count distribution with more realistic variation can already reproduce most of the excess zeros. Any remaining zero component then becomes a scientific hypothesis of its own, with predictors, assumptions, and diagnostic consequences. The compact ZINB gives that hypothesis an interpretable form for this tutorial, and what we gain is a clearer account of how two possible pathways may shape the observed outcome—and a clearer view of where that account remains incomplete.
+For me one of the biggest takeaways for this tutorial should be that, when we are facing a dataset with a relatively high number of zeros in our response variable, we should start a sequence of progressive comparisons, beginning with the count distribution itself. Before adding a zero component, we should ask whether a count distribution with more realistic variation can already reproduce most of the excess zeros. Any remaining zero component then becomes a scientific hypothesis of its own, with predictors, assumptions, and diagnostic consequences. The compact ZINB gives that hypothesis an interpretable form for this tutorial, and what we gain is a clearer account of how two possible pathways may shape the observed outcome—and a clearer view of where that account remains incomplete.
 
 
 ## A Repeatable Workflow
 
-To conclude, the approach we used for the Medicare data, and that I have used in practice, can be broken down and adapted to other count outcomes:
+The approach we used for the Medicare data, and that I have used in practice, can be broken down and adapted to other count outcomes:
 
 1. **Define the outcome and the processes that may generate it.** Establish the observation window or exposure, decide what one count represents, and identify plausible reasons for both variation in the counts and the occurrence of zeros.
 2. **Establish a count-family baseline.** Begin with a simple count model, then use dispersion and residual checks to decide whether the count distribution needs more flexibility. A negative-binomial model is often a useful next candidate when Poisson variation is too restrictive.
@@ -2291,11 +2293,27 @@ Screening guide for deciding which common count-model specifications merit fitti
 
 :::
 
+## Scope and Reproducibility {#sec-scope-reproducibility}
+
+These qualifications define the boundaries of the Medicare example. Age is recorded in decades: `6.6` represents 66 years, as confirmed by the fuller [`AER::NMES1988` documentation](https://raw.githubusercontent.com/cran/AER/master/man/NMES1988.Rd). The available data provide no participant-specific observation times, and the models include no exposure offset. We therefore treat each participant's visit count as observed over the same one-year period, the [1987 NMES observation year](https://meps.ahrq.gov/data_files/publications/rf9/rf9.shtml), and compare counts under this common observation window.
+
+Without the original survey-design variables, the estimates describe associations within the supplied sample under model-based uncertainty. They should not be interpreted as design-based population estimates for US Medicare beneficiaries.
+
+::: {.callout-note appearance="simple" collapse="true" title="Software used for this article"}
+
+- **Runtime:** R 4.6.0 and Quarto 1.9.37
+- **Modelling and diagnostics:** `glmmTMB` 1.1.14, DHARMa 0.5.0, `performance` 0.17.0, `parameters` 0.29.1, and `lme4` 2.0-1
+- **Data and output:** `catdata` 1.2.5, `dplyr` 1.2.1, `ggplot2` 4.0.3, `gridExtra` 2.3, and `knitr` 1.51
+
+:::
+
 ## Further Reading
 
-- Zeileis, Kleiber, and Jackman provide the practical R reference for count-data models, including Poisson, negative binomial, hurdle, and zero-inflated specifications [@zeileis2008].
-- Lambert's paper is the classic zero-inflated Poisson reference [@lambert1992].
-- Mullahy's paper is the foundational reference on modified count-data models, including hurdle-style thinking [@mullahy1986].
+- For the Medicare example and its original economic application, Deb and Trivedi develop a finite-mixture analysis of healthcare use among older adults [@debtrivedi1997].
+- For model fitting, Brooks and colleagues explain `glmmTMB`'s parameterizations and its implementation of zero-inflated generalized linear models [@brooks2017].
+- For model checking, Hartig documents the simulation-based residuals and diagnostic tests provided by DHARMa [@hartig2026].
+- For a broader practical guide in R, Zeileis, Kleiber, and Jackman compare Poisson, negative binomial, hurdle, and zero-inflated regression [@zeileis2008].
+- For the methodological foundations, Lambert introduces zero-inflated Poisson regression, while Mullahy develops modified count models and hurdle-style formulations [@lambert1992; @mullahy1986].
 
 # References
 
