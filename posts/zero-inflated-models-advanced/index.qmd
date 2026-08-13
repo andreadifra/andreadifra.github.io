@@ -43,7 +43,7 @@ This draft covers model choices and extensions beyond the core zero-inflated mod
 - First process: will there be any events?
 - Second process: how many events, conditional on at least one?
 
-![Zero-inflated models treat observed zeros as a mixture of structural and sampling zeros, while hurdle models put all zeros on one side of a participation hurdle and positive counts on the other.](../zero-inflated-models-tutorial/hurdle-vs-zi.svg){#fig-hurdle-vs-zi fig-alt="A hand-drawn comparison diagram showing observed zeros and positive counts split differently by zero-inflated and hurdle models."}
+![Zero-inflated models treat observed zeros as a mixture of structural and sampling zeros, while hurdle models put all zeros on one side of a participation hurdle and positive counts on the other.](figures/hurdle-vs-zi.svg){#fig-hurdle-vs-zi fig-alt="A hand-drawn comparison diagram showing observed zeros and positive counts split differently by zero-inflated and hurdle models."}
 
 ## Mathematical Formulation
 
