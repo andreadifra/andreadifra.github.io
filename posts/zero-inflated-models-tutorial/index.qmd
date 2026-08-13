@@ -1,6 +1,6 @@
 ---
 title: "Zero-Inflated Models: A Practical Tutorial"
-description: "A practical guide to understanding and implementing zero-inflated models in R."
+description: "From excess zeros to a defensible model: a practical guide to testing, diagnosing, and interpreting zero inflation in R."
 image: publication-image.png
 image-alt: "Two latent paths converge into observed count data: an extra-zero path and a count-generating path that can also produce zeros."
 title-block-banner: publication-image.png
@@ -8,7 +8,7 @@ open-graph: true
 twitter-card:
   card-style: summary_large_image
 author: "Andrea Di Francia"
-date: "2026-06-15"
+date: "2026-08-14"
 categories: [statistics, modeling, R, tutorial]
 bibliography: references.bib
 execute:
@@ -55,6 +55,12 @@ mjx-container[display="true"] {
   padding-bottom: 0.25rem;
 }
 
+/* Allow long DOI and project URLs to wrap inside the bibliography rather than
+   widening the full page on small screens. */
+#refs a {
+  overflow-wrap: anywhere;
+}
+
 </style>
 ```
 
@@ -78,8 +84,8 @@ Although they are often introduced for count data, the general framework is not 
 
 This tutorial focuses on count data, where an observed count can arise from two distinct latent processes:
 
-1. A latent state that always produces zero (defined as **structural zeros**).
-2. A standard event-generating process that produces both zeros (called **sampling zeros**) and positive events.
+1. A latent extra-zero state, whose zeros are often called **structural zeros**.
+2. A count-generating state, which produces **sampling zeros** as well as positive counts.
 
 What does this actually mean? Well, suppose you are counting clinic visits. A zero can mean at least two different things:
 
@@ -102,7 +108,7 @@ This distinction will become clearer in the following sections, but for now thes
 
 In each case, the zero may carry information about the process that generated the observation. That still leaves an important modelling caveat: excess zeros are not the same thing as proven structural zeros. A flexible one-process count model can sometimes reproduce many zeros without needing a separate latent class.
 
-# Theoretical Foundation: From GLMs to  Mixture Models
+# Theoretical Foundation: From GLMs to Mixture Models
 
 ## Generalized Linear Models
 
@@ -117,7 +123,7 @@ A GLM connects a linear predictor to the mean of an outcome distribution through
 ![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](glm-pipeline.png){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
 
 Zero-inflated count models use this structure twice: a binary component models membership in the latent extra-zero group, and a count component models the expected outcome among observations in the count-generating group. The original zero-inflated Poisson regression paper framed this as a practical way to model excess zeros in manufacturing defects [@lambert1992]; the same idea now appears across health, ecology, insurance, and many other settings.
-<!-- Review paragraph below, need to sound more editorial -->
+
 Logistic and Poisson regression provide the two building blocks. A short exponential-family refresher first recovers the logit link for a Bernoulli response; the following count-model section then applies the same logic to Poisson regression and its extensions.
 
 ## The Exponential Family
@@ -613,7 +619,7 @@ Here, under the Poisson mean model, poor health is associated with a 29% higher 
 ## Where the Poisson Model Fails
 
 The fitted mean structure does not establish that the Poisson distribution describes the conditional variation. The Pearson residuals provide a direct assessment of equidispersion after adjustment for the predictors.
-<!-- Instead of extracting p-value, the code below prints the value - this is not very scientific and reproducible -->
+
 ```{r}
 #| label: tbl-poisson-overdispersion
 #| code-fold: true
@@ -639,7 +645,7 @@ overdispersion_table <- tibble::tibble(
       big.mark = ","
     ),
     sprintf("%.2f", overdispersion_check$dispersion_ratio),
-    "< 0.001"
+    format.pval(overdispersion_check$p_value, digits = 2, eps = 0.001)
   )
 )
 
@@ -1857,7 +1863,7 @@ The group distributions are broadly similar, with no particular health, sex, or 
 
 Together, these standard checks show that the compact ZINB reproduces the overall zero and low-count frequencies much better than the negative-binomial benchmark. The remaining departures are meaningful but limited in magnitude: residual spread is about 18% above its simulated expectation, the largest uniformity gap is 2.9 percentage points, and 20 of 4,406 observations (0.45%) fall beyond all their simulated values. The age and chronic-condition plots locate further discrepancies mainly at the ends of their observed ranges. The small p-values make these patterns unlikely to be simulation noise; their absolute size and location determine how much they matter in practice.
 
-These results support a calculated working-model choice, and for the sake of this tutorial, I retain the compact ZINB as an **illustrative working model** because it has the lowest information criteria among the fitted candidate specifications, repairs the main zero-frequency discrepancy, and directly represents the two-process question of interest. A fuller analysis would compare substantively motivated nonlinear terms, interactions, and alternative specifications, preferably with out-of-sample assessment. The next subsection interprets the fitted components while carrying these diagnostic limitations into the conclusions.
+These results support a calculated working-model choice, and for the sake of this tutorial, I retain the compact ZINB as an **illustrative working model** because it is effectively tied for the lowest AIC, has the lowest BIC, repairs the main zero-frequency discrepancy, and directly represents the two-process question of interest. A fuller analysis would compare substantively motivated nonlinear terms, interactions, and alternative specifications, preferably with out-of-sample assessment. The next subsection interprets the fitted components while carrying these diagnostic limitations into the conclusions.
 
 ## Interpreting the Zero-Inflated Model
 
@@ -2249,7 +2255,7 @@ We chose the full-refit bootstrap because it carries that joint uncertainty thro
 
 :::
 
-We use 500 replicates to keep the tutorial practical to reproduce. A comparison with 1,000 replicates changed the reported interval endpoints by at most 0.02 after rounding; substantive work should use more replicates when necessary and check that the endpoints are stable. The bootstrap used `r n_workers` local workers and successfully refitted `r format(n_boot_success, big.mark = ",")` of `r format(n_boot, big.mark = ",")` simulated datasets. The interval calculation excludes any refit that fails the convergence and Hessian checks used for the working model; none failed here.
+We use 500 replicates to keep the tutorial practical to reproduce. Substantive work should use more replicates when necessary and check that the interval endpoints are stable. The bootstrap used `r n_workers` local workers and successfully refitted `r format(n_boot_success, big.mark = ",")` of `r format(n_boot, big.mark = ",")` simulated datasets. The interval calculation excludes any refit that fails the convergence and Hessian checks used for the working model; none failed here.
 
 The intervals condition on the observed covariates, the compact specification, and the fitted ZINB data-generating model. They exclude uncertainty from formula selection and residual misspecification, and they do not support a causal interpretation.
 
