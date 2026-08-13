@@ -1,9 +1,9 @@
 ---
 title: "Zero-Inflated Models: A Practical Tutorial"
 description: "From excess zeros to a defensible model: a practical guide to testing, diagnosing, and interpreting zero inflation in R."
-image: publication-image.png
+image: figures/publication-image.png
 image-alt: "Two latent paths converge into observed count data: an extra-zero path and a count-generating path that can also produce zeros."
-title-block-banner: publication-image.png
+title-block-banner: figures/publication-image.png
 open-graph: true
 twitter-card:
   card-style: summary_large_image
@@ -104,7 +104,7 @@ This distinction will become clearer in the following sections, but for now thes
 - **Disease surveillance**: Some locations truly have zero prevalence for a pathogen because the pathogen cannot survive there or has been eradicated (structural zeros). Other locations harbor the pathogen but a given survey fails to detect it during that sampling round (sampling zeros) — e.g., low prevalence or imperfect tests.
 - **Specialist treatments or prescriptions**: Some patients will never be eligible for a specific specialist-only procedure or advanced drug (structural zeros) — think of treatments restricted by age, comorbidity, or insurance coverage. Other patients are eligible but simply don't receive the treatment during the study window (sampling zeros) because they don't yet need it, they defer care, or the treatment is rarely used in short follow-up.
 
-![Healthcare zeros can be interpreted through two possible latent routes: an extra-zero state associated with policy or access barriers, and ordinary non-use during the observation window.](zero-sources.svg){#fig-zero-sources fig-alt="A hand-drawn flow diagram showing two possible routes to a healthcare count of zero: an extra-zero state associated with access or eligibility barriers, and ordinary non-use among people who could have attended."}
+![Healthcare zeros can be interpreted through two possible latent routes: an extra-zero state associated with policy or access barriers, and ordinary non-use during the observation window.](figures/zero-sources.svg){#fig-zero-sources fig-alt="A hand-drawn flow diagram showing two possible routes to a healthcare count of zero: an extra-zero state associated with access or eligibility barriers, and ordinary non-use among people who could have attended."}
 
 In each case, the zero may carry information about the process that generated the observation. That still leaves an important modelling caveat: excess zeros are not the same thing as proven structural zeros. A flexible one-process count model can sometimes reproduce many zeros without needing a separate latent class.
 
@@ -120,7 +120,7 @@ A GLM connects a linear predictor to the mean of an outcome distribution through
 2. **Link function** ($g(\mu_i)=\eta_i$): the transformation connecting the linear predictor to the conditional mean
 3. **Response distribution**: a distribution suited to the outcome, such as Bernoulli for a binary response or Poisson for a count
 
-![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](glm-pipeline.png){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
+![A generalized linear model turns predictors into a linear predictor, transforms it through a link function, and uses the result as the expected value for an observation model.](figures/glm-pipeline.png){#fig-glm-pipeline fig-alt="A hand-drawn left-to-right pipeline: predictors, linear predictor, link function, expected response, and observed outcome distribution."}
 
 Zero-inflated count models use this structure twice: a binary component models membership in the latent extra-zero group, and a count component models the expected outcome among observations in the count-generating group. The original zero-inflated Poisson regression paper framed this as a practical way to model excess zeros in manufacturing defects [@lambert1992]; the same idea now appears across health, ecology, insurance, and many other settings.
 
@@ -769,7 +769,7 @@ When the extra-zero state is active, by definition the number of visits must be 
 
 In essence, and forgetting about notation for a moment, the central idea is that the extra-zero state always produces zero, whereas the count-generating state can produce either zero or a positive count. @fig-zero-inflated-process illustrates this two-stage process.
 
-![A zero-inflated model assigns probability to a latent extra-zero state and uses a count process for observations outside that state.](zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a patient record enters a zero-inflation process, which can produce an extra zero or pass the record to a count process that can produce zero or one or more visits."}
+![A zero-inflated model assigns probability to a latent extra-zero state and uses a count process for observations outside that state.](figures/zero-inflated-process.svg){#fig-zero-inflated-process fig-alt="A hand-drawn two-stage model diagram: a patient record enters a zero-inflation process, which can produce an extra zero or pass the record to a count process that can produce zero or one or more visits."}
 
 For the Medicare data, the two components therefore ask different questions. The zero-inflation component asks which patient profiles receive a higher probability of the extra-zero state. The count component asks how expected visits change within the count-generating state.
 
