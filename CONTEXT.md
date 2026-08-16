@@ -2,6 +2,16 @@
 
 ## Domain Language
 
+### Canonical site URL
+
+The canonical site URL is the single public origin used for navigation,
+metadata, feeds, sitemaps, indexing, and shared links. It belongs to the
+website's public identity and must remain independent of the current hosting
+provider.
+
+Provider-owned deployment URLs are preview or fallback addresses, not the
+canonical site URL.
+
 ### Publication image
 
 A publication image is the single canonical visual identity of a post across
