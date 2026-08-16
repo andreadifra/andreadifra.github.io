@@ -53,3 +53,6 @@ format:
     page-layout: full
     mainfont: "Manrope, sans-serif"
     monofont: "Fira Code, monospace"
+    grid: 
+      body-width: 960px
+      margin-width: 215px
