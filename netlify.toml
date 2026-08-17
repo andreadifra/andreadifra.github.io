@@ -1,0 +1,9 @@
+[build]
+  publish = "_site"
+
+[[plugins]]
+  package = "@quarto/netlify-plugin-quarto"
+
+  [plugins.inputs]
+    version = "v1.9.37"
+    cmd = "render --use-freezer"

@@ -48,7 +48,7 @@ try {
   await Deno.writeTextFile(`${outputDirectory}/sitemap.xml`, sitemap);
 
   const scriptPath = await Deno.realPath(
-    new URL("../scripts/exclude-hire-me-from-sitemap.ts", import.meta.url),
+    new URL("../scripts/enforce-hire-me-privacy.ts", import.meta.url),
   );
   const command = new Deno.Command("quarto", {
     args: ["run", scriptPath],

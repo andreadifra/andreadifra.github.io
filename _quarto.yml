@@ -3,11 +3,11 @@ project:
   preview:
     port: 7921
   post-render:
-    - scripts/exclude-hire-me-from-sitemap.ts
+    - scripts/enforce-hire-me-privacy.ts
   render:
     - "*.qmd"
     - "posts/*/index.qmd"
-    - "!zero-inflated-models-tutorial.qmd"
+    - "!posts/zero-inflated-models-advanced/index.qmd"
 
 website:
   title: "Andrea Di Francia"

@@ -5,6 +5,8 @@
 /.luarc.json
 /.quarto-preflight/
 /.venv/
+/node_modules/
+/.scratch/
 
 # R specific
 .Rproj.user

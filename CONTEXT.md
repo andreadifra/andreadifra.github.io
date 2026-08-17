@@ -40,8 +40,12 @@ Do not introduce a generalized private-pages seam unless a second private
 direct-link page appears. The current design should optimize for the single
 `hire-me` page.
 
-For now, this is a documented publishing contract rather than an automated
-check. Changes to `hire-me` should be reviewed against the contract before
+The discovery portion of this contract is automated. Document metadata keeps
+the page out of site search, and `scripts/enforce-hire-me-privacy.ts` removes it
+from the sitemap and LLM output. The Netlify frozen-render integration test
+also checks navigation, listings, feeds, search, sitemap, LLM output, direct-link
+rendering, and the page's `noindex, nofollow` metadata. Styling, interactive
+behaviour, and downloadable documents still require manual review before
 publishing.
 
 The sitemap exclusion is intentionally `hire-me`-specific. Keep the post-render
