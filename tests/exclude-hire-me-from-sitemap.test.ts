@@ -21,10 +21,6 @@ const expected = `<?xml version="1.0" encoding="UTF-8"?>
     <loc>https://example.com/writing/projects.html</loc>
     <lastmod>2026-08-16T12:00:00.000Z</lastmod>
   </url>
-  <url>
-    <loc>https://example.com/hire-me.html</loc>
-    <lastmod>2026-08-16T12:00:00.000Z</lastmod>
-  </url>
 </urlset>
 `;
 
@@ -50,9 +46,14 @@ try {
   const scriptPath = await Deno.realPath(
     new URL("../scripts/enforce-hire-me-privacy.ts", import.meta.url),
   );
-  const command = new Deno.Command("quarto", {
-    args: ["run", scriptPath],
+  const command = new Deno.Command(Deno.execPath(), {
+    args: ["run", "--allow-all", scriptPath],
     cwd: projectDirectory,
+    env: {
+      ...Deno.env.toObject(),
+      PATH: "",
+      QUARTO_PROJECT_OUTPUT_DIR: outputDirectory,
+    },
     stderr: "piped",
     stdout: "piped",
   });
@@ -71,4 +72,4 @@ try {
   await Deno.remove(projectDirectory, { recursive: true });
 }
 
-console.log("PASS: canonical hire-me URL is excluded and other URLs remain");
+console.log("PASS: hire-me URLs are excluded without Quarto on PATH");

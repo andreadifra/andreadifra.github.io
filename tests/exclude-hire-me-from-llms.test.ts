@@ -37,9 +37,14 @@ try {
   const scriptPath = await Deno.realPath(
     new URL("../scripts/enforce-hire-me-privacy.ts", import.meta.url),
   );
-  const result = await new Deno.Command("quarto", {
-    args: ["run", scriptPath],
+  const result = await new Deno.Command(Deno.execPath(), {
+    args: ["run", "--allow-all", scriptPath],
     cwd: projectDirectory,
+    env: {
+      ...Deno.env.toObject(),
+      PATH: "",
+      QUARTO_PROJECT_OUTPUT_DIR: outputDirectory,
+    },
     stderr: "piped",
     stdout: "piped",
   }).output();

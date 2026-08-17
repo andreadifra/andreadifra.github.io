@@ -1,32 +1,3 @@
-interface QuartoProjectInspection {
-  dir: string;
-  config: {
-    project?: {
-      "output-dir"?: string;
-    };
-    website?: {
-      "site-url"?: string;
-    };
-  };
-}
-
-async function inspectProject(): Promise<QuartoProjectInspection> {
-  const result = await new Deno.Command("quarto", {
-    args: ["inspect"],
-    stderr: "piped",
-    stdout: "piped",
-  }).output();
-
-  if (!result.success) {
-    const stderr = new TextDecoder().decode(result.stderr);
-    throw new Error(`Unable to inspect the Quarto project:\n${stderr}`);
-  }
-
-  return JSON.parse(
-    new TextDecoder().decode(result.stdout),
-  ) as QuartoProjectInspection;
-}
-
 async function transformFileIfPresent(
   path: string,
   transform: (content: string) => string,
@@ -49,17 +20,28 @@ async function transformFileIfPresent(
   }
 }
 
-function filterSitemap(sitemap: string, hireMeUrl: string): string {
+function hasOutputFilename(destination: string, filename: string): boolean {
+  try {
+    const pathname = new URL(destination, "https://local.invalid/").pathname;
+    return pathname.endsWith(`/${filename}`);
+  } catch {
+    return false;
+  }
+}
+
+function filterSitemap(sitemap: string): string {
   return sitemap.replace(
     /^[ \t]*<url(?:\s[^>]*)?>[\s\S]*?^[ \t]*<\/url>\r?\n?/gm,
     (urlEntry) => {
       const location = urlEntry.match(/<loc>\s*([^<]+?)\s*<\/loc>/)?.[1];
-      return location === hireMeUrl ? "" : urlEntry;
+      return location && hasOutputFilename(location, "hire-me.html")
+        ? ""
+        : urlEntry;
     },
   );
 }
 
-function filterLlmsIndex(llmsIndex: string, hireMeUrl: string): string {
+function filterLlmsIndex(llmsIndex: string): string {
   return llmsIndex
     .split(/(?<=\n)/)
     .filter((line) => {
@@ -67,7 +49,8 @@ function filterLlmsIndex(llmsIndex: string, hireMeUrl: string): string {
         /^\s*-\s+\[[^\]]+\]\(([^)]+)\)\s*\r?\n?$/,
       )?.[1];
 
-      return destination !== hireMeUrl;
+      return !destination ||
+        !hasOutputFilename(destination, "hire-me.llms.md");
     })
     .join("");
 }
@@ -83,29 +66,16 @@ async function removeIfPresent(path: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const project = await inspectProject();
-  const siteUrl = project.config.website?.["site-url"];
-
-  if (!siteUrl) {
-    throw new Error(
-      "website.site-url must be configured to enforce hire-me privacy",
-    );
-  }
-
-  const canonicalRoot = siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`;
-  const outputDirectory = project.config.project?.["output-dir"] ?? "_site";
-  const outputRoot = `${project.dir}/${outputDirectory}`;
-
-  const hireMePageUrl = new URL("hire-me.html", canonicalRoot).href;
-  const hireMeLlmsUrl = new URL("hire-me.llms.md", canonicalRoot).href;
+  const outputDirectory = Deno.env.get("QUARTO_PROJECT_OUTPUT_DIR") ?? "_site";
+  const outputRoot = await Deno.realPath(outputDirectory);
 
   await transformFileIfPresent(
     `${outputRoot}/sitemap.xml`,
-    (sitemap) => filterSitemap(sitemap, hireMePageUrl),
+    filterSitemap,
   );
   await transformFileIfPresent(
     `${outputRoot}/llms.txt`,
-    (llmsIndex) => filterLlmsIndex(llmsIndex, hireMeLlmsUrl),
+    filterLlmsIndex,
   );
   await removeIfPresent(`${outputRoot}/hire-me.llms.md`);
 }
