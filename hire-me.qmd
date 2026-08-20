@@ -236,7 +236,8 @@ I am currently prioritising senior individual contributor roles where I can keep
 <details>
 <summary>What kinds of roles would <u><i>not</i></u> be a good fit?</summary>
 <p>
-I am less interested in roles centred mainly on product analytics, experiment reporting, dashboards, frequent stakeholder presentations, or one-off analysis pieces. I am looking for work where the main contribution is building durable technical capabilities, not primarily coordinating, reporting, or presenting.
+I am less interested in roles centred mainly on product analytics, experiment reporting, dashboards, frequent stakeholder presentations, or one-off analysis pieces. I am looking for work where the main contribution is building durable technical capabilities, not primarily coordinating, reporting, or presenting. </p>
+<p>
 I am also unlikely to thrive in heavily meeting-driven roles where the day-to-day work is mostly alignment rather than technical problem solving.
 </p>
 </details>
@@ -376,7 +377,7 @@ How compensation discussions are best handled.
 <details>
 <summary>What are your compensation expectations?</summary>
 <p>
-With the usual disclaimer that it will depend heavily on other non-monetary factors as well as benefits, for contract roles I would typically expect a <u><i>minimum</i></u> day rate of around £500 for outside IR35, and £650 for inside IR35. For permanent roles, a total compensation range of around £80k-£120k would be a reasonable starting point for discussions, depending on the factors mentioned above.
+With the usual disclaimer that it will depend heavily on other non-monetary factors as well as benefits, for contract roles I would typically expect a <u><i>minimum</i></u> day rate of around £450 for outside IR35, and £600 for inside IR35. For permanent roles, a total compensation range of around £80k-£120k would be a reasonable starting point for discussions, depending on the factors mentioned above.
 </p>
 </details>
 
