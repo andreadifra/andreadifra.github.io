@@ -1,7 +1,7 @@
 # Andrea's Quarto Website
 
 Personal website and blog built with [Quarto](https://quarto.org/) and deployed
-to GitHub Pages at [andreadifra.github.io](https://andreadifra.github.io/).
+through Netlify at [andreadifrancia.com](https://andreadifrancia.com/).
 
 ## Stack and workflow
 
@@ -9,6 +9,7 @@ to GitHub Pages at [andreadifra.github.io](https://andreadifra.github.io/).
 - Bootstrap Cosmo base theme with custom SCSS layers
 - Post execution caching via `freeze: auto`, with `_freeze/` committed for
   reproducible renders
+- Git-driven Netlify Deploy Previews and production deploys
 
 Validated with **Quarto 1.9.37**.
 
@@ -33,11 +34,10 @@ Run a full site build when you need to confirm the rendered output:
 quarto render
 ```
 
-Publish to GitHub Pages when changes are ready to go live:
-
-```powershell
-quarto publish gh-pages
-```
+Push changes through a pull request to obtain a Netlify Deploy Preview. Merges
+to `master` deploy production automatically after the preview and review gates
+pass. See [`docs/operations/hosting.md`](docs/operations/hosting.md) for the
+normal publishing, rollback, and GitHub Pages recovery procedures.
 
 ## Project structure
 
@@ -57,6 +57,7 @@ quarto publish gh-pages
 |-- theme-dark.scss
 |-- docs/
 |   |-- chunk-profiling.md
+|   |-- operations/hosting.md
 |   `-- scss-reference.md
 |-- scripts/
 |   `-- knitr-profile.R

@@ -1,6 +1,7 @@
 import { assert } from "./helpers.ts";
 
 const projectRoot = new URL("..", import.meta.url);
+const canonicalOrigin = "https://andreadifrancia.com/";
 const netlifyConfig = await Deno.readTextFile(
   new URL("netlify.toml", projectRoot),
 );
@@ -84,6 +85,27 @@ try {
     assert(
       !/(?:hire-me|hire me)/i.test(content),
       `${path} must not advertise the private recruiter page`,
+    );
+  }
+
+  const canonicalDiscoveryFiles = [
+    "sitemap.xml",
+    "llms.txt",
+    "blog.xml",
+    "index.xml",
+  ];
+
+  for (const path of canonicalDiscoveryFiles) {
+    const content = await Deno.readTextFile(new URL(path, outputRoot));
+    assert(
+      content.includes(canonicalOrigin),
+      `${path} must use the canonical public origin`,
+    );
+    assert(
+      !/(?:andreadifra\.github\.io|andreadifrancia\.netlify\.app)/i.test(
+        content,
+      ),
+      `${path} must remain independent of hosting-provider URLs`,
     );
   }
 

@@ -3,7 +3,8 @@
 ## Project overview
 
 - Personal Quarto website for Andrea Di Francia
-- Published via GitHub Pages
+- Published through Netlify at the provider-independent canonical domain
+- GitHub Pages remains available temporarily as the migration fallback
 - Local development environment is Windows with PowerShell
 - Quarto theme stack uses Bootstrap Cosmo plus custom SCSS layers
 
@@ -46,7 +47,9 @@ If all else fails, use websearch tools if the tools above don't answer the quest
 
 - Use `quarto preview` for iterative work. Check that there isn't already a preview running by opening the port specified in the `_quarto.yml` file in a browser. Use the browser to see changes live and check outputs during development.
 - Use `quarto render` only when you need a full build confirmation.
-- Use `quarto publish gh-pages` only when publishing changes.
+- Normal publishing is Git-driven through Netlify; do not deploy production
+  manually.
+- Use `quarto publish gh-pages` only for an approved recovery operation.
 - Posts use `freeze: auto` in `posts/_metadata.yml`.
 - Keep `_freeze/` committed so cached post outputs remain available for site
   builds.
