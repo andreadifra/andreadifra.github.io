@@ -1,0 +1,10 @@
+{
+  "name": "andreadifra-website",
+  "private": true,
+  "scripts": {
+    "test": "quarto run tests/exclude-hire-me-from-sitemap.test.ts && quarto run tests/exclude-hire-me-from-llms.test.ts && quarto run tests/netlify-deployment-config.test.ts && quarto run tests/netlify-frozen-render.test.ts"
+  },
+  "dependencies": {
+    "@quarto/netlify-plugin-quarto": "0.0.5"
+  }
+}
