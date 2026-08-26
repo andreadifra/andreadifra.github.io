@@ -39,6 +39,9 @@ const packageLock = JSON.parse(
 const netlifyConfig = await Deno.readTextFile(
   new URL("netlify.toml", projectRoot),
 );
+const quartoConfig = await Deno.readTextFile(
+  new URL("_quarto.yml", projectRoot),
+);
 
 assert(
   packageJson.dependencies?.["@quarto/netlify-plugin-quarto"] === "0.0.5",
@@ -65,6 +68,14 @@ assert(
 assert(
   /^\s*cmd = "render --use-freezer"$/m.test(netlifyConfig),
   "The hosted build must force committed frozen computation output",
+);
+assert(
+  /^\s*site-url: https:\/\/andreadifrancia\.com\/$/m.test(quartoConfig),
+  "Quarto must use the provider-independent canonical domain",
+);
+assert(
+  !/site-url:\s*https:\/\/[^\s]*netlify\.app/i.test(quartoConfig),
+  "The canonical site URL must not use a Netlify-owned hostname",
 );
 
 const ignoredSite = await runCommand("git", ["check-ignore", "_site"]);
